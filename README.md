@@ -8,9 +8,36 @@ agencji public affairs, z podziałem na dziedziny.
 
 - **Next.js 16** (App Router) + TypeScript + Tailwind CSS 4 — minimalistyczny,
   responsywny interfejs (desktop i mobile)
-- **Prisma 7** + SQLite (`better-sqlite3`) — łatwo zmienić na PostgreSQL do
-  produkcji (patrz `prisma/schema.prisma` i `prisma.config.ts`)
+- **Prisma 7** + **PostgreSQL** (`pg` + `@prisma/adapter-pg`) — gotowe pod
+  wdrożenie na Vercel (patrz `prisma/schema.prisma` i `src/lib/db.ts`)
 - **cheerio** — parsowanie stron RCL (brak oficjalnego API)
+
+## Wdrożenie na Vercel (krok po kroku)
+
+1. **Baza danych.** Aplikacja potrzebuje bazy PostgreSQL (SQLite nie nadaje
+   się do środowiska serverless — dysk nie jest trwały między wywołaniami).
+   Najprościej:
+   - Wejdź na [vercel.com](https://vercel.com) i zaloguj się kontem GitHub.
+   - "Add New… → Project" → wybierz to repozytorium (`monitoring`) → **Deploy**
+     (pierwszy build może się nie powieść, bo nie ma jeszcze bazy — to normalne).
+   - W panelu projektu wejdź w zakładkę **Storage → Create Database → Postgres**
+     (Vercel poprowadzi Cię przez założenie darmowej bazy, np. Neon) i połącz ją
+     z projektem — Vercel sam doda zmienną środowiskową `DATABASE_URL`.
+2. **Utworzenie tabel w bazie.** Skopiuj wartość `DATABASE_URL` z zakładki
+   Storage (albo Settings → Environment Variables) do pliku `.env` na swoim
+   komputerze (skopiuj `.env.example` do `.env` i wklej connection string),
+   a następnie lokalnie uruchom:
+   ```bash
+   npm install
+   npm run db:push    # tworzy tabele w bazie
+   npm run db:seed    # wypełnia dziedziny i przykładowe dane
+   ```
+3. **Redeploy.** Wróć do Vercela i kliknij **Redeploy** (albo po prostu zrób
+   dowolny nowy commit/push) — tym razem build powinien się udać i dostaniesz
+   publiczny link, np. `monitoring-xyz.vercel.app`.
+
+Od tej pory każdy `git push` do gałęzi `main` (lub tej, którą podłączysz w
+Vercel) automatycznie aktualizuje żywą wersję.
 
 ## Źródła danych
 
@@ -65,10 +92,15 @@ przefiltrowanym do ich dziedzin), zgodnie z planowanym etapem 2.
 
 ## Uruchomienie lokalne
 
+Wymagana jest baza PostgreSQL — najprościej użyć tej samej, którą założysz
+przy okazji wdrożenia na Vercel (patrz sekcja wyżej), albo dowolnej innej
+(np. darmowe [Neon](https://neon.tech) lub [Supabase](https://supabase.com)).
+
 ```bash
+cp .env.example .env   # i wklej tam swój DATABASE_URL
 npm install
-npm run db:migrate   # tworzy bazę SQLite i uruchamia migracje
-npm run db:seed       # seeduje dziedziny + próbuje pobrać dane ze źródeł
+npm run db:push         # tworzy tabele w bazie
+npm run db:seed          # seeduje dziedziny + próbuje pobrać dane ze źródeł
 npm run dev
 ```
 
