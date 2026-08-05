@@ -2,27 +2,61 @@
   "name": "monitoring",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "build:electron": "next build && node scripts/prepare-electron.js",
+    "electron:start": "electron .",
+    "dist": "npm run build:electron && electron-builder --win"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "build": {
+    "appId": "pl.trinitytrust.monitoring",
+    "productName": "Trinity Trust Monitoring",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/main.js",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/resources/template.db",
+        "to": "template.db"
+      }
+    ],
+    "afterPack": "scripts/after-pack.js",
+    "npmRebuild": false,
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "TrinityTrustMonitoring-Setup-${version}.${ext}"
+    }
+  },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "better-sqlite3": "^13.0.3",
     "cheerio": "^1.2.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "next": "16.3.0",
-    "pg": "^8.22.0",
     "prisma": "^7.9.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -32,12 +66,18 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/pg": "^8.20.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@prisma/adapter-better-sqlite3": {
+      "better-sqlite3": "$better-sqlite3"
+    }
   }
 }

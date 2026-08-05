@@ -20,6 +20,9 @@
 # production
 /build
 
+# electron-builder output (instalatory .exe)
+/release
+
 # misc
 .DS_Store
 *.pem
@@ -37,6 +40,8 @@ yarn-error.log*
 # sqlite database (local dev only)
 *.db
 *.db-journal
+# ...poza szablonem bazy dołączanym do wersji desktopowej (Electron)
+!electron/resources/template.db
 
 # vercel
 .vercel

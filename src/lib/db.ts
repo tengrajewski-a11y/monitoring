@@ -1,12 +1,15 @@
 import { PrismaClient } from "../generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
+// W wersji desktopowej (Electron) DATABASE_URL wskazuje na plik bazy w
+// katalogu danych użytkownika (ustawiane przez electron/main.js przed
+// uruchomieniem serwera Next.js). Lokalnie fallback na plik w repo.
+const adapter = new PrismaBetterSqlite3({
+  url: process.env.DATABASE_URL ?? "file:./dev.db",
 });
 
 export const prisma =
