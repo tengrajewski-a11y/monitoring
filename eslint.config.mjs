@@ -12,10 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Electron desktop build output/scripts (plain Node.js CommonJS, poza aplikacją Next.js):
-    "release/**",
-    "electron/**",
-    "scripts/**",
   ]),
 ]);
 

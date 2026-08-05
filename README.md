@@ -1,71 +1,43 @@
-# Trinity Trust — Monitoring Legislacyjny (wersja desktop / Windows)
+# Trinity Trust — Monitoring Legislacyjny
 
-Aplikacja desktopowa (Windows) do monitoringu legislacyjnego dla Trinity
-Trust Corporate Counsel. Etap 1: monitoring prawa krajowego i unijnego
-istotnego dla klientów agencji public affairs, z podziałem na dziedziny.
-
-## Dla użytkownika: jak uruchomić
-
-1. W folderze `release/` znajdź plik **`Trinity Trust Monitoring 0.1.0.exe`**.
-2. Skopiuj go gdziekolwiek na Windows (10 lub 11) i kliknij dwukrotnie.
-   To wersja **portable** — nie wymaga instalacji, sam się rozpakowuje do
-   folderu tymczasowego i uruchamia.
-3. Przy pierwszym uruchomieniu aplikacja tworzy swoją bazę danych w
-   `%APPDATA%\trinity-trust-monitoring\monitoring.db`, wstępnie wypełnioną
-   dziedzinami i przykładowymi danymi. Kolejne uruchomienia używają tej
-   samej bazy — dane (w tym ręczne odświeżenia) są trwałe między sesjami.
-4. Przycisk **"Odśwież dane"** na pulpicie próbuje pobrać świeże dane z
-   Sejmu RP, RCL i EUR-Lex (wymaga połączenia z internetem).
-
-Windows Defender/SmartScreen może przy pierwszym uruchomieniu pokazać
-ostrzeżenie "Windows chroniło Twój komputer" — to normalne dla aplikacji
-niepodpisanych certyfikatem wydawcy (podpisywanie kodu to płatna usługa).
-Kliknij **"Więcej informacji" → "Uruchom mimimo to"**.
+Wewnętrzna aplikacja monitoringu legislacyjnego dla Trinity Trust Corporate
+Counsel. Etap 1: monitoring prawa krajowego i unijnego istotnego dla klientów
+agencji public affairs, z podziałem na dziedziny.
 
 ## Stos technologiczny
 
-- **Next.js 16** (App Router) + TypeScript + Tailwind CSS 4 — interfejs
-- **Electron** — natywna powłoka desktopowa (Windows), uruchamia lokalnie
-  zbudowany serwer Next.js (`output: "standalone"`) i otwiera go w oknie
-- **Prisma 7** + **SQLite** (`better-sqlite3`, biblioteka N-API — działa
-  bez przebudowy pod konkretną wersję Node/Electron) — baza lokalna,
-  trzymana w katalogu danych użytkownika, działa w pełni offline
+- **Next.js 16** (App Router) + TypeScript + Tailwind CSS 4 — minimalistyczny,
+  responsywny interfejs (desktop i mobile)
+- **Prisma 7** + **PostgreSQL** (`pg` + `@prisma/adapter-pg`) — gotowe pod
+  wdrożenie na Vercel (patrz `prisma/schema.prisma` i `src/lib/db.ts`)
 - **cheerio** — parsowanie stron RCL (brak oficjalnego API)
 
-## Budowanie instalatora samodzielnie
+## Wdrożenie na Vercel (krok po kroku)
 
-```bash
-npm install
-npm run dist
-```
+1. **Baza danych.** Aplikacja potrzebuje bazy PostgreSQL (SQLite nie nadaje
+   się do środowiska serverless — dysk nie jest trwały między wywołaniami).
+   Najprościej:
+   - Wejdź na [vercel.com](https://vercel.com) i zaloguj się kontem GitHub.
+   - "Add New… → Project" → wybierz to repozytorium (`monitoring`) → **Deploy**
+     (pierwszy build może się nie powieść, bo nie ma jeszcze bazy — to normalne).
+   - W panelu projektu wejdź w zakładkę **Storage → Create Database → Postgres**
+     (Vercel poprowadzi Cię przez założenie darmowej bazy, np. Neon) i połącz ją
+     z projektem — Vercel sam doda zmienną środowiskową `DATABASE_URL`.
+2. **Utworzenie tabel w bazie.** Skopiuj wartość `DATABASE_URL` z zakładki
+   Storage (albo Settings → Environment Variables) do pliku `.env` na swoim
+   komputerze (skopiuj `.env.example` do `.env` i wklej connection string),
+   a następnie lokalnie uruchom:
+   ```bash
+   npm install
+   npm run db:push    # tworzy tabele w bazie
+   npm run db:seed    # wypełnia dziedziny i przykładowe dane
+   ```
+3. **Redeploy.** Wróć do Vercela i kliknij **Redeploy** (albo po prostu zrób
+   dowolny nowy commit/push) — tym razem build powinien się udać i dostaniesz
+   publiczny link, np. `monitoring-xyz.vercel.app`.
 
-To polecenie: buduje Next.js w trybie `standalone`, dokłada `public/` i
-statyki, po czym electron-builder pakuje wszystko w `release/` jako
-przenośny plik `.exe` (target `portable` w konfiguracji `build.win` w
-`package.json`). Budowa była testowana i weryfikowana w środowisku Linux
-(z zainstalowanym `wine64` — potrzebnym tylko do etapu podpisywania/pakowania
-NSIS; sam plik wynikowy nie wymaga Wine do uruchomienia, bo to zwykły
-plik `.exe`). Jeśli wolisz zbudować to na prawdziwym Windows albo przez
-GitHub Actions (`windows-latest`), zadziała identycznie — `npm run dist`
-jest platformowo niezależne.
-
-### Jak to działa pod spodem
-
-- `electron/main.js` — proces główny Electron: przy starcie kopiuje
-  szablonową bazę (`electron/resources/template.db`) do katalogu danych
-  użytkownika (jeśli jeszcze nie istnieje), uruchamia `server.js`
-  (zbudowany standalone serwer Next.js) jako podproces z odpowiednim
-  `DATABASE_URL`, czeka aż odpowie, i otwiera okno wskazujące na
-  `http://127.0.0.1:4317`.
-- `scripts/prepare-electron.js` — po `next build` dokłada `public/` i
-  `.next/static/` do `.next/standalone/` (Next.js świadomie ich tam nie
-  kopiuje) oraz usuwa artefakty cache'u tracingu, które psują pakowanie.
-- `scripts/after-pack.js` (hook `afterPack` electron-buildera) — kopiuje
-  cały `.next/standalone` (razem z prawdziwym `node_modules`, w tym
-  natywnym plikiem `better-sqlite3/prebuilds/win32-x64.node`) do
-  spakowanej aplikacji. Zrobione ręcznie, bo domyślna obsługa
-  `extraResources` w electron-builderze przy tym projekcie gubiła
-  zależności natywne.
+Od tej pory każdy `git push` do gałęzi `main` (lub tej, którą podłączysz w
+Vercel) automatycznie aktualizuje żywą wersję.
 
 ## Źródła danych
 
@@ -76,10 +48,26 @@ jest platformowo niezależne.
 | EUR-Lex / CELLAR | zapytania SPARQL do publicznego endpointu CELLAR | `src/lib/connectors/eurlex.ts` |
 | Monitoring mediów | zaplanowany na kolejny etap (model danych już gotowy: `SourceType.MEDIA`) | — |
 
-Gdy połączenie z API/HTML się nie powiedzie (brak internetu, zmiana
-struktury odpowiedzi), każdy konektor automatycznie przełącza się na
-realistyczne dane przykładowe (`isFallback: true`, widoczne w UI jako
-plakietka „dane przykładowe”), więc aplikacja zawsze pokazuje spójny widok.
+**Ważne:** to środowisko deweloperskie (sandbox) ma zablokowany dostęp
+sieciowy do `api.sejm.gov.pl`, `legislacja.rcl.gov.pl` i `eur-lex.europa.eu`
+(polityka sieciowa środowiska). Każdy konektor jest w pełni zaimplementowany
+zgodnie z udokumentowanym kontraktem danego źródła, ale **nie został
+zweryfikowany na żywo**. Gdy połączenie z API/HTML się nie powiedzie (błąd
+sieci, timeout, zmiana struktury odpowiedzi), konektor automatycznie
+przełącza się na realistyczne dane przykładowe (`isFallback: true`,
+widoczne w UI jako plakietka „dane przykładowe”), więc aplikacja zawsze
+pokazuje spójny widok.
+
+**Przed wdrożeniem produkcyjnym** (środowisko z pełnym dostępem do
+internetu) należy:
+1. Uruchomić `npm run db:seed` lub wywołać `POST /api/ingest` i sprawdzić
+   logi (`IngestionLog` w bazie) — czy `status = "success"`, a nie
+   `"fallback"`.
+2. W razie `"fallback"` sprawdzić `errorMessage` w logu i dostroić:
+   - nazwy pól w odpowiedzi JSON Sejmu (`src/lib/connectors/sejm.ts`),
+   - selektory CSS dla RCL (`src/lib/connectors/rcl.ts`) — RCL nie ma API,
+     więc zmiana wyglądu strony może wymagać aktualizacji selektorów,
+   - nazwy predykatów RDF/SPARQL dla EUR-Lex (`src/lib/connectors/eurlex.ts`).
 
 ## Dziedziny monitoringu
 
@@ -92,37 +80,47 @@ opisów, kolorów i słów kluczowych klasyfikujących dokumenty):
 4. Handel i e-commerce
 
 Dodanie nowej dziedziny: dopisz wpis w `DOMAINS` w `src/lib/domains.ts`,
-zregeneruj szablon bazy (`npm run db:seed`, potem skopiuj `dev.db` do
-`electron/resources/template.db`) i przebuduj (`npm run dist`).
+uruchom `npm run db:seed`.
 
 ## Model danych
 
 Zobacz `prisma/schema.prisma`. Kluczowe modele: `Domain`, `MonitoringItem`
 (dokument z dowolnego źródła), `ItemDomain` (tagowanie wiele-do-wielu),
 `IngestionLog` (historia synchronizacji), oraz `Client`/`ClientDomain`/`User`
-— przygotowane pod przyszły portal kliencki, gdyby wrócono do wersji web.
+— przygotowane pod przyszły portal kliencki (logowanie klientów z widokiem
+przefiltrowanym do ich dziedzin), zgodnie z planowanym etapem 2.
 
-## Rozwój lokalny (bez Electrona, sam Next.js w przeglądarce)
+## Uruchomienie lokalne
+
+Wymagana jest baza PostgreSQL — najprościej użyć tej samej, którą założysz
+przy okazji wdrożenia na Vercel (patrz sekcja wyżej), albo dowolnej innej
+(np. darmowe [Neon](https://neon.tech) lub [Supabase](https://supabase.com)).
 
 ```bash
-cp .env.example .env
+cp .env.example .env   # i wklej tam swój DATABASE_URL
 npm install
-npm run db:migrate   # tworzy lokalną bazę SQLite (dev.db) i uruchamia migracje
-npm run db:seed      # seeduje dziedziny + próbuje pobrać dane ze źródeł
+npm run db:push         # tworzy tabele w bazie
+npm run db:seed          # seeduje dziedziny + próbuje pobrać dane ze źródeł
 npm run dev
 ```
 
+Ręczne odświeżenie danych: przycisk „Odśwież dane” na pulpicie, lub
+`POST /api/ingest` (opcjonalnie zabezpieczone nagłówkiem
+`x-ingest-secret`, jeśli ustawiono zmienną `INGEST_SECRET`).
+
 ## Logo
 
-W repozytorium nie ma pliku graficznego logo — marka w interfejsie
+W repozytorium nie ma pliku graficznego logo — sesja robocza nie miała
+dostępu do przesłanego obrazu jako pliku, dlatego marka w interfejsie
 (`src/components/Logo.tsx`) jest odtworzona typograficznie (szeryfowy
-napis „Trinity Trust” + rozstrzelony podpis „Corporate Counsel”). Aby użyć
-docelowego pliku graficznego, podmień `src/components/Logo.tsx` i dodaj
-plik do `public/`.
+napis „Trinity Trust” + rozstrzelony podpis „Corporate Counsel”), zgodnie
+ze stylem przesłanego logo. Aby użyć docelowego pliku graficznego, podmień
+zawartość `src/components/Logo.tsx` na `<Image src="/logo.svg" .../>` i
+umieść plik w `public/logo.svg` (lub `.png`).
 
 ## Plany na kolejny etap
 
 - Monitoring mediów (prasa, portale branżowe, social media)
-- Ikona aplikacji (obecnie domyślna ikona Electrona)
-- Podpisywanie kodu (certyfikat wydawcy), żeby zniknęło ostrzeżenie SmartScreen
-- Automatyczne odświeżanie danych w tle (harmonogram) zamiast tylko ręcznego przycisku
+- Portal kliencki z logowaniem i widokiem przefiltrowanym do dziedzin klienta
+- Powiadomienia e-mail/webhook o nowych pozycjach w obserwowanych dziedzinach
+- Harmonogram cykliczny (cron) wywołujący `POST /api/ingest`
