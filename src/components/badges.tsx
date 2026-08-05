@@ -1,14 +1,5 @@
 import type { ItemStatus, SourceType, ItemKind } from "../generated/prisma/client";
-
-const STATUS_LABEL: Record<ItemStatus, string> = {
-  NOWY: "Nowy",
-  W_TOKU: "W toku",
-  PRZYJETY: "Przyjęty",
-  ODRZUCONY: "Odrzucony",
-  OPUBLIKOWANY: "Opublikowany",
-  WYCOFANY: "Wycofany",
-  NIEZNANY: "Nieznany",
-};
+import { STATUS_LABEL, SOURCE_LABEL, KIND_LABEL } from "../lib/labels";
 
 const STATUS_STYLE: Record<ItemStatus, string> = {
   NOWY: "bg-blue-50 text-blue-800 border-blue-200",
@@ -30,13 +21,6 @@ export function StatusBadge({ status }: { status: ItemStatus }) {
   );
 }
 
-const SOURCE_LABEL: Record<SourceType, string> = {
-  SEJM: "Sejm RP",
-  RCL: "RCL",
-  EUR_LEX: "EUR-Lex",
-  MEDIA: "Media",
-};
-
 export function SourceBadge({ source }: { source: SourceType }) {
   return (
     <span className="inline-flex items-center rounded border border-border bg-surface px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-muted">
@@ -44,18 +28,6 @@ export function SourceBadge({ source }: { source: SourceType }) {
     </span>
   );
 }
-
-const KIND_LABEL: Record<ItemKind, string> = {
-  USTAWA: "Ustawa",
-  ROZPORZADZENIE: "Rozporządzenie",
-  PROJEKT: "Projekt",
-  DYREKTYWA_UE: "Dyrektywa UE",
-  ROZPORZADZENIE_UE: "Rozporządzenie UE",
-  KOMUNIKAT_UE: "Komunikat UE",
-  WNIOSEK_UE: "Wniosek UE",
-  ARTYKUL_MEDIALNY: "Artykuł",
-  INNE: "Inne",
-};
 
 export function KindLabel({ kind }: { kind: ItemKind }) {
   return <span className="text-xs text-muted">{KIND_LABEL[kind]}</span>;

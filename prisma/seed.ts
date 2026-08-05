@@ -53,13 +53,16 @@ async function main() {
   await seedDomains();
   await seedDemoClient();
 
-  console.log("Uruchamiam import danych ze źródeł (Sejm, RCL, EUR-Lex)...");
-  const results = await ingestAll();
+  console.log("Uruchamiam import danych ze źródeł (Sejm, RCL, EUR-Lex, komisje)...");
+  const { results, komisje } = await ingestAll();
   for (const r of results) {
     console.log(
       `  ${r.source}: ${r.items.length} pozycji (${r.isFallback ? "dane przykładowe — brak połączenia z API" : "dane na żywo"})`,
     );
   }
+  console.log(
+    `  KOMISJE: ${komisje.committees} komisji, ${komisje.sittings} posiedzeń (${komisje.isFallback ? "dane przykładowe — brak połączenia z API" : "dane na żywo"})`,
+  );
 }
 
 main()

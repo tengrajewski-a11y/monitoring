@@ -19,6 +19,28 @@ export type ItemFilters = {
   q?: string;
 };
 
+/**
+ * Wyszukiwanie po frazach: fraza jest dzielona na pojedyncze słowa, a każde
+ * z nich musi wystąpić (bez rozróżniania wielkości liter) w tytule, opisie,
+ * instytucji lub aktualnym etapie — dzięki temu np. "energia sejm" znajdzie
+ * dokumenty zawierające oba słowa niezależnie od kolejności.
+ */
+function buildSearchWhere(q: string) {
+  const words = q.trim().split(/\s+/).filter(Boolean).slice(0, 8);
+  if (words.length === 0) return {};
+
+  return {
+    AND: words.map((word) => ({
+      OR: [
+        { title: { contains: word, mode: "insensitive" as const } },
+        { summary: { contains: word, mode: "insensitive" as const } },
+        { institution: { contains: word, mode: "insensitive" as const } },
+        { stage: { contains: word, mode: "insensitive" as const } },
+      ],
+    })),
+  };
+}
+
 export async function getItems(filters: ItemFilters = {}, take = 50) {
   return prisma.monitoringItem.findMany({
     where: {
@@ -27,14 +49,7 @@ export async function getItems(filters: ItemFilters = {}, take = 50) {
       ...(filters.domainSlug
         ? { domains: { some: { domain: { slug: filters.domainSlug } } } }
         : {}),
-      ...(filters.q
-        ? {
-            OR: [
-              { title: { contains: filters.q } },
-              { summary: { contains: filters.q } },
-            ],
-          }
-        : {}),
+      ...(filters.q ? buildSearchWhere(filters.q) : {}),
     },
     include: {
       domains: { include: { domain: true } },
@@ -91,5 +106,39 @@ export async function getIngestionLogs() {
   return prisma.ingestionLog.findMany({
     orderBy: { startedAt: "desc" },
     take: 20,
+  });
+}
+
+export async function getCommittees() {
+  return prisma.committee.findMany({
+    where: { active: true },
+    orderBy: { name: "asc" },
+    include: {
+      _count: { select: { sittings: true } },
+      sittings: { orderBy: { date: "desc" }, take: 1 },
+    },
+  });
+}
+
+export async function getCommitteeByCode(code: string) {
+  return prisma.committee.findUnique({
+    where: { code },
+    include: {
+      sittings: { orderBy: [{ date: "desc" }, { number: "desc" }] },
+    },
+  });
+}
+
+/** Ostatnie zdarzenia (nowe pozycje / zmiany statusu i etapu) — zasila stronę "Alerty". */
+export async function getRecentEvents(filters: { domainSlug?: string } = {}, take = 50) {
+  return prisma.itemEvent.findMany({
+    where: filters.domainSlug
+      ? { item: { domains: { some: { domain: { slug: filters.domainSlug } } } } }
+      : {},
+    include: {
+      item: { include: { domains: { include: { domain: true } } } },
+    },
+    orderBy: { createdAt: "desc" },
+    take,
   });
 }

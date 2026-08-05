@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Brak autoryzacji" }, { status: 401 });
   }
 
-  const results = await ingestAll();
+  const { results, komisje } = await ingestAll();
   return NextResponse.json({
     ok: true,
     results: results.map((r) => ({
@@ -25,5 +25,6 @@ export async function POST(request: Request) {
       itemsUpdated: r.itemsUpdated,
       errorMessage: r.errorMessage,
     })),
+    komisje,
   });
 }

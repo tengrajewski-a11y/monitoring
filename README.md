@@ -43,10 +43,24 @@ Vercel) automatycznie aktualizuje żywą wersję.
 
 | Źródło | Sposób integracji | Plik |
 |---|---|---|
-| Sejm RP (api.sejm.gov.pl) | oficjalne REST API (procesy legislacyjne + akty ELI/Dziennik Ustaw) | `src/lib/connectors/sejm.ts` |
+| Sejm RP (api.sejm.gov.pl) | oficjalne REST API (procesy legislacyjne, akty ELI z Dziennika Ustaw i Monitora Polskiego) | `src/lib/connectors/sejm.ts` |
+| Komisje sejmowe i ich posiedzenia | oficjalne REST API (`/committees`, `/committees/{code}/sittings`) | `src/lib/connectors/komisje.ts` |
 | Rządowe Centrum Legislacji | parsowanie HTML list projektów (`/lista?typeId=...`) | `src/lib/connectors/rcl.ts` |
 | EUR-Lex / CELLAR | zapytania SPARQL do publicznego endpointu CELLAR | `src/lib/connectors/eurlex.ts` |
 | Monitoring mediów | zaplanowany na kolejny etap (model danych już gotowy: `SourceType.MEDIA`) | — |
+
+## Funkcje
+
+- **Pulpit** — przegląd statystyk, ostatniej aktywności i stanu synchronizacji źródeł
+- **Monitoring** — pełna lista dokumentów z filtrami (dziedzina/źródło/status) i
+  wyszukiwaniem po frazach (dzielone na słowa, każde musi wystąpić — bez
+  rozróżniania wielkości liter, przeszukuje tytuł, opis, instytucję i etap)
+- **Komisje** — lista komisji sejmowych z relacjami z ostatnich posiedzeń
+  (`/komisje`, `/komisje/[kod]`); model danych ma pole na transkrypcję
+  (np. z transkrypcji mowy na tekst), gdy ta funkcja zostanie podłączona
+- **Alerty** (`/alerty`) — chronologiczny zapis nowych pozycji oraz zmian
+  statusu/etapu wykrytych przy kolejnych importach, filtrowalny po dziedzinie
+- **Dziedziny** — konfiguracja i przegląd dziedzin monitoringu
 
 **Ważne:** to środowisko deweloperskie (sandbox) ma zablokowany dostęp
 sieciowy do `api.sejm.gov.pl`, `legislacja.rcl.gov.pl` i `eur-lex.europa.eu`
@@ -120,7 +134,13 @@ umieść plik w `public/logo.svg` (lub `.png`).
 
 ## Plany na kolejny etap
 
+- Logowanie i panel administracyjny (role: agencja / klient / admin —
+  model `User`/`Client` w schemacie już to przewiduje)
+- Powiadomienia e-mail o zmianach z `/alerty` (obecnie tylko w aplikacji;
+  wymaga wyboru dostawcy poczty, np. Resend)
+- Transkrypcja (speech-to-text) posiedzeń komisji — pole `transcript` w
+  modelu `CommitteeSitting` jest już przygotowane
+- Korespondencja z klientem (log komunikacji per klient)
 - Monitoring mediów (prasa, portale branżowe, social media)
-- Portal kliencki z logowaniem i widokiem przefiltrowanym do dziedzin klienta
-- Powiadomienia e-mail/webhook o nowych pozycjach w obserwowanych dziedzinach
-- Harmonogram cykliczny (cron) wywołujący `POST /api/ingest`
+- Harmonogram cykliczny (cron) wywołujący `POST /api/ingest` zamiast
+  tylko ręcznego przycisku „Odśwież dane”

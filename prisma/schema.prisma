@@ -94,6 +94,7 @@ enum ItemKind {
   USTAWA
   ROZPORZADZENIE
   PROJEKT
+  AKT_MP
   DYREKTYWA_UE
   ROZPORZADZENIE_UE
   KOMUNIKAT_UE
@@ -172,4 +173,40 @@ model IngestionLog {
   itemsNew    Int        @default(0)
   itemsUpdated Int       @default(0)
   errorMessage String?
+}
+
+// --- Komisje sejmowe --------------------------------------------------------
+
+/// Komisja sejmowa (np. Komisja do Spraw Energii, Klimatu i Aktywów Państwowych)
+model Committee {
+  id          String   @id @default(cuid())
+  code        String   @unique // kod komisji w API Sejmu, np. "ESK"
+  name        String
+  nameGenitive String?
+  type        String? // np. "STANDING" (stała) / "EXTRAORDINARY" (nadzwyczajna)
+  scope       String? // zakres kompetencji
+  phone       String?
+  active      Boolean  @default(true)
+  isFallback  Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  sittings CommitteeSitting[]
+}
+
+/// Posiedzenie komisji — "relacja z komisji"
+model CommitteeSitting {
+  id           String    @id @default(cuid())
+  committeeId  String
+  committee    Committee @relation(fields: [committeeId], references: [id], onDelete: Cascade)
+  number       Int
+  date         DateTime?
+  agenda       String? // porządek obrad
+  remoteUrl    String? // link do transmisji/nagrania
+  transcript   String? // transkrypcja (np. speech-to-text), jeśli dostępna
+  isFallback   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  @@unique([committeeId, number])
+  @@index([date])
 }

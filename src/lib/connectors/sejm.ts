@@ -7,6 +7,7 @@ import { classifyTextToDomainSlugs } from "../domains";
  * Wykorzystywane endpointy:
  *  - GET /sejm/term{term}/processes        — lista procesów legislacyjnych (druki, projekty ustaw)
  *  - GET /eli/acts/DU/{year}                — akty ogłoszone w Dzienniku Ustaw (System Informacji Prawnej ELI)
+ *  - GET /eli/acts/MP/{year}                — akty ogłoszone w Monitorze Polskim (uchwały, obwieszczenia, zarządzenia)
  *
  * Uwaga: dokładny kształt pól odpowiedzi API bywa aktualizowany przez Kancelarię Sejmu.
  * Parsowanie poniżej jest maksymalnie defensywne (opcjonalne pola, wiele wariantów nazw),
@@ -82,7 +83,7 @@ function mapProcess(p: RawProcess): NormalizedItem | null {
   };
 }
 
-function mapEliAct(a: RawEliAct): NormalizedItem | null {
+function mapEliActDU(a: RawEliAct): NormalizedItem | null {
   const address = a.ELI || a.address;
   const title = a.title;
   if (!address || !title) return null;
@@ -97,6 +98,28 @@ function mapEliAct(a: RawEliAct): NormalizedItem | null {
     title,
     summary: a.type,
     institution: "Dziennik Ustaw",
+    url: `https://eli.gov.pl/eli/${address}`,
+    documentDate: a.promulgation ? new Date(a.promulgation) : undefined,
+    publishedAt: a.announcementDate ? new Date(a.announcementDate) : undefined,
+    domainSlugs: classifyTextToDomainSlugs(classifyText),
+    raw: a,
+  };
+}
+
+function mapEliActMP(a: RawEliAct): NormalizedItem | null {
+  const address = a.ELI || a.address;
+  const title = a.title;
+  if (!address || !title) return null;
+
+  const classifyText = `${title} ${(a.keywords ?? []).join(" ")}`;
+
+  return {
+    externalId: `sejm-eli-${address}`,
+    kind: "AKT_MP",
+    status: "OPUBLIKOWANY",
+    title,
+    summary: a.type,
+    institution: "Monitor Polski",
     url: `https://eli.gov.pl/eli/${address}`,
     documentDate: a.promulgation ? new Date(a.promulgation) : undefined,
     publishedAt: a.announcementDate ? new Date(a.announcementDate) : undefined,
@@ -122,16 +145,21 @@ async function fetchJson<T>(url: string, timeoutMs = 15_000): Promise<T> {
 
 export async function fetchSejmItems(): Promise<ConnectorResult> {
   try {
-    const [processes, eliActs] = await Promise.all([
+    const year = new Date().getFullYear();
+    const [processes, duActs, mpActs] = await Promise.all([
       fetchJson<RawProcess[]>(`${API_BASE}/sejm/term${CURRENT_TERM}/processes`),
-      fetchJson<RawEliAct[]>(
-        `${API_BASE}/eli/acts/DU/${new Date().getFullYear()}`,
-      ).catch(() => [] as RawEliAct[]),
+      fetchJson<RawEliAct[]>(`${API_BASE}/eli/acts/DU/${year}`).catch(
+        () => [] as RawEliAct[],
+      ),
+      fetchJson<RawEliAct[]>(`${API_BASE}/eli/acts/MP/${year}`).catch(
+        () => [] as RawEliAct[],
+      ),
     ]);
 
     const items: NormalizedItem[] = [
       ...processes.map(mapProcess).filter((x): x is NormalizedItem => x !== null),
-      ...eliActs.map(mapEliAct).filter((x): x is NormalizedItem => x !== null),
+      ...duActs.map(mapEliActDU).filter((x): x is NormalizedItem => x !== null),
+      ...mpActs.map(mapEliActMP).filter((x): x is NormalizedItem => x !== null),
     ];
 
     if (items.length === 0) {
@@ -218,6 +246,18 @@ export function sejmFallbackItems(): NormalizedItem[] {
       documentDate: daysAgo(30),
       publishedAt: daysAgo(28),
       domainSlugs: ["energetyka-i-klimat"],
+    },
+    {
+      externalId: "sejm-eli-demo-mp-2026-540",
+      kind: "AKT_MP",
+      status: "OPUBLIKOWANY",
+      title: "Obwieszczenie Ministra Zdrowia z dnia 12 lipca 2026 r. w sprawie wykazu leków refundowanych",
+      summary: "Obwieszczenie (Monitor Polski)",
+      institution: "Monitor Polski",
+      url: "https://eli.gov.pl/eli/MP/2026/540",
+      documentDate: daysAgo(24),
+      publishedAt: daysAgo(23),
+      domainSlugs: ["zdrowie-i-farmacja"],
     },
   ];
 }

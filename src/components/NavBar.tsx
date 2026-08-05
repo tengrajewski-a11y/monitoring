@@ -7,9 +7,11 @@ import { Logo } from "./Logo";
 
 const LINKS = [
   { href: "/", label: "Pulpit" },
-  { href: "/monitoring", label: "Monitoring legislacyjny" },
+  { href: "/monitoring", label: "Monitoring" },
+  { href: "/komisje", label: "Komisje" },
+  { href: "/alerty", label: "Alerty" },
   { href: "/dziedziny", label: "Dziedziny" },
-  { href: "/media", label: "Monitoring mediów" },
+  { href: "/media", label: "Media" },
 ];
 
 export function NavBar() {

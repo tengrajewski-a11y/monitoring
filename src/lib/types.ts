@@ -2,6 +2,7 @@ export type NormalizedItemKind =
   | "USTAWA"
   | "ROZPORZADZENIE"
   | "PROJEKT"
+  | "AKT_MP"
   | "DYREKTYWA_UE"
   | "ROZPORZADZENIE_UE"
   | "KOMUNIKAT_UE"
