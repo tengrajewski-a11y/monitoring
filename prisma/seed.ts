@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+import bcrypt from "bcryptjs";
 import { prisma } from "../src/lib/db";
 import { DOMAINS } from "../src/lib/domains";
 import { ingestAll } from "../src/lib/ingest";
@@ -49,9 +51,34 @@ async function seedDemoClient() {
   console.log("Zseedowano klienta demonstracyjnego.");
 }
 
+async function seedAdminUser() {
+  const email = (process.env.ADMIN_EMAIL || "admin@trinity-trust.pl").toLowerCase();
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    console.log(`Konto administratora już istnieje (${email}) — pomijam.`);
+    return;
+  }
+
+  const password = process.env.ADMIN_PASSWORD || crypto.randomBytes(9).toString("base64url").slice(0, 12);
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await prisma.user.create({
+    data: { email, name: "Administrator", role: "ADMIN", passwordHash },
+  });
+
+  console.log("═══════════════════════════════════════════════════════");
+  console.log("  Utworzono konto administratora — zaloguj się na /login:");
+  console.log(`  E-mail:  ${email}`);
+  console.log(`  Hasło:   ${password}`);
+  console.log("  (zapisz to hasło teraz — nie da się go później podejrzeć)");
+  console.log("═══════════════════════════════════════════════════════");
+}
+
 async function main() {
   await seedDomains();
   await seedDemoClient();
+  await seedAdminUser();
 
   console.log("Uruchamiam import danych ze źródeł (Sejm, RCL, EUR-Lex, komisje)...");
   const { results, komisje } = await ingestAll();

@@ -19,25 +19,56 @@ agencji public affairs, z podziałem na dziedziny.
    Najprościej:
    - Wejdź na [vercel.com](https://vercel.com) i zaloguj się kontem GitHub.
    - "Add New… → Project" → wybierz to repozytorium (`monitoring`) → **Deploy**
-     (pierwszy build może się nie powieść, bo nie ma jeszcze bazy — to normalne).
+     (pierwszy build może się nie powieść, bo nie ma jeszcze bazy/sekretu — to normalne).
    - W panelu projektu wejdź w zakładkę **Storage → Create Database → Postgres**
      (Vercel poprowadzi Cię przez założenie darmowej bazy, np. Neon) i połącz ją
      z projektem — Vercel sam doda zmienną środowiskową `DATABASE_URL`.
-2. **Utworzenie tabel w bazie.** Skopiuj wartość `DATABASE_URL` z zakładki
-   Storage (albo Settings → Environment Variables) do pliku `.env` na swoim
-   komputerze (skopiuj `.env.example` do `.env` i wklej connection string),
-   a następnie lokalnie uruchom:
+   - W zakładce **Settings → Environment Variables** dodaj `AUTH_SECRET`
+     (dowolny losowy, długi ciąg znaków — np. wygenerowany poleceniem
+     `openssl rand -base64 32` na swoim komputerze). Bez tego logowanie nie zadziała.
+2. **Utworzenie tabel w bazie i konta administratora.** Skopiuj wartość
+   `DATABASE_URL` z zakładki Storage (albo Settings → Environment Variables)
+   do pliku `.env` na swoim komputerze (skopiuj `.env.example` do `.env` i
+   wklej connection string oraz ten sam `AUTH_SECRET`), a następnie lokalnie
+   uruchom:
    ```bash
    npm install
    npm run db:push    # tworzy tabele w bazie
-   npm run db:seed    # wypełnia dziedziny i przykładowe dane
+   npm run db:seed    # wypełnia dziedziny, przykładowe dane i konto administratora
    ```
+   `db:seed` wypisze w konsoli e-mail i hasło startowego konta administratora
+   (`admin@trinity-trust.pl`, chyba że ustawisz własny `ADMIN_EMAIL` w `.env`
+   przed seedowaniem) — zapisz je, nie da się ich później podejrzeć.
 3. **Redeploy.** Wróć do Vercela i kliknij **Redeploy** (albo po prostu zrób
    dowolny nowy commit/push) — tym razem build powinien się udać i dostaniesz
    publiczny link, np. `monitoring-xyz.vercel.app`.
+4. **Zaloguj się** pod `/login` danymi z kroku 2. Jako administrator masz
+   dostęp do zakładki „Panel admina" (`/panel-admina`) — tam dodasz kolejnych
+   użytkowników zespołu, klientów i skonfigurujesz dziedziny.
 
 Od tej pory każdy `git push` do gałęzi `main` (lub tej, którą podłączysz w
 Vercel) automatycznie aktualizuje żywą wersję.
+
+## Logowanie i panel administracyjny
+
+Cała aplikacja (poza `/login`) wymaga zalogowania — wymusza to `src/proxy.ts`
+(odpowiednik dawnego `middleware.ts` w Next.js 16). Sesja to podpisany token
+JWT (biblioteka `jose`) w ciasteczku httpOnly, bez zewnętrznych usług
+logowania (żadnych kluczy Google/OAuth do skonfigurowania).
+
+- **Role:** `ADMIN` (pełny dostęp + panel administracyjny), `AGENCY` (zespół
+  agencji, korzysta z aplikacji bez dostępu do panelu), `CLIENT` (na razie
+  tylko w modelu danych — portal kliencki z widokiem przefiltrowanym do
+  własnych dziedzin to kolejny etap).
+- **Panel admina** (`/panel-admina`, tylko rola `ADMIN`):
+  - *Użytkownicy* — tworzenie kont (hasło startowe generowane losowo i
+    pokazywane raz przy tworzeniu), zmiana roli, włączanie/wyłączanie konta.
+  - *Klienci* — dodawanie klientów i przypisywanie im interesujących dziedzin
+    (fundament pod przyszły portal kliencki).
+  - *Dziedziny* — edycja nazwy, opisu, koloru i widoczności (słowa kluczowe
+    do klasyfikacji nadal edytuje się w `src/lib/domains.ts`).
+- Hasła są hashowane (`bcryptjs`), nigdy nie są przechowywane ani wyświetlane
+  w postaci jawnej poza jednorazowym komunikatem tuż po utworzeniu konta.
 
 ## Źródła danych
 
@@ -111,12 +142,15 @@ przy okazji wdrożenia na Vercel (patrz sekcja wyżej), albo dowolnej innej
 (np. darmowe [Neon](https://neon.tech) lub [Supabase](https://supabase.com)).
 
 ```bash
-cp .env.example .env   # i wklej tam swój DATABASE_URL
+cp .env.example .env   # i wklej tam swój DATABASE_URL oraz AUTH_SECRET
 npm install
 npm run db:push         # tworzy tabele w bazie
-npm run db:seed          # seeduje dziedziny + próbuje pobrać dane ze źródeł
+npm run db:seed          # seeduje dziedziny, dane przykładowe i konto administratora
 npm run dev
 ```
+
+Zaloguj się pod `http://localhost:3000/login` danymi wypisanymi przez
+`db:seed` w konsoli.
 
 Ręczne odświeżenie danych: przycisk „Odśwież dane” na pulpicie, lub
 `POST /api/ingest` (opcjonalnie zabezpieczone nagłówkiem
@@ -134,8 +168,8 @@ umieść plik w `public/logo.svg` (lub `.png`).
 
 ## Plany na kolejny etap
 
-- Logowanie i panel administracyjny (role: agencja / klient / admin —
-  model `User`/`Client` w schemacie już to przewiduje)
+- Portal kliencki (rola `CLIENT`) z widokiem przefiltrowanym do dziedzin
+  klienta — logowanie i model danych już gotowe, brakuje samego widoku
 - Powiadomienia e-mail o zmianach z `/alerty` (obecnie tylko w aplikacji;
   wymaga wyboru dostawcy poczty, np. Resend)
 - Transkrypcja (speech-to-text) posiedzeń komisji — pole `transcript` w

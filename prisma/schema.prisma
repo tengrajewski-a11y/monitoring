@@ -66,13 +66,15 @@ model ClientDomain {
 
 /// Użytkownik (na start: zespół agencji; w kolejnym etapie także klienci)
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  role      UserRole @default(AGENCY)
-  clientId  String?
-  client    Client?  @relation(fields: [clientId], references: [id])
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  role         UserRole @default(AGENCY)
+  active       Boolean  @default(true)
+  clientId     String?
+  client       Client?  @relation(fields: [clientId], references: [id])
+  createdAt    DateTime @default(now())
 }
 
 enum UserRole {
