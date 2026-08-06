@@ -70,6 +70,23 @@ logowania (żadnych kluczy Google/OAuth do skonfigurowania).
 - Hasła są hashowane (`bcryptjs`), nigdy nie są przechowywane ani wyświetlane
   w postaci jawnej poza jednorazowym komunikatem tuż po utworzeniu konta.
 
+## Transkrypcja posiedzeń komisji
+
+Na stronie `/komisje/[kod]` zespół agencji (role `AGENCY`/`ADMIN`) może dla
+każdego posiedzenia:
+
+- **Wgrać plik audio z nagrania** — jest automatycznie transkrybowany przez
+  [OpenAI Whisper API](https://platform.openai.com/docs/api-reference/audio)
+  (wymaga zmiennej środowiskowej `OPENAI_API_KEY`; koszt ok. 0,006 USD za
+  minutę nagrania). Limit Whisper API to 25 MB na plik — dłuższe nagrania
+  dziel na fragmenty i wgrywaj po kolei, każdy dopisuje się do transkrypcji.
+- **Wkleić/poprawić tekst ręcznie** — działa zawsze, niezależnie od tego, czy
+  `OPENAI_API_KEY` jest ustawiony; przydatne też do poprawek po transkrypcji AI.
+
+Bez klucza `OPENAI_API_KEY` aplikacja jasno komunikuje, że automatyczna
+transkrypcja jest wyłączona, i pozwala korzystać tylko z opcji ręcznej —
+funkcja nie blokuje działania reszty aplikacji.
+
 ## Źródła danych
 
 | Źródło | Sposób integracji | Plik |
@@ -87,8 +104,9 @@ logowania (żadnych kluczy Google/OAuth do skonfigurowania).
   wyszukiwaniem po frazach (dzielone na słowa, każde musi wystąpić — bez
   rozróżniania wielkości liter, przeszukuje tytuł, opis, instytucję i etap)
 - **Komisje** — lista komisji sejmowych z relacjami z ostatnich posiedzeń
-  (`/komisje`, `/komisje/[kod]`); model danych ma pole na transkrypcję
-  (np. z transkrypcji mowy na tekst), gdy ta funkcja zostanie podłączona
+  (`/komisje`, `/komisje/[kod]`), z transkrypcją: automatyczną (wgrywasz plik
+  audio z nagrania, transkrybuje go OpenAI Whisper) albo ręczną (wklejasz
+  gotowy tekst) — widoczne dla zespołu agencji i administratorów
 - **Alerty** (`/alerty`) — chronologiczny zapis nowych pozycji oraz zmian
   statusu/etapu wykrytych przy kolejnych importach, filtrowalny po dziedzinie
 - **Dziedziny** — konfiguracja i przegląd dziedzin monitoringu
@@ -172,8 +190,6 @@ umieść plik w `public/logo.svg` (lub `.png`).
   klienta — logowanie i model danych już gotowe, brakuje samego widoku
 - Powiadomienia e-mail o zmianach z `/alerty` (obecnie tylko w aplikacji;
   wymaga wyboru dostawcy poczty, np. Resend)
-- Transkrypcja (speech-to-text) posiedzeń komisji — pole `transcript` w
-  modelu `CommitteeSitting` jest już przygotowane
 - Korespondencja z klientem (log komunikacji per klient)
 - Monitoring mediów (prasa, portale branżowe, social media)
 - Harmonogram cykliczny (cron) wywołujący `POST /api/ingest` zamiast

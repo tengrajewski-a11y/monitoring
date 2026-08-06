@@ -3,8 +3,13 @@ import { notFound } from "next/navigation";
 import { getCommitteeByCode } from "@/lib/queries";
 import { FallbackNotice } from "@/components/badges";
 import { COMMITTEE_TYPE_LABEL } from "@/lib/labels";
+import { TranscriptPanel } from "@/components/TranscriptPanel";
+import { getCurrentUser } from "@/lib/auth";
+import { isTranscriptionConfigured } from "@/lib/transcription";
 
 export const dynamic = "force-dynamic";
+// Transkrypcja dłuższych nagrań przez Whisper API może potrwać kilka minut.
+export const maxDuration = 300;
 
 export default async function KomisjaDetailPage({
   params,
@@ -12,8 +17,10 @@ export default async function KomisjaDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const committee = await getCommitteeByCode(code);
+  const [committee, user] = await Promise.all([getCommitteeByCode(code), getCurrentUser()]);
   if (!committee) notFound();
+
+  const canEditTranscript = user?.role === "ADMIN" || user?.role === "AGENCY";
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,15 +90,23 @@ export default async function KomisjaDetailPage({
                   Zobacz transmisję/nagranie ↗
                 </a>
               )}
-              {sitting.transcript && (
-                <details className="mt-3">
-                  <summary className="cursor-pointer text-sm font-medium text-foreground">
-                    Transkrypcja
-                  </summary>
-                  <p className="mt-2 whitespace-pre-line text-sm text-muted">
-                    {sitting.transcript}
-                  </p>
-                </details>
+              {canEditTranscript ? (
+                <TranscriptPanel
+                  sittingId={sitting.id}
+                  transcript={sitting.transcript}
+                  transcriptionConfigured={isTranscriptionConfigured()}
+                />
+              ) : (
+                sitting.transcript && (
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-sm font-medium text-foreground">
+                      Transkrypcja
+                    </summary>
+                    <p className="mt-2 whitespace-pre-line text-sm text-muted">
+                      {sitting.transcript}
+                    </p>
+                  </details>
+                )
               )}
             </div>
           ))}

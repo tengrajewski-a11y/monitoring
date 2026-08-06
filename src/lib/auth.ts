@@ -15,3 +15,10 @@ export async function requireUser(): Promise<SessionPayload> {
   if (!user) throw new Error("Brak zalogowanego użytkownika.");
   return user;
 }
+
+/** Zespół agencji (AGENCY/ADMIN) — wyklucza rolę CLIENT, np. dla operacji edycyjnych. */
+export async function requireStaff(): Promise<SessionPayload> {
+  const user = await requireUser();
+  if (user.role === "CLIENT") throw new Error("Brak uprawnień.");
+  return user;
+}
