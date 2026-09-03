@@ -9,7 +9,8 @@ agencji public affairs, z podziałem na dziedziny.
 - **Next.js 16** (App Router) + TypeScript + Tailwind CSS 4 — minimalistyczny,
   responsywny interfejs (desktop i mobile)
 - **Prisma 7** + **PostgreSQL** (`pg` + `@prisma/adapter-pg`) — gotowe pod
-  wdrożenie na Vercel (patrz `prisma/schema.prisma` i `src/lib/db.ts`)
+  wdrożenie na Vercel albo samodzielny VPS (patrz `prisma/schema.prisma`
+  i `src/lib/db.ts`)
 - **cheerio** — parsowanie stron RCL (brak oficjalnego API)
 
 ## Wdrożenie na Vercel (krok po kroku)
@@ -48,6 +49,83 @@ agencji public affairs, z podziałem na dziedziny.
 
 Od tej pory każdy `git push` do gałęzi `main` (lub tej, którą podłączysz w
 Vercel) automatycznie aktualizuje żywą wersję.
+
+## Samodzielny hosting na VPS (np. home.pl) zamiast Vercela
+
+**Ważne, sprawdzone przy tym projekcie:** zwykły hosting współdzielony
+home.pl (Business/Professional/Premium — ten z panelem klienta i bazami
+MySQL/PostgreSQL "z automatu") **nie obsługuje aplikacji Node.js** —
+obsługuje tylko PHP, Perl i Python. Ta aplikacja (Next.js) tam nie
+zadziała, niezależnie od konfiguracji. Node.js w home.pl działa wyłącznie
+na usłudze **VPS Linux** (własny system Ubuntu/Debian, dostęp root przez
+SSH) — od ok. 45 zł netto/mies. (czasem promocje od kilku zł/mies. przy
+płatności rocznej). To jedyny sposób, żeby "hostować na własnym serwerze"
+tę aplikację w home.pl. Poniższa instrukcja dotyczy VPS Linux (Ubuntu
+22.04/24.04) — zadziała identycznie na VPS w dowolnej innej firmie.
+
+1. **Zamów VPS Linux** w home.pl z systemem Ubuntu 24.04 (lub Debian 12).
+   Po ok. 15 minutach dostaniesz dane do logowania SSH (adres IP,
+   użytkownik, hasło/klucz).
+2. **Zaloguj się przez SSH** (z Windows: PuTTY albo `ssh` w Terminalu
+   Windows 11; z Mac/Linux: `ssh root@adres-ip-vps`).
+3. **Zainstaluj wymagane oprogramowanie** (jednorazowo):
+   ```bash
+   apt update && apt upgrade -y
+   # Node.js 22 LTS
+   curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+   apt install -y nodejs git nginx postgresql postgresql-contrib
+   npm install -g pm2
+   ```
+4. **Utwórz bazę danych PostgreSQL** na VPS:
+   ```bash
+   sudo -u postgres psql -c "CREATE USER monitoring WITH PASSWORD 'wymysl-haslo';"
+   sudo -u postgres psql -c "CREATE DATABASE monitoring OWNER monitoring;"
+   ```
+   Connection string do `.env`: `postgresql://monitoring:wymysl-haslo@localhost:5432/monitoring`
+   (jeśli wolisz użyć bazy PostgreSQL już dostępnej w Twoim koncie
+   hostingowym home.pl zamiast instalować własną — zapytaj wsparcie
+   home.pl, czy ta baza przyjmuje połączenia spoza ich sieci wewnętrznej;
+   często bazy na hostingu współdzielonym są dostępne tylko lokalnie).
+5. **Pobierz kod z GitHub:**
+   ```bash
+   cd /var/www
+   git clone https://github.com/TWOJ-LOGIN/monitoring.git
+   cd monitoring
+   cp .env.example .env
+   nano .env   # wklej DATABASE_URL z kroku 4, AUTH_SECRET (openssl rand -base64 32), opcjonalnie OPENAI_API_KEY
+   ```
+6. **Zainstaluj, zbuduj i uruchom:**
+   ```bash
+   npm ci
+   npm run db:push
+   npm run db:seed    # zapisz wypisany e-mail/hasło administratora
+   npm run build
+   pm2 start ecosystem.config.js
+   pm2 save
+   pm2 startup        # ustawia autostart po restarcie serwera — wykonaj polecenie, które PM2 wypisze
+   ```
+7. **Skonfiguruj Nginx** (reverse proxy z portu 80/443 na aplikację
+   działającą na porcie 3000) — użyj szablonu `deploy/nginx.conf.example`:
+   ```bash
+   cp deploy/nginx.conf.example /etc/nginx/sites-available/monitoring
+   nano /etc/nginx/sites-available/monitoring   # podmień twojadomena.pl na swoją domenę
+   ln -s /etc/nginx/sites-available/monitoring /etc/nginx/sites-enabled/
+   nginx -t && systemctl reload nginx
+   ```
+8. **Podepnij domenę** — w panelu klienta home.pl (albo tam, gdzie masz
+   zarejestrowaną domenę) ustaw rekord DNS **A** wskazujący na adres IP VPS.
+9. **Włącz HTTPS** (Let's Encrypt, darmowe, automatyczne odnawianie):
+   ```bash
+   apt install -y certbot python3-certbot-nginx
+   certbot --nginx -d twojadomena.pl -d www.twojadomena.pl
+   ```
+
+**Kolejne wdrożenia po zmianach w kodzie** (na VPS, w katalogu repo):
+```bash
+bash deploy/deploy.sh
+```
+Ten skrypt sam pobiera zmiany z GitHuba, instaluje zależności, synchronizuje
+bazę, buduje aplikację i bezprzestojowo przeładowuje proces PM2.
 
 ## Logowanie i panel administracyjny
 
