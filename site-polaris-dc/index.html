@@ -268,7 +268,8 @@
     </a>
     <nav class="links">
       <a href="#o-inwestycji">O inwestycji</a>
-      <a href="#o-firmie">O firmie</a>
+      <!-- SEKCJA "O FIRMIE" UKRYTA — aby przywrócić link w menu, usuń ten komentarz i znacznik poniżej (patrz README.md, sekcja "Przywracanie zakładki O firmie") -->
+      <!-- <a href="#o-firmie">O firmie</a> -->
       <a href="#harmonogram">Harmonogram</a>
       <a href="#wizualizacje">Wizualizacje</a>
       <a href="#fakty-i-mity">Fakty i mity</a>
@@ -279,7 +280,7 @@
   </div>
   <nav class="links" id="mobileMenu" style="display:none;flex-direction:column;gap:0;padding:0 24px 18px;">
     <a href="#o-inwestycji" style="padding:12px 0;border-bottom:1px solid var(--line);">O inwestycji</a>
-    <a href="#o-firmie" style="padding:12px 0;border-bottom:1px solid var(--line);">O firmie</a>
+    <!-- <a href="#o-firmie" style="padding:12px 0;border-bottom:1px solid var(--line);">O firmie</a> -->
     <a href="#harmonogram" style="padding:12px 0;border-bottom:1px solid var(--line);">Harmonogram</a>
     <a href="#wizualizacje" style="padding:12px 0;border-bottom:1px solid var(--line);">Wizualizacje</a>
     <a href="#fakty-i-mity" style="padding:12px 0;border-bottom:1px solid var(--line);">Fakty i mity</a>
@@ -341,6 +342,13 @@
     </div>
   </section>
 
+  <!-- ============================================================
+       SEKCJA "O FIRMIE" — UKRYTA NA ŻYCZENIE.
+       Aby przywrócić: usuń linię otwierającą ten komentarz (na samej
+       górze tego bloku) oraz linię "END SEKCJA O FIRMIE" na samym
+       dole bloku, a także dwa linki w menu zakomentowane wyżej.
+       Pełna instrukcja krok po kroku: README.md.
+       ============================================================
   <section id="o-firmie" class="section-alt">
     <div class="wrap">
       <div class="eyebrow">O firmie</div>
@@ -381,8 +389,9 @@
       </div>
     </div>
   </section>
+  END SEKCJA O FIRMIE -->
 
-  <section id="harmonogram">
+  <section id="harmonogram" class="section-alt">
     <div class="wrap">
       <div class="eyebrow">Harmonogram</div>
       <h2>Etapy realizacji</h2>
@@ -418,7 +427,7 @@
     </div>
   </section>
 
-  <section id="wizualizacje" class="section-alt">
+  <section id="wizualizacje">
     <div class="wrap">
       <div class="eyebrow">Wizualizacje</div>
       <h2>Jak będzie wyglądał kampus</h2>
@@ -440,7 +449,7 @@
     </div>
   </section>
 
-  <section id="fakty-i-mity">
+  <section id="fakty-i-mity" class="section-alt">
     <div class="wrap">
       <div class="eyebrow">Fakty i mity</div>
       <h2>Co warto wiedzieć o centrach danych</h2>
@@ -474,7 +483,7 @@
     </div>
   </section>
 
-  <section id="faq" class="section-alt">
+  <section id="faq">
     <div class="wrap">
       <div class="eyebrow">Pytania i odpowiedzi</div>
       <h2>Najczęściej zadawane pytania</h2>
@@ -520,7 +529,7 @@
     </div>
   </section>
 
-  <section id="kontakt">
+  <section id="kontakt" class="section-alt">
     <div class="wrap">
       <div class="contact-panel">
         <div>
