@@ -236,7 +236,9 @@
   .contact-cats{display:flex;flex-direction:column;gap:14px;margin-top:28px;}
   .contact-cat{padding:16px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;}
   .contact-cat .cc-label{display:block;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#e7c893;margin-bottom:4px;}
-  .contact-cat p{margin:0;font-size:13.5px;color:rgba(255,255,255,.75);}
+  .contact-cat p{margin:0 0 10px;font-size:13.5px;color:rgba(255,255,255,.75);}
+  .contact-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#e7c893;text-decoration:none;}
+  .contact-link:hover{text-decoration:underline;}
 
   footer{padding:36px 0;color:var(--ink-soft);font-size:13px;}
   footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);padding-top:28px;}
@@ -643,14 +645,17 @@
             <div class="contact-cat">
               <span class="cc-label">Mieszkańcy</span>
               <p>Pytania dotyczące harmonogramu prac, organizacji ruchu i wpływu inwestycji na najbliższe otoczenie.</p>
+              <a class="contact-link" href="mailto:pytania@sienreal.pl?subject=Pytanie%20mieszka%C5%84ca%20%E2%80%93%20Polaris%20Data%20Center">pytania@sienreal.pl →</a>
             </div>
             <div class="contact-cat">
               <span class="cc-label">Media i prasa</span>
               <p>Zapytania prasowe dotyczące inwestycji kierowane do inwestora — Sien Real Sp. z o.o.</p>
+              <a class="contact-link" href="mailto:pytania@sienreal.pl?subject=Zapytanie%20prasowe%20%E2%80%93%20Polaris%20Data%20Center">pytania@sienreal.pl →</a>
             </div>
             <div class="contact-cat">
               <span class="cc-label">Partnerzy biznesowi</span>
               <p>Pytania o współpracę i kolejne etapy realizacji kampusu Polaris Data Center.</p>
+              <a class="contact-link" href="mailto:pytania@sienreal.pl?subject=Wsp%C3%B3%C5%82praca%20%E2%80%93%20Polaris%20Data%20Center">pytania@sienreal.pl →</a>
             </div>
           </div>
         </div>
@@ -659,7 +664,8 @@
           <div class="row"><span>Lokalizacja</span><span>Piaseczno, woj. mazowieckie</span></div>
           <div class="row"><span>Inwestor</span><span>Sien Real Sp. z o.o.</span></div>
           <div class="row"><span>Strona inwestora</span><span><a href="https://www.sienreal.pl" target="_blank" rel="noopener" style="color:#fff;">sienreal.pl</a></span></div>
-          <p class="contact-note">Dedykowany kanał kontaktu dla mieszkańców (strona i adres e-mail) zostanie uruchomiony zgodnie ze zobowiązaniem inwestora — do tego czasu prosimy o kontakt przez stronę sienreal.pl.</p>
+          <a href="mailto:pytania@sienreal.pl" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:20px;">Napisz do nas</a>
+          <p class="contact-note">Kontakt e-mail: <a href="mailto:pytania@sienreal.pl" style="color:#fff;font-weight:700;">pytania@sienreal.pl</a>. Zgodnie ze zobowiązaniem inwestora, odpowiadamy w ciągu 3 dni roboczych.</p>
         </div>
       </div>
     </div>
@@ -669,8 +675,7 @@
 
 <footer>
   <div class="wrap">
-    <span>© 2026 Polaris Data Center · Piaseczno</span>
-    <span class="src-note">Strona informacyjna oparta na komunikacie o rozpoczęciu prac przygotowawczych dla projektu Polaris Data Center (24 lipca 2026 r.). Nie stanowi oficjalnego serwisu inwestora ani wykonawcy.</span>
+    <span>© 2026 Sien Real · Piaseczno</span>
   </div>
 </footer>
 
