@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231f3a5f'/%3E%3Ccircle cx='50' cy='50' r='22' fill='none' stroke='%23c9a66b' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%23c9a66b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#f7f5f0;
@@ -23,7 +23,7 @@
     --sage-soft:#e4ede6;
     --gold:#b9905a;
     --radius:18px;
-    --shadow:0 20px 50px -25px rgba(21,41,68,0.35);
+    --shadow:0 14px 32px -20px rgba(21,41,68,0.28);
   }
   [data-theme="dark"], @media (prefers-color-scheme: dark){
     :root{}
@@ -39,9 +39,10 @@
     -webkit-font-smoothing:antialiased;
   }
   h1,h2,h3,h4{
-    font-family:'Source Serif 4', Georgia, serif;
-    font-weight:600;
-    line-height:1.2;
+    font-family:'Manrope', system-ui, -apple-system, sans-serif;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1.15;
     margin:0 0 .5em;
     color:var(--navy-deep);
   }
@@ -133,6 +134,20 @@
   .fact-list .k{color:var(--ink-soft);}
   .fact-list .v{font-weight:700;text-align:right;color:var(--navy-deep);}
 
+  /* COMPANY */
+  .company-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:44px;}
+  .company-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);}
+  .company-icon{width:44px;height:44px;border-radius:12px;background:var(--sage-soft);display:flex;align-items:center;justify-content:center;margin-bottom:20px;}
+  .company-icon svg{width:22px;height:22px;}
+  .company-card h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--sage);margin-bottom:6px;font-weight:700;}
+  .company-card h4{font-size:21px;margin-bottom:12px;}
+  .company-card p{font-size:14.5px;color:var(--ink-soft);margin-bottom:0;}
+  .company-tags{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:16px 0 0;}
+  .company-tags li{font-size:12.5px;font-weight:700;background:var(--sage-soft);color:var(--navy-deep);padding:6px 12px;border-radius:999px;}
+  .team-note{margin-top:24px;padding:20px 26px;border-radius:14px;background:var(--surface);border:1px dashed var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:14px;}
+  .team-note-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);flex-shrink:0;}
+  .team-note p{margin:0;font-size:14px;color:var(--ink-soft);}
+
   /* TIMELINE */
   .timeline{position:relative;margin-top:48px;}
   .tl-track{
@@ -175,7 +190,7 @@
   .myth-row.myth .myth-tag{background:#e2b98f;color:#5c3b17;}
   .myth-row.fact .myth-tag{background:var(--sage);color:#fff;}
   .myth-row p{margin:0;font-size:14.5px;}
-  .myth-row strong{display:block;font-size:15.5px;margin-bottom:2px;color:var(--navy-deep);font-family:'Source Serif 4',serif;}
+  .myth-row strong{display:block;font-size:15.5px;margin-bottom:2px;color:var(--navy-deep);font-weight:700;}
 
   /* FAQ */
   .faq-list{margin-top:40px;display:flex;flex-direction:column;gap:12px;}
@@ -206,6 +221,11 @@
   .contact-box .row:last-child{border-bottom:none;}
   .contact-box .row span:first-child{color:rgba(255,255,255,.6);}
   .contact-box .row span:last-child{font-weight:700;text-align:right;}
+  .contact-note{margin:16px 0 0;font-size:12.5px;color:rgba(255,255,255,.55);}
+  .contact-cats{display:flex;flex-direction:column;gap:14px;margin-top:28px;}
+  .contact-cat{padding:16px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;}
+  .contact-cat .cc-label{display:block;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#e7c893;margin-bottom:4px;}
+  .contact-cat p{margin:0;font-size:13.5px;color:rgba(255,255,255,.75);}
 
   footer{padding:36px 0;color:var(--ink-soft);font-size:13px;}
   footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);padding-top:28px;}
@@ -221,6 +241,7 @@
     nav.links{display:none;}
     .burger{display:block;}
     .about-grid{grid-template-columns:1fr;}
+    .company-grid{grid-template-columns:1fr;}
     .stats .wrap{grid-template-columns:repeat(2,1fr);}
     .tl-track{grid-template-columns:repeat(2,1fr);row-gap:36px;}
     .tl-track::before{display:none;}
@@ -247,6 +268,7 @@
     </a>
     <nav class="links">
       <a href="#o-inwestycji">O inwestycji</a>
+      <a href="#o-firmie">O firmie</a>
       <a href="#harmonogram">Harmonogram</a>
       <a href="#wizualizacje">Wizualizacje</a>
       <a href="#fakty-i-mity">Fakty i mity</a>
@@ -257,10 +279,12 @@
   </div>
   <nav class="links" id="mobileMenu" style="display:none;flex-direction:column;gap:0;padding:0 24px 18px;">
     <a href="#o-inwestycji" style="padding:12px 0;border-bottom:1px solid var(--line);">O inwestycji</a>
+    <a href="#o-firmie" style="padding:12px 0;border-bottom:1px solid var(--line);">O firmie</a>
     <a href="#harmonogram" style="padding:12px 0;border-bottom:1px solid var(--line);">Harmonogram</a>
     <a href="#wizualizacje" style="padding:12px 0;border-bottom:1px solid var(--line);">Wizualizacje</a>
     <a href="#fakty-i-mity" style="padding:12px 0;border-bottom:1px solid var(--line);">Fakty i mity</a>
-    <a href="#faq" style="padding:12px 0;">Pytania</a>
+    <a href="#faq" style="padding:12px 0;border-bottom:1px solid var(--line);">Pytania</a>
+    <a href="#kontakt" style="padding:12px 0;">Kontakt</a>
   </nav>
 </header>
 
@@ -317,7 +341,48 @@
     </div>
   </section>
 
-  <section id="harmonogram" class="section-alt">
+  <section id="o-firmie" class="section-alt">
+    <div class="wrap">
+      <div class="eyebrow">O firmie</div>
+      <h2>Kto stoi za inwestycją</h2>
+      <p class="lead">Za Polaris Data Center stoi inwestor odpowiedzialny za projekt oraz doświadczony generalny wykonawca robót przygotowawczych.</p>
+      <div class="company-grid">
+        <div class="company-card">
+          <div class="company-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1f3a5f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="3" width="10" height="18" rx="1"/><path d="M14 21V9l6 3v9"/>
+              <path d="M7 7h1M10 7h1M7 11h1M10 11h1M7 15h1M10 15h1"/>
+            </svg>
+          </div>
+          <h3>Inwestor</h3>
+          <h4>Sien Real Sp. z o.o.</h4>
+          <p>Spółka odpowiedzialna za przygotowanie i realizację przedsięwzięcia Polaris Data Center — kampusu czterech budynków centrum przetwarzania danych na działce o powierzchni ok. 45 000 m² w Piasecznie.</p>
+        </div>
+        <div class="company-card">
+          <div class="company-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1f3a5f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 21h9"/><path d="M6 21V9l9-5v10"/><path d="M15 10l5-2v4l-5 2"/>
+              <circle cx="6" cy="6" r="1.3" fill="#1f3a5f" stroke="none"/>
+            </svg>
+          </div>
+          <h3>Generalny wykonawca</h3>
+          <h4>Budimex S.A.</h4>
+          <p>Jedna z największych firm budowlanych w Polsce, notowana na Giełdzie Papierów Wartościowych w Warszawie i należąca do międzynarodowej grupy Ferrovial. Konsekwentnie rozwija kompetencje w segmencie centrów danych, oferując realizację inwestycji od przygotowania terenu po obiekty w formule „pod klucz”.</p>
+          <ul class="company-tags">
+            <li>Grupa Ferrovial</li>
+            <li>Spółka giełdowa (GPW)</li>
+            <li>Realizacje „pod klucz”</li>
+          </ul>
+        </div>
+      </div>
+      <div class="team-note">
+        <span class="team-note-label">Zespół realizujący</span>
+        <p>Za realizację robót przygotowawczych odpowiada <strong>Rejon 3 DBO</strong> Budimeksu, pod kierownictwem <strong>Adama Skobodzińskiego</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="harmonogram">
     <div class="wrap">
       <div class="eyebrow">Harmonogram</div>
       <h2>Etapy realizacji</h2>
@@ -353,7 +418,7 @@
     </div>
   </section>
 
-  <section id="wizualizacje">
+  <section id="wizualizacje" class="section-alt">
     <div class="wrap">
       <div class="eyebrow">Wizualizacje</div>
       <h2>Jak będzie wyglądał kampus</h2>
@@ -375,7 +440,7 @@
     </div>
   </section>
 
-  <section id="fakty-i-mity" class="section-alt">
+  <section id="fakty-i-mity">
     <div class="wrap">
       <div class="eyebrow">Fakty i mity</div>
       <h2>Co warto wiedzieć o centrach danych</h2>
@@ -409,7 +474,7 @@
     </div>
   </section>
 
-  <section id="faq">
+  <section id="faq" class="section-alt">
     <div class="wrap">
       <div class="eyebrow">Pytania i odpowiedzi</div>
       <h2>Najczęściej zadawane pytania</h2>
@@ -455,19 +520,34 @@
     </div>
   </section>
 
-  <section id="kontakt" class="section-alt">
+  <section id="kontakt">
     <div class="wrap">
       <div class="contact-panel">
         <div>
           <div class="eyebrow" style="color:#e7c893;">Kontakt</div>
           <h2>Masz pytania dotyczące inwestycji?</h2>
-          <p class="lead">Chętnie uzupełnimy tę stronę o dodatkowe informacje i odpowiemy na pytania mieszkańców oraz partnerów biznesowych w miarę postępu prac.</p>
+          <p class="lead">Ta strona ma charakter informacyjny i będzie uzupełniana w miarę postępu prac. Poniżej kierunki kontaktu w zależności od charakteru pytania.</p>
+          <div class="contact-cats">
+            <div class="contact-cat">
+              <span class="cc-label">Mieszkańcy</span>
+              <p>Pytania dotyczące harmonogramu prac, organizacji ruchu i wpływu inwestycji na najbliższe otoczenie.</p>
+            </div>
+            <div class="contact-cat">
+              <span class="cc-label">Media i prasa</span>
+              <p>Zapytania prasowe dotyczące inwestycji kierowane do biura prasowego generalnego wykonawcy — Budimex S.A.</p>
+            </div>
+            <div class="contact-cat">
+              <span class="cc-label">Partnerzy biznesowi</span>
+              <p>Pytania o współpracę i kolejne etapy realizacji kampusu Polaris Data Center.</p>
+            </div>
+          </div>
         </div>
         <div class="contact-box">
           <div class="row"><span>Projekt</span><span>Polaris Data Center</span></div>
-          <div class="row"><span>Lokalizacja</span><span>Piaseczno</span></div>
+          <div class="row"><span>Lokalizacja</span><span>Piaseczno, woj. mazowieckie</span></div>
           <div class="row"><span>Inwestor</span><span>Sien Real Sp. z o.o.</span></div>
           <div class="row"><span>Generalny wykonawca</span><span>Budimex S.A.</span></div>
+          <p class="contact-note">Szczegółowe dane kontaktowe zostaną opublikowane wraz z rozwojem inwestycji.</p>
         </div>
       </div>
     </div>
