@@ -196,12 +196,26 @@
   .myth-row p{margin:0;font-size:14.5px;}
   .myth-row strong{display:block;font-size:15.5px;margin-bottom:2px;color:var(--navy-deep);font-weight:700;}
 
+  /* NOTICE BAND */
+  .notice{
+    background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:14px;padding:28px 32px;display:flex;gap:28px;align-items:center;
+    justify-content:space-between;flex-wrap:wrap;box-shadow:var(--shadow);
+  }
+  .notice-text{flex:1 1 460px;}
+  .notice .eyebrow{margin-bottom:8px;}
+  .notice h3{font-size:21px;margin-bottom:8px;}
+  .notice p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+  .notice .btn{flex-shrink:0;background:var(--navy);color:#fff;}
+  .notice .btn:hover{background:var(--navy-deep);}
+
   /* COMMITMENTS */
   .commit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px;}
   .commit-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);}
   .commit-num{width:34px;height:34px;border-radius:50%;background:var(--sage-soft);color:var(--navy-deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;margin-bottom:16px;}
   .commit-card h4{font-size:16px;margin-bottom:8px;}
   .commit-card p{font-size:13.5px;color:var(--ink-soft);margin-bottom:0;}
+  .commit-card a, .notice p a{color:var(--navy);font-weight:700;text-decoration:underline;text-underline-offset:2px;}
 
   /* FAQ */
   .faq-list{margin-top:40px;display:flex;flex-direction:column;gap:12px;}
@@ -219,6 +233,7 @@
   .faq-item[open] .faq-q .plus{transform:rotate(45deg);}
   .faq-a{padding:0 24px 22px;color:var(--ink-soft);font-size:14.5px;max-width:760px;}
   .faq-a p{margin:0;}
+  .faq-a a{color:var(--navy);font-weight:700;text-decoration:underline;text-underline-offset:2px;}
 
   /* CONTACT / FOOTER */
   .contact-panel{
@@ -313,21 +328,34 @@
     </div>
     <div class="hero-content">
       <div class="eyebrow">Inwestycja w Piasecznie</div>
-      <h1>Polaris Data Center</h1>
-      <p class="lead">Nowoczesny kampus centrów przetwarzania danych powstający w Piasecznie. Poznaj fakty o inwestycji, harmonogram prac i odpowiedzi na najczęściej zadawane pytania mieszkańców.</p>
+      <h1>Tyle wody, co osiem mieszkań</h1>
+      <p class="lead">Publikujemy komplet danych o centrum danych przy ulicy Energetycznej w Piasecznie — zużyciu wody, hałasie i procedurze środowiskowej — oraz zapraszamy mieszkańców na otwarte spotkanie.</p>
       <div class="hero-actions">
-        <a href="#o-inwestycji" class="btn btn-primary">Poznaj fakty</a>
-        <a href="#faq" class="btn btn-ghost">Zadaj pytanie</a>
+        <a href="#fakty-i-mity" class="btn btn-primary">Poznaj fakty</a>
+        <a href="#spotkanie" class="btn btn-ghost">Spotkanie z mieszkańcami</a>
       </div>
     </div>
   </section>
 
   <section class="stats" style="padding:0;">
     <div class="wrap">
-      <div class="stat"><b>4</b><span>budynki centrum danych docelowo</span></div>
-      <div class="stat"><b>~45 000 m²</b><span>powierzchnia terenu inwestycji</span></div>
-      <div class="stat"><b>do 6 mies.</b><span>czas trwania prac przygotowawczych</span></div>
-      <div class="stat"><b>2026</b><span>rozpoczęcie prac na terenie inwestycji</span></div>
+      <div class="stat"><b>5–8 mieszkań</b><span>tyle wody zużyje obiekt w codziennej eksploatacji</span></div>
+      <div class="stat"><b>0</b><span>tyle wody zużywa chłodzenie obiektu</span></div>
+      <div class="stat"><b>6</b><span>publicznych zobowiązań wobec mieszkańców</span></div>
+      <div class="stat"><b>12.04.2024</b><span>decyzja środowiskowa po pełnej ocenie oddziaływania</span></div>
+    </div>
+  </section>
+
+  <section id="spotkanie" class="section-alt" style="padding:48px 0;">
+    <div class="wrap">
+      <div class="notice">
+        <div class="notice-text">
+          <div class="eyebrow">Otwarte spotkanie</div>
+          <h3>Zapraszamy mieszkańców Józefosławia, Julianowa i Piaseczna</h3>
+          <p>Spotkanie poprzedzi prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy oraz niezależni eksperci z zakresu gospodarki wodnej, systemów chłodzenia i akustyki. O terminie poinformujemy przez stronę <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a> oraz Urząd Gminy Piaseczno.</p>
+        </div>
+        <a href="mailto:pytania@sienreal.pl?subject=Pytanie%20na%20spotkanie%20%E2%80%93%20Polaris%20Data%20Center" class="btn">Prześlij pytanie wcześniej</a>
+      </div>
     </div>
   </section>
 
@@ -336,10 +364,11 @@
       <div>
         <div class="eyebrow">O inwestycji</div>
         <h2>Co powstaje w Piasecznie?</h2>
-        <p class="lead">24 lipca 2026 r. podpisano umowę na realizację robót przygotowawczych dla projektu Polaris Data Center. Prace na terenie inwestycji ruszyły 6 sierpnia 2026 r.</p>
-        <p>Ich zakres obejmuje przygotowanie terenu pod budowę nowoczesnego kampusu centrum danych — w tym wykonanie ogrodzenia i systemu monitoringu, przyłączy sanitarnych, tymczasowego zasilania energetycznego, dróg technologicznych, parkingów oraz zaplecza budowy.</p>
-        <p>Docelowo inwestycja zakłada budowę czterech budynków centrum przetwarzania danych wraz z niezbędną infrastrukturą techniczną, energetyczną i drogową. Kompleks zostanie wyposażony m.in. w stację transformatorową, systemy awaryjnego zasilania, a także zaawansowaną infrastrukturę chłodzenia oraz transmisji danych.</p>
-        <p>Inwestycja powstaje przy ulicy Energetycznej, na terenie po dawnym kombinacie UNITRA-Polkolor, zgodnie z miejscowym planem zagospodarowania przestrzennego przeznaczającym ten obszar pod funkcje usługowo-przemysłowe od kilkudziesięciu lat. Decyzję o środowiskowych uwarunkowaniach wydano 12 kwietnia 2024 r., po pełnej ocenie oddziaływania na środowisko. Budowa i eksploatacja realizowane są zgodnie z wymaganiami certyfikacji środowiskowych BREEAM i LEED.</p>
+        <p class="lead">Centrum danych przy ulicy Energetycznej powstaje etapami — docelowo w czterech etapach — na terenie po dawnym kombinacie UNITRA-Polkolor. Za realizacją stoi Sien Real, spółka należąca w 100% do Grupy Budimex.</p>
+        <p>Planowany obiekt nie jest przedsięwzięciem wielkoskalowym w rozumieniu, w jakim to określenie bywa dziś używane w dyskusji o centrach danych. Ani jego architektura, ani skala nie odbiegają od charakteru zabudowy usługowo-przemysłowej, która od dekad dominuje w tej części Piaseczna, a inwestycja w pełni podlega polskim i unijnym normom środowiskowym. Porównania do megaprojektów prowadzonych na innych kontynentach nie oddają jej rzeczywistej skali ani charakteru.</p>
+        <p>Docelowo inwestycja zakłada budowę czterech budynków centrum przetwarzania danych wraz z niezbędną infrastrukturą techniczną, energetyczną i drogową. Kompleks zostanie wyposażony m.in. w stację transformatorową, systemy awaryjnego zasilania, a także zaawansowaną infrastrukturę chłodzenia oraz transmisji danych. Trwające prace przygotowawcze obejmują ogrodzenie i monitoring terenu, przyłącza sanitarne, tymczasowe zasilanie energetyczne, drogi technologiczne, parkingi i zaplecze budowy.</p>
+        <p>Grupa Budimex jest obecna na polskim rynku budowlanym i infrastrukturalnym od 1968 roku. Zaangażowanie kapitałowe i wizerunkowe oznacza, że inwestor pozostaje w pełni odpowiedzialny za sposób prowadzenia budowy i standard obiektu — niezależnie od tego, kto zostanie jego docelowym operatorem.</p>
+        <p>Decyzję o środowiskowych uwarunkowaniach wydano 12 kwietnia 2024 r., po pełnej ocenie oddziaływania na środowisko, a projekt jest zgodny z miejscowym planem zagospodarowania przestrzennego. Budowa i eksploatacja realizowane są zgodnie z wymaganiami certyfikacji środowiskowych BREEAM i LEED.</p>
       </div>
       <div class="fact-card">
         <h3>Karta inwestycji</h3>
@@ -347,7 +376,9 @@
           <li><span class="k">Nazwa projektu</span><span class="v">Polaris Data Center</span></li>
           <li><span class="k">Lokalizacja</span><span class="v">Piaseczno, ul. Energetyczna</span></li>
           <li><span class="k">Inwestor</span><span class="v">Sien Real Sp. z o.o.</span></li>
+          <li><span class="k">Właściciel spółki</span><span class="v">Grupa Budimex (100%)</span></li>
           <li><span class="k">Docelowy zakres</span><span class="v">4 budynki centrum danych + infrastruktura</span></li>
+          <li><span class="k">Etapy realizacji</span><span class="v">4</span></li>
           <li><span class="k">Powierzchnia terenu</span><span class="v">ok. 45 000 m²</span></li>
           <li><span class="k">Decyzja środowiskowa</span><span class="v">12 kwietnia 2024</span></li>
           <li><span class="k">Umowa na prace przygotowawcze</span><span class="v">24 lipca 2026</span></li>
@@ -381,7 +412,7 @@
           </div>
           <h3>Inwestor</h3>
           <h4>Sien Real Sp. z o.o.</h4>
-          <p>Spółka odpowiedzialna za przygotowanie i realizację przedsięwzięcia Polaris Data Center — kampusu czterech budynków centrum przetwarzania danych na działce o powierzchni ok. 45 000 m² w Piasecznie.</p>
+          <p>Spółka należąca w 100% do Grupy Budimex, obecnej na polskim rynku budowlanym i infrastrukturalnym od 1968 roku. Odpowiada za przygotowanie i realizację centrum danych przy ul. Energetycznej w Piasecznie — kampusu czterech budynków na działce o powierzchni ok. 45 000 m², realizowanego w czterech etapach zgodnie z wymaganiami certyfikacji BREEAM i LEED.</p>
         </div>
       </div>
     </div>
@@ -462,11 +493,11 @@
         <div class="myth-grid">
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>To będzie hałaśliwy gigant, jak amerykańskie kampusy centrów danych.</strong>Skojarzenie z doniesieniami medialnymi i komentarzami w sieci opisującymi ogromne kompleksy zza oceanu.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Skala jest zupełnie inna.</strong>Obiekt w Piasecznie nie jest odpowiednikiem kampusów centrów danych w USA, do których odwołują się media i komentarze w sieci. Jest od nich wielokrotnie mniejszy i nie powoduje podwyższonych immisji w otoczeniu.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Skala jest adekwatna do miejsca.</strong>Ani architektura, ani skala obiektu nie odbiegają od zabudowy usługowo-przemysłowej, która od dekad dominuje w tej części Piaseczna. Inwestycja w pełni podlega polskim i unijnym normom środowiskowym, dlatego porównania do megaprojektów z innych kontynentów nie oddają jej rzeczywistego charakteru.</p></div>
           </div>
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>W nocy będzie głośno od pracujących urządzeń.</strong>Obawa o ciągłą, głośną pracę instalacji chłodniczych.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>W nocy urządzenia chłodnicze pracują ciszej — to wymóg decyzji środowiskowej, nie deklaracja inwestora.</strong>Na granicy działki spełnione będą wszystkie obowiązujące normy hałasu, dodatkowo zastosowane zostaną ekrany akustyczne i żaluzje. Poziom hałasu ma być porównywalny z funkcjonowaniem pobliskiego centrum handlowego. Po uruchomieniu obiektu inwestor zleci niezależne pomiary akustyczne, w punktach uzgodnionych z mieszkańcami, i opublikuje wyniki w całości.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>W nocy urządzenia chłodnicze pracują ciszej — to wymóg decyzji środowiskowej, nie deklaracja inwestora.</strong>Na granicy działki spełnione będą wszystkie obowiązujące normy hałasu, dodatkowo zastosowane zostaną ekrany akustyczne i żaluzje. Poziom hałasu ma być porównywalny z funkcjonowaniem pobliskiego centrum handlowego. Otoczenie inwestycji ma już dziś charakter przemysłowo-usługowy i sąsiaduje z rozdzielnią energetyczną przy ul. Energetycznej — nowy obiekt nie wprowadzi więc do tej przestrzeni obcej dotąd jakości akustycznej. Po uruchomieniu inwestor zleci niezależne pomiary akustyczne w punktach uzgodnionych z mieszkańcami.</p></div>
           </div>
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Zmiana z trzech na cztery kondygnacje oznacza wyższy, głośniejszy budynek.</strong>Skojarzenie zmiany liczby pięter ze zwiększeniem skali obiektu.</p></div>
@@ -480,11 +511,15 @@
         <div class="myth-grid">
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych zużyje ogromne ilości wody i zabraknie jej mieszkańcom.</strong>Skojarzenie z chłodzeniem „na pełną moc” bez ograniczeń.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Na co dzień to tyle wody, co 5–8 mieszkań.</strong>Woda jest wykorzystywana głównie na cele socjalno-bytowe pracowników obsługujących obiekt (maksymalnie kilkudziesięciu osób) oraz cele porządkowe — samo chłodzenie obiektu wody nie zużywa. Według informacji PWiK inwestycja nie wpłynie niekorzystnie na gospodarkę wodną okolicznych terenów.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Na co dzień to tyle wody, co 5–8 mieszkań — mniej więcej tyle, ile przeciętne biuro zatrudniające około 30 osób.</strong>Woda jest wykorzystywana przede wszystkim na cele socjalno-bytowe pracowników obsługujących obiekt (maksymalnie kilkudziesięciu osób), a także na cele porządkowe i nawilżanie powietrza zimą. Chłodzenie obiektu nie zużywa wody. W normalnym trybie pracy zdecydowana większość pobranej wody wraca po wykorzystaniu do kanalizacji — bezpowrotnie zużywana jest jej niewielka część.</p></div>
           </div>
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>286 m³ wody na dobę to tyle, co osiedle na kilka tysięcy mieszkańców.</strong>Ta liczba krąży w dyskusji jako prognoza codziennego zużycia.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>To jednorazowe napełnienie zbiorników przeciwpożarowych, a nie codzienne zużycie.</strong>286 m³/dobę to maksymalne zapotrzebowanie uzgodnione w warunkach przyłączenia dla całej, czteroetapowej inwestycji — odpowiada ono ok. 2% docelowej wydajności planowanej stacji uzdatniania wody przy ul. Energetycznej. Jednorazowe napełnienie zbiorników nastąpi najwcześniej trzy lata po zakończeniu budowy.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>To jednorazowe napełnienie zbiorników przeciwpożarowych, a nie codzienne zużycie.</strong>286 m³/dobę to maksymalne zapotrzebowanie uzgodnione w warunkach przyłączenia dla całej, czteroetapowej inwestycji, wynikające z wymaganego przepisami napełnienia zbiorników. Nastąpi ono najwcześniej trzy lata po zakończeniu budowy. Według informacji PWiK wartość ta odpowiada ok. 2% docelowej wydajności planowanej stacji uzdatniania wody przy ul. Energetycznej.</p></div>
+          </div>
+          <div class="myth-card">
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Przez centrum danych w Józefosławiu jeszcze bardziej spadnie ciśnienie wody.</strong>Obawa oparta na realnym, odczuwanym dziś problemie z siecią.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Spadki ciśnienia w szczycie to realny problem — istniejący niezależnie od tej inwestycji.</strong>Nie podważamy go. Kluczowe jest jednak rozróżnienie: rzeczywiste zużycie obiektu nie równa się górnej wartości zapisanej w dokumencie uzgodnieniowym. Publicznie znane wypowiedzi przedstawicieli PWiK w Piasecznie potwierdzają, że inwestycja nie wpłynie niekorzystnie na gospodarkę wodną okolicznych terenów. Rzeczywisty pobór będzie publikowany co kwartał.</p></div>
           </div>
         </div>
       </div>
@@ -500,6 +535,10 @@
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>„Standard środowiskowy” to tylko marketingowe hasło.</strong>Wątpliwość, czy deklaracje o ekologii obiektu mają realne pokrycie.</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Budowa i eksploatacja podlegają zewnętrznemu audytowi certyfikacji BREEAM i LEED.</strong>To międzynarodowe standardy nakładające obowiązki wykraczające poza przepisy krajowe — dotyczące gospodarowania zasobami, ograniczania uciążliwości dla sąsiedztwa i ochrony jakości życia mieszkańców — oceniane przez podmiot zewnętrzny, a nie przez samego inwestora.</p></div>
           </div>
+          <div class="myth-card">
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Inwestor nie rozmawia z gminą i lokalną społecznością.</strong>Wrażenie, że inwestycja toczy się ponad głowami mieszkańców i samorządu.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Inwestor pozostaje w stałym kontakcie z gminą.</strong>We wszelkich sprawach dotyczących powstania centrum utrzymywany jest bieżący kontakt z Burmistrzem, Sołtysem oraz organami administracyjnymi gminy — tak, by na bieżąco adresować pojawiające się pytania lokalnej społeczności. Co kwartał informację o postępie prac otrzymają Rada Miejska w Piasecznie oraz sołectwa Józefosławia i Julianowa.</p></div>
+          </div>
         </div>
       </div>
 
@@ -508,7 +547,7 @@
         <div class="myth-grid">
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Ta budowa zniszczy charakter okolicy i obniży wartość naszych domów.</strong>Obawa, że nowoczesny obiekt przemysłowy nie pasuje do sąsiedztwa.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Teren od dekad jest przeznaczony pod usługi i przemysł.</strong>Inwestycja powstaje na terenie po dawnym kombinacie UNITRA-Polkolor, w otoczeniu zabudowy przemysłowej, handlowej i biurowej — zgodnie z miejscowym planem zagospodarowania przestrzennego obowiązującym od kilkudziesięciu lat. Dzięki pozostałej po zakładzie infrastrukturze energetycznej obiekt korzysta z istniejących przyłączy, zamiast wymuszać budowę nowych linii przez tereny zabudowane. Cała okolica leży też w obszarze oddziaływania akustycznego Lotniska Chopina.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Przemysłowa historia terenu wyklucza tu inne przeznaczenie.</strong>Inwestycja powstaje po dawnym kombinacie UNITRA-Polkolor, gdzie w produkcji kineskopów wykorzystywano ciężkie pierwiastki i substancje toksyczne. Dlatego miejscowy plan zagospodarowania przestrzennego od kilkudziesięciu lat konsekwentnie przeznacza ten obszar wyłącznie pod funkcje usługowe i przemysłowe — nie powinien on służyć zabudowie mieszkaniowej. Po kombinacie pozostała też infrastruktura energetyczna o parametrach niespotykanych niemal nigdzie indziej w okolicy, dzięki czemu obiekt korzysta z istniejących przyłączy, zamiast wymuszać budowę nowych linii przesyłowych przez tereny zabudowane. Cała okolica leży również w obszarze oddziaływania akustycznego Lotniska Chopina.</p></div>
           </div>
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Budowa i eksploatacja oznaczają stały ruch ciężarówek i utrudnienia.</strong>Obawa o wzmożony ruch drogowy w okolicy.</p></div>
@@ -539,7 +578,7 @@
         </div>
       </div>
 
-      <p class="src-note" style="margin-top:32px;">Dane o inwestycji: informacje własne inwestora (Sien Real) dotyczące gospodarki wodnej, akustyki i procedury środowiskowej. Dane sektorowe: Polskie Stowarzyszenie Centrów Danych (PLDCA, <a href="https://pldca.pl" target="_blank" rel="noopener">pldca.pl</a>) oraz raport Komisji Europejskiej „Assessment of the Energy Performance and Sustainability of Data Centres in the EU”.</p>
+      <p class="src-note" style="margin-top:32px;">Dane o inwestycji: komunikat prasowy i materiały inwestora (Sien Real) dotyczące gospodarki wodnej, akustyki i procedury środowiskowej. Dane sektorowe: Polskie Stowarzyszenie Centrów Danych (PLDCA, <a href="https://pldca.pl" target="_blank" rel="noopener">pldca.pl</a>) oraz raport Komisji Europejskiej „Assessment of the Energy Performance and Sustainability of Data Centres in the EU”.</p>
     </div>
   </section>
 
@@ -547,22 +586,22 @@
     <div class="wrap">
       <div class="eyebrow">Zobowiązania</div>
       <h2>Sześć zobowiązań wobec mieszkańców</h2>
-      <p class="lead">Inwestor deklaruje, że poniższe zobowiązania obowiązują od dziś i będą rozliczane publicznie — także wtedy, gdy dyskusja o inwestycji ucichnie.</p>
+      <p class="lead">Z uwagi na dobro lokalnej społeczności i biorąc współodpowiedzialność za jej dobrostan, inwestor podejmuje już dziś następujące zobowiązania.</p>
       <div class="commit-grid">
         <div class="commit-card">
           <div class="commit-num">1</div>
           <h4>Publiczne raportowanie zużycia wody</h4>
-          <p>Co kwartał inwestor opublikuje dane o rzeczywistym poborze wody przez obiekt, w ujęciu dobowym i miesięcznym.</p>
+          <p>Co kwartał opublikujemy na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a> dane o rzeczywistym poborze wody przez obiekt, w ujęciu dobowym i miesięcznym.</p>
         </div>
         <div class="commit-card">
           <div class="commit-num">2</div>
           <h4>Niezależne pomiary hałasu po uruchomieniu</h4>
-          <p>Pomiary wykona podmiot zewnętrzny, w punktach uzgodnionych z mieszkańcami. Wyniki zostaną opublikowane w całości.</p>
+          <p>Pomiary wykona podmiot zewnętrzny, w punktach uzgodnionych z mieszkańcami, a wyniki opublikujemy.</p>
         </div>
         <div class="commit-card">
           <div class="commit-num">3</div>
           <h4>Stały kanał kontaktu dla mieszkańców</h4>
-          <p>Na każde zgłoszenie inwestor odpowie w ciągu 3 dni roboczych, a powtarzające się pytania będzie publikować na bieżąco.</p>
+          <p>Od dziś działa strona <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a> oraz adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>. Na każde zgłoszenie odpowiemy w ciągu 3 dni roboczych, a powtarzające się pytania będziemy publikować.</p>
         </div>
         <div class="commit-card">
           <div class="commit-num">4</div>
@@ -576,8 +615,8 @@
         </div>
         <div class="commit-card">
           <div class="commit-num">6</div>
-          <h4>Stały tryb rozmowy, nie jednorazowe spotkanie</h4>
-          <p>Inwestor zaprasza mieszkańców do powołania lokalnego zespołu dialogu, ze spotkaniami przez cały okres budowy i eksploatacji.</p>
+          <h4>Dialog</h4>
+          <p>Zapraszamy mieszkańców do powołania lokalnego zespołu dialogu, z którym będziemy spotykać się regularnie przez cały okres budowy i eksploatacji.</p>
         </div>
       </div>
     </div>
@@ -597,7 +636,7 @@
 
         <details class="faq-item">
           <summary class="faq-q">Kto jest inwestorem? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Inwestorem przedsięwzięcia jest spółka Sien Real Sp. z o.o., odpowiedzialna za przygotowanie i realizację Polaris Data Center.</p></div>
+          <div class="faq-a"><p>Inwestorem jest Sien Real Sp. z o.o. — spółka należąca w 100% do Grupy Budimex, obecnej na polskim rynku budowlanym i infrastrukturalnym od 1968 roku. Zaangażowanie kapitałowe i wizerunkowe oznacza, że inwestor pozostaje w pełni odpowiedzialny za sposób prowadzenia budowy i standard obiektu, niezależnie od tego, kto zostanie jego docelowym operatorem.</p></div>
         </details>
 
         <details class="faq-item">
@@ -617,7 +656,7 @@
 
         <details class="faq-item">
           <summary class="faq-q">Czy planowane jest spotkanie z mieszkańcami? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Tak. Inwestor planuje otwarte spotkanie z mieszkańcami Józefosławia, Julianowa i Piaseczna — z krótką prezentacją projektu i sesją pytań i odpowiedzi bez ograniczenia czasu. Termin zostanie ogłoszony odrębnie. Pytania, na które nie uda się odpowiedzieć na miejscu, zostaną opublikowane wraz z pisemną odpowiedzią.</p></div>
+          <div class="faq-a"><p>Tak. Inwestor zaprasza mieszkańców Józefosławia, Julianowa i Piaseczna na otwarte spotkanie — poprzedzi je prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy oraz niezależni eksperci z zakresu gospodarki wodnej, systemów chłodzenia i akustyki. O terminie inwestor poinformuje przez stronę sienreal.pl oraz Urząd Gminy Piaseczno. Pytania można zadać na miejscu lub przesłać wcześniej na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p></div>
         </details>
 
         <details class="faq-item">
@@ -627,7 +666,7 @@
 
         <details class="faq-item">
           <summary class="faq-q">Skąd pochodzą informacje przedstawione na tej stronie? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Treści oparte są na materiałach inwestycyjnych i komunikatach dotyczących projektu Polaris Data Center w Piasecznie, publikowanych przez inwestora — Sien Real Sp. z o.o. Strona ma charakter informacyjny i będzie aktualizowana w miarę postępu prac.</p></div>
+          <div class="faq-a"><p>Treści oparte są na komunikacie prasowym i materiałach inwestycyjnych dotyczących centrum danych przy ul. Energetycznej w Piasecznie, publikowanych przez inwestora — Sien Real Sp. z o.o. Aktualne informacje o projekcie dostępne są na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a>. Strona będzie aktualizowana w miarę postępu prac.</p></div>
         </details>
 
       </div>
