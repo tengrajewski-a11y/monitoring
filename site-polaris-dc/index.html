@@ -242,6 +242,49 @@
     line-height:1.35;margin-bottom:4px;color:var(--navy-deep);
   }
 
+  /* WATER METER */
+  .wm{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px 30px;margin-bottom:16px;}
+  .wm-top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:14px;}
+  .wm-now{font-size:13.5px;color:var(--ink-soft);}
+  .wm-now b{display:block;font-family:var(--display);font-size:clamp(22px,2.4vw,28px);font-weight:700;letter-spacing:-0.035em;line-height:1.1;color:var(--navy-deep);margin-bottom:2px;}
+  .wm-max{text-align:right;font-size:13px;color:var(--ink-soft);}
+  .wm-max b{display:block;font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:-0.02em;color:var(--ink-soft);}
+  .wm-track{position:relative;height:22px;border-radius:6px;background:#EDEDE7;}
+  .wm-fill{position:absolute;top:0;bottom:0;left:0;width:0;display:flex;background:var(--surface);border-radius:6px 4px 4px 6px;transition:width 1.3s cubic-bezier(.22,.7,.24,1);}
+  .wm-seg{position:relative;height:100%;cursor:help;}
+  .wm-seg-a{background:#4E7C63;flex:34.4 0 0;border-radius:6px 0 0 6px;}
+  .wm-seg-b{background:#8FB49F;flex:20.2 0 0;margin-left:2px;border-radius:0 4px 4px 0;}
+  .wm-seg::after{
+    content:attr(data-tip);position:absolute;left:0;bottom:calc(100% + 9px);
+    background:var(--navy-deep);color:#fff;font-size:12px;line-height:1.4;white-space:nowrap;
+    padding:7px 11px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .16s;
+    box-shadow:0 8px 22px -10px rgba(14,32,53,.55);
+  }
+  .wm-seg:hover::after,.wm-seg:focus-visible::after{opacity:1;}
+  .wm-legend{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:18px;}
+  .wm-item{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-soft);}
+  .wm-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .wm-note{margin:16px 0 0;font-size:13px;line-height:1.55;color:var(--ink-soft);}
+
+  /* MOTION */
+  .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:60;transition:width .12s linear;}
+  header.scrolled{box-shadow:0 1px 14px rgba(16,24,40,.07);}
+  @keyframes riseIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+  @keyframes heroSettle{from{transform:scale(1.07);}to{transform:scale(1);}}
+  .hero-media img{animation:heroSettle 18s cubic-bezier(.15,.6,.25,1) forwards;}
+  .hero-content>*{animation:riseIn .8s cubic-bezier(.2,.7,.3,1) both;}
+  .hero-content>*:nth-child(1){animation-delay:.10s;}
+  .hero-content>*:nth-child(2){animation-delay:.18s;}
+  .hero-content>*:nth-child(3){animation-delay:.26s;}
+  .hero-content>*:nth-child(4){animation-delay:.34s;}
+  .hero-content>*:nth-child(5){animation-delay:.42s;}
+  body.reveal-ready .reveal{opacity:0;transform:translateY(18px);}
+  body.reveal-ready .reveal.in{opacity:1;transform:none;transition:opacity .65s ease,transform .65s cubic-bezier(.2,.7,.3,1);}
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-delay:0ms !important;transition-duration:.001ms !important;}
+    body.reveal-ready .reveal{opacity:1;transform:none;}
+  }
+
   /* FAQ */
   .faq-list{margin-top:44px;display:flex;flex-direction:column;gap:10px;}
   .faq-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:border-color .18s;}
@@ -325,6 +368,8 @@
     .hero-actions{flex-direction:column;align-items:stretch;}
     .hero-actions .btn{width:100%;}
     .spec,.arg{padding:24px 22px;}
+    .wm{padding:24px 22px;}
+    .wm-max{text-align:left;}
   }
 </style>
 </head>
@@ -563,6 +608,32 @@
 
       <div class="myth-group">
         <h3 class="myth-group-title">Woda</h3>
+
+        <div class="wm">
+          <div class="wm-top">
+            <div class="wm-now">
+              <b>ok. 55 m³ na dobę</b>
+              normalna eksploatacja czterech budynków
+            </div>
+            <div class="wm-max">
+              <b>286 m³ na dobę</b>
+              maksimum z warunków przyłączenia
+            </div>
+          </div>
+          <div class="wm-track" role="img" aria-label="Zużycie wody na dobę: w normalnej eksploatacji około 55 m³, w tym około 35 m³ na cele socjalno-bytowe i porządkowe oraz około 20 m³ na sezonowe nawilżanie powietrza, wobec 286 m³ wynikających z warunków przyłączenia.">
+            <div class="wm-fill" id="wmFill">
+              <span class="wm-seg wm-seg-a" tabindex="0" data-tip="Cele socjalno-bytowe i porządkowe: ok. 35 m³/d"></span>
+              <span class="wm-seg wm-seg-b" tabindex="0" data-tip="Sezonowe nawilżanie powietrza: ok. 20 m³/d"></span>
+            </div>
+          </div>
+          <div class="wm-legend">
+            <span class="wm-item"><span class="wm-dot" style="background:#4E7C63;"></span>Cele socjalno-bytowe i porządkowe: ok. 35 m³/d</span>
+            <span class="wm-item"><span class="wm-dot" style="background:#8FB49F;"></span>Sezonowe nawilżanie powietrza: ok. 20 m³/d</span>
+            <span class="wm-item"><span class="wm-dot" style="background:#EDEDE7;"></span>Wartość z warunków przyłączenia: 286 m³/d</span>
+          </div>
+          <p class="wm-note">Cała długość paska to 286 m³ na dobę, czyli maksimum ustalone dla całej, czteroetapowej inwestycji, potrzebne jednorazowo do napełnienia zbiorników przeciwpożarowych. Wypełnienie pokazuje zapotrzebowanie w normalnej pracy obiektu, według obliczeń projektowych.</p>
+        </div>
+
         <div class="myth-grid">
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych zużyje ogromne ilości wody i zabraknie jej mieszkańcom.</strong>Obawa, że chłodzenie serwerowni pochłania wodę bez ograniczeń.</p></div>
@@ -777,6 +848,62 @@
     document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', function(e){ if(e.target === lightbox) closeLightbox(); });
     document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeLightbox(); });
+
+    // pasek postępu czytania + cień nagłówka po przewinięciu
+    var bar = document.createElement('div');
+    bar.className = 'progress';
+    document.body.appendChild(bar);
+    var header = document.querySelector('header');
+    function onScroll(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = (h > 0 ? (window.pageYOffset / h) * 100 : 0) + '%';
+      header.classList.toggle('scrolled', window.pageYOffset > 8);
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+
+    // pojawianie się treści przy przewijaniu (bez JS strona pozostaje widoczna)
+    var fill = document.getElementById('wmFill');
+    if ('IntersectionObserver' in window) {
+      document.body.classList.add('reveal-ready');
+      var items = document.querySelectorAll('.stat, .notice, .arg, .spec, .tl-item, .gallery-grid a, .wm, .myth-card, .faq-item, .contact-panel');
+      Array.prototype.forEach.call(items, function(el){
+        el.classList.add('reveal');
+        var i = Array.prototype.indexOf.call(el.parentNode.children, el);
+        el.style.transitionDelay = Math.min(i, 5) * 65 + 'ms';
+      });
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (!e.isIntersecting) return;
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        });
+      }, {rootMargin: '0px 0px -6% 0px', threshold: 0.08});
+      Array.prototype.forEach.call(items, function(el){ io.observe(el); });
+
+      // zabezpieczenie: cokolwiek znajdzie się w oknie lub powyżej, zawsze staje się widoczne
+      function revealPassed(){
+        Array.prototype.forEach.call(items, function(el){
+          if (el.classList.contains('in')) return;
+          if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('in');
+        });
+      }
+      window.addEventListener('scroll', revealPassed, {passive:true});
+      window.addEventListener('resize', revealPassed);
+      revealPassed();
+
+      // miernik zużycia wody: 54,5 m³ z 286 m³ = 19,1% długości paska
+      var mio = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (!e.isIntersecting) return;
+          setTimeout(function(){ fill.style.width = '19.1%'; }, 220);
+          mio.unobserve(e.target);
+        });
+      }, {threshold: 0.4});
+      mio.observe(fill.parentNode);
+    } else if (fill) {
+      fill.style.width = '19.1%';
+    }
 
     Array.prototype.forEach.call(document.querySelectorAll('.faq-item'), function(item){
       item.addEventListener('toggle', function(){
