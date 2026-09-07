@@ -83,6 +83,35 @@ Aby ją przywrócić, otwórz `index.html` w edytorze tekstu i zmień 3 miejsca:
 Zapisz plik i odśwież stronę — to wszystko, żadnego builda ani serwera
 nie trzeba restartować.
 
+## Baner cookies
+
+Na dole strony pokazuje się baner zgody na pliki cookies. Wybór użytkownika
+zapisuje się w `localStorage` pod kluczem `sienreal-cookie-consent`
+(wartość `all` albo `necessary`) wraz z datą w `sienreal-cookie-consent-date`.
+Baner nie pojawia się ponownie, dopóki wybór jest zapisany. Link
+„Ustawienia cookies" w stopce otwiera go z powrotem, żeby można było
+zmienić decyzję.
+
+Strona sama z siebie nie ustawia żadnych cookies analitycznych. Jeśli
+w przyszłości dojdzie np. Google Analytics albo Matomo, kod należy wkleić
+w `index.html` w miejscu oznaczonym komentarzem:
+
+```js
+if (value === 'all') {
+  // MIEJSCE NA SKRYPTY ANALITYCZNE (np. Google Analytics, Matomo).
+}
+```
+
+Dzięki temu skrypt uruchomi się dopiero po zgodzie użytkownika. Dodatkowo
+po każdej decyzji strona wysyła zdarzenie `cookie-consent`
+(`document.addEventListener('cookie-consent', ...)`), a aktualny wybór jest
+dostępny w `window.sienrealConsent`.
+
+**Uwaga o czcionkach.** Strona pobiera kroje Inter i Inter Tight z serwerów
+Google Fonts, co oznacza przekazanie adresu IP odwiedzającego do Google.
+Jeżeli chcecie tego uniknąć, czcionki można pobrać raz i wgrać na serwer
+razem ze stroną (wtedy działa ona w pełni bez zewnętrznych połączeń).
+
 ## Aktualizacja treści
 
 Wszystkie dane liczbowe i harmonogram pochodzą z komunikatu o rozpoczęciu
