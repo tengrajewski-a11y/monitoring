@@ -151,6 +151,13 @@
   .notice .eyebrow{margin-bottom:8px;}
   .notice h3{font-size:21px;margin-bottom:8px;}
   .notice p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+  .notice p+p{margin-top:10px;}
+  .notice-side{display:flex;flex-direction:column;gap:14px;align-items:stretch;flex-shrink:0;}
+  .notice-date{
+    border:1px solid var(--line);border-radius:12px;padding:14px 20px;text-align:center;background:var(--accent-soft);
+  }
+  .notice-date span{display:block;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
+  .notice-date b{display:block;font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-0.02em;color:var(--navy-deep);white-space:nowrap;}
   .notice .btn{flex-shrink:0;}
 
   /* ARGUMENT FRAMES */
@@ -241,6 +248,27 @@
     display:block;font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:-0.02em;
     line-height:1.35;margin-bottom:4px;color:var(--navy-deep);
   }
+
+  /* COMMITMENTS */
+  .pledge{background:var(--navy-deep);color:#fff;}
+  .pledge h2{color:#fff;}
+  .pledge .eyebrow{color:rgba(255,255,255,.62);}
+  .pledge .lead{color:rgba(255,255,255,.78);}
+  .pledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px;}
+  .pledge-card{
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+    border-radius:var(--radius);padding:26px 28px;display:flex;flex-direction:column;
+    transition:background .2s,border-color .2s;
+  }
+  .pledge-card:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);}
+  .pledge-num{
+    width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--display);font-weight:700;font-size:14px;margin-bottom:18px;
+  }
+  .pledge-card h3{font-size:17px;color:#fff;margin-bottom:9px;}
+  .pledge-card p{margin:0;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.74);}
+  .pledge-card a{color:#fff;font-weight:600;text-decoration:underline;text-underline-offset:2px;}
 
   /* WATER METER */
   .wm{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px 30px;margin-bottom:16px;}
@@ -359,6 +387,8 @@
     .gallery-grid a:first-child{grid-row:auto;}
     .gallery-grid a{height:260px;}
     .myth-grid{grid-template-columns:1fr;}
+    .pledge-grid{grid-template-columns:1fr;}
+    .notice-side{width:100%;}
     .contact-panel{grid-template-columns:1fr;padding:36px 26px;gap:32px;}
     section{padding:68px 0;}
     .notice{padding:26px;}
@@ -388,6 +418,7 @@
       <a href="#harmonogram">Harmonogram</a>
       <a href="#wizualizacje">Wizualizacje</a>
       <a href="#fakty-i-mity">Fakty i mity</a>
+      <a href="#zobowiazania">Zobowiązania</a>
       <a href="#faq">Pytania</a>
     </nav>
     <a class="nav-cta" href="#kontakt">Kontakt</a>
@@ -399,6 +430,7 @@
     <a href="#harmonogram" style="padding:12px 0;border-bottom:1px solid var(--line);">Harmonogram</a>
     <a href="#wizualizacje" style="padding:12px 0;border-bottom:1px solid var(--line);">Wizualizacje</a>
     <a href="#fakty-i-mity" style="padding:12px 0;border-bottom:1px solid var(--line);">Fakty i mity</a>
+    <a href="#zobowiazania" style="padding:12px 0;border-bottom:1px solid var(--line);">Zobowiązania</a>
     <a href="#faq" style="padding:12px 0;border-bottom:1px solid var(--line);">Pytania</a>
     <a href="#kontakt" style="padding:12px 0;">Kontakt</a>
   </nav>
@@ -441,9 +473,13 @@
         <div class="notice-text">
           <div class="eyebrow">Otwarte spotkanie</div>
           <h3>Zapraszamy mieszkańców Józefosławia, Julianowa i Piaseczna</h3>
-          <p>Spotkanie poprzedzi prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy oraz niezależni eksperci z zakresu gospodarki wodnej, systemów chłodzenia i akustyki. O terminie inwestor poinformuje przez stronę <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a> oraz Urząd Gminy Piaseczno.</p>
+          <p>Spotkanie poprzedzi prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy oraz niezależni eksperci z zakresu gospodarki wodnej, systemów chłodzenia i akustyki.</p>
+          <p>Dokładna data zależy od liczby pytań, które zbierzemy i poddamy analizie w ramach przygotowań, tak aby odpowiedzieć na nie rzetelnie. Termin ogłosimy przez stronę <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a> oraz Urząd Gminy Piaseczno.</p>
         </div>
-        <a href="mailto:pytania@sienreal.pl?subject=Pytanie%20na%20spotkanie%20%E2%80%93%20centrum%20danych%20Piaseczno" class="btn btn-dark">Prześlij pytanie</a>
+        <div class="notice-side">
+          <div class="notice-date"><span>Termin</span><b>15 do 30 września</b></div>
+          <a href="mailto:pytania@sienreal.pl?subject=Pytanie%20na%20spotkanie%20%E2%80%93%20centrum%20danych%20Piaseczno" class="btn btn-dark">Prześlij pytanie</a>
+        </div>
       </div>
     </div>
   </section>
@@ -461,7 +497,7 @@
           <p>Obiekt nie jest przedsięwzięciem wielkoskalowym w rozumieniu, w jakim to określenie bywa używane w dyskusji o centrach danych. Ani architektura, ani skala nie odbiegają od zabudowy usługowo-przemysłowej, która od dekad dominuje w tej części Piaseczna. Porównania do megaprojektów z innych kontynentów nie oddają rzeczywistego charakteru inwestycji, która w pełni podlega polskim i unijnym normom środowiskowym.</p>
         </div>
         <div class="arg">
-          <span class="arg-k">Odpowiedzialność</span>
+          <span class="arg-k">Inwestor</span>
           <h3>Kto realizuje inwestycję</h3>
           <p>Inwestorem jest Sien Real, spółka z Grupy Budimex. Kampus powstaje jako inwestycja własna grupy, dlatego za sposób prowadzenia budowy i standard obiektu odpowiada bezpośrednio inwestor.</p>
         </div>
@@ -507,6 +543,7 @@
           <div class="spec-item"><span class="spec-k">Powierzchnia terenu</span><span class="spec-v">ok. 45 000 m²</span></div>
           <div class="spec-item"><span class="spec-k">Decyzja środowiskowa</span><span class="spec-v">12 kwietnia 2024</span></div>
           <div class="spec-item"><span class="spec-k">Start prac na terenie</span><span class="spec-v">6 sierpnia 2026</span></div>
+          <div class="spec-item"><span class="spec-k">Zakończenie inwestycji</span><span class="spec-v">2029</span></div>
           <div class="spec-item"><span class="spec-k">Standardy środowiskowe</span><span class="spec-v">BREEAM, LEED</span></div>
         </div>
       </div>
@@ -569,7 +606,7 @@
           </div>
           <div class="tl-item">
             <div class="tl-dot">4</div>
-            <div class="tl-date">kolejne etapy</div>
+            <div class="tl-date">do 2029</div>
             <h4>Budowa kampusu</h4>
             <p>Docelowo cztery budynki centrum danych wraz z infrastrukturą techniczną, energetyczną i drogową.</p>
           </div>
@@ -603,8 +640,8 @@
   <section id="fakty-i-mity" class="section-alt">
     <div class="wrap">
       <div class="eyebrow">Fakty i mity</div>
-      <h2>Odpowiedzi na najczęstsze obawy</h2>
-      <p class="lead">Wokół inwestycji narosło wiele uproszczeń. Poniżej najczęstsze z nich, zestawione z danymi o projekcie.</p>
+      <h2>Co się mówi, a co wynika z danych</h2>
+      <p class="lead">Poniżej najczęściej powtarzane twierdzenia o inwestycji, zestawione z danymi z projektu i dokumentów.</p>
 
       <div class="myth-group">
         <h3 class="myth-group-title">Woda</h3>
@@ -612,15 +649,15 @@
         <div class="wm">
           <div class="wm-top">
             <div class="wm-now">
-              <b>ok. 55 m³ na dobę</b>
-              normalna eksploatacja czterech budynków
+              <b>do 55 m³ na dobę</b>
+              maksymalne zapotrzebowanie w aktualnym projekcie
             </div>
             <div class="wm-max">
               <b>286 m³ na dobę</b>
               maksimum z warunków przyłączenia
             </div>
           </div>
-          <div class="wm-track" role="img" aria-label="Zużycie wody na dobę: w normalnej eksploatacji około 55 m³, w tym około 35 m³ na cele socjalno-bytowe i porządkowe oraz około 20 m³ na sezonowe nawilżanie powietrza, wobec 286 m³ wynikających z warunków przyłączenia.">
+          <div class="wm-track" role="img" aria-label="Zużycie wody na dobę: aktualny projekt zakłada maksymalnie do 55 m³, w tym około 35 m³ na cele socjalno-bytowe i porządkowe oraz około 20 m³ na sezonowe nawilżanie powietrza, wobec 286 m³ wynikających z warunków przyłączenia.">
             <div class="wm-fill" id="wmFill">
               <span class="wm-seg wm-seg-a" tabindex="0" data-tip="Cele socjalno-bytowe i porządkowe: ok. 35 m³/d"></span>
               <span class="wm-seg wm-seg-b" tabindex="0" data-tip="Sezonowe nawilżanie powietrza: ok. 20 m³/d"></span>
@@ -631,20 +668,20 @@
             <span class="wm-item"><span class="wm-dot" style="background:#8FB49F;"></span>Sezonowe nawilżanie powietrza: ok. 20 m³/d</span>
             <span class="wm-item"><span class="wm-dot" style="background:#EDEDE7;"></span>Wartość z warunków przyłączenia: 286 m³/d</span>
           </div>
-          <p class="wm-note">Cała długość paska to 286 m³ na dobę, czyli maksimum ustalone dla całej, czteroetapowej inwestycji, potrzebne jednorazowo do napełnienia zbiorników przeciwpożarowych. Wypełnienie pokazuje zapotrzebowanie w normalnej pracy obiektu, według obliczeń projektowych.</p>
+          <p class="wm-note">Cała długość paska to 286 m³ na dobę, czyli maksimum ustalone dla całej, czteroetapowej inwestycji, potrzebne jednorazowo do napełnienia zbiorników przeciwpożarowych. Zbiorniki zostaną napełnione po realizacji pierwszego etapu. Wypełnienie pokazuje maksymalne zapotrzebowanie w normalnej pracy obiektu według aktualnego projektu.</p>
         </div>
 
         <div class="myth-grid">
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych zużyje ogromne ilości wody i zabraknie jej mieszkańcom.</strong>Obawa, że chłodzenie serwerowni pochłania wodę bez ograniczeń.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>W normalnej eksploatacji zapotrzebowanie jest około pięć razy mniejsze od wartości z warunków przyłączenia.</strong>Woda służy przede wszystkim celom socjalno-bytowym pracowników obsługujących obiekt, celom porządkowym oraz sezonowemu nawilżaniu powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Zdecydowana większość pobranej wody wraca po wykorzystaniu do kanalizacji, a bezpowrotnie zużywana jest jej niewielka część.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych zużyje ogromne ilości wody i zabraknie jej mieszkańcom.</strong>Czy chłodzenie serwerowni pochłania wodę bez ograniczeń?</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Aktualny projekt zakłada zapotrzebowanie maksymalnie do 55 m³ na dobę, czyli około pięć razy mniej niż wartość z warunków przyłączenia.</strong>Woda służy przede wszystkim celom socjalno-bytowym pracowników obsługujących obiekt, celom porządkowym oraz sezonowemu nawilżaniu powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Zdecydowana większość pobranej wody wraca po wykorzystaniu do kanalizacji, a bezpowrotnie zużywana jest jej niewielka część.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>286 m³ wody na dobę to tyle, co osiedle na kilka tysięcy mieszkańców.</strong>Ta liczba krąży w dyskusji jako prognoza codziennego zużycia.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>To jednorazowe napełnienie zbiorników przeciwpożarowych, a nie codzienne zużycie.</strong>286 m³/dobę to maksymalne zapotrzebowanie wynikające z warunków przyłączenia obowiązujących dla działki w chwili jej nabycia, ustalone dla całej, czteroetapowej inwestycji. Wynika ono z wymaganego przepisami jednorazowego napełnienia zbiorników i nie jest prognozą codziennego zużycia. Według informacji PWiK wartość ta odpowiada ok. 2% docelowej wydajności planowanej stacji uzdatniania wody przy ul. Energetycznej.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>286 m³ wody na dobę to tyle, co osiedle na kilka tysięcy mieszkańców.</strong>Czy 286 m³ to prognoza codziennego zużycia?</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>To jednorazowe napełnienie zbiorników przeciwpożarowych, a nie codzienne zużycie.</strong>286 m³/dobę to maksymalne zapotrzebowanie wynikające z warunków przyłączenia obowiązujących dla działki w chwili jej nabycia, ustalone dla całej, czteroetapowej inwestycji. Wynika ono z wymaganego przepisami jednorazowego napełnienia zbiorników przeciwpożarowych, które nastąpi po realizacji pierwszego etapu, i nie jest prognozą codziennego zużycia. Według informacji PWiK wartość ta odpowiada ok. 2% docelowej wydajności planowanej stacji uzdatniania wody przy ul. Energetycznej.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Przez centrum danych w Józefosławiu jeszcze bardziej spadnie ciśnienie wody.</strong>Obawa oparta na realnym, odczuwanym dziś problemie z siecią.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Przez centrum danych w Józefosławiu jeszcze bardziej spadnie ciśnienie wody.</strong>Czy inwestycja pogłębi dzisiejsze spadki ciśnienia w sieci?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Spadki ciśnienia w szczycie to realny problem, istniejący niezależnie od tej inwestycji.</strong>Nie podważamy go. Rzeczywiste zużycie obiektu nie równa się jednak górnej wartości zapisanej w dokumencie uzgodnieniowym. Publicznie znane wypowiedzi przedstawicieli PWiK w Piasecznie potwierdzają, że inwestycja nie wpłynie niekorzystnie na gospodarkę wodną okolicznych terenów.</p></div>
           </div>
         </div>
@@ -654,15 +691,15 @@
         <h3 class="myth-group-title">Hałas</h3>
         <div class="myth-grid">
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>To będzie hałaśliwy gigant, jak amerykańskie kampusy centrów danych.</strong>Porównania do wielkich kompleksów zza oceanu, opisywanych w mediach.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>To będzie hałaśliwy gigant, jak amerykańskie kampusy centrów danych.</strong>Czy to obiekt tej samej skali, co kompleksy opisywane zza oceanu?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Skala i charakter obiektu są inne niż w projektach znanych z rynku amerykańskiego.</strong>Inwestycja powstaje w otoczeniu zabudowy usługowo-przemysłowej i podlega polskim oraz unijnym normom środowiskowym, w tym dopuszczalnym poziomom hałasu. Kampusy, do których odwołują się doniesienia zza oceanu, mają inną skalę i powstają w innym reżimie prawnym.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>W nocy będzie głośno od pracujących urządzeń.</strong>Niepokój o pracę instalacji chłodniczych po zmroku.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>W nocy urządzenia chłodnicze pracują ze zmniejszoną wydajnością, co wynika z decyzji środowiskowej.</strong>Na granicy działki spełnione będą wszystkie obowiązujące normy hałasu, a dodatkowo zastosowane zostaną ekrany akustyczne i żaluzje. Analizy akustyczne uwzględniają funkcję sąsiedniej zabudowy, porę doby oraz liczbę i parametry urządzeń, a wartości zapisane w decyzji środowiskowej są wartościami maksymalnymi. Poziom hałasu ma być porównywalny z funkcjonowaniem pobliskiego centrum handlowego. Otoczenie inwestycji ma już dziś charakter przemysłowo-usługowy i sąsiaduje z rozdzielnią energetyczną przy ul. Energetycznej. Nowy obiekt nie wprowadzi więc do tej przestrzeni obcej dotąd jakości akustycznej.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>W nocy będzie głośno od pracujących urządzeń.</strong>Czy instalacje chłodnicze pracują tak samo głośno po zmroku?</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>W nocy urządzenia chłodnicze pracują ze zmniejszoną wydajnością, co wynika z decyzji środowiskowej.</strong>Na granicy działki spełnione będą wszystkie obowiązujące normy hałasu, a dodatkowo zastosowane zostaną ekrany akustyczne i żaluzje. Analizy akustyczne uwzględniają funkcję sąsiedniej zabudowy, porę doby oraz liczbę i parametry urządzeń, a wartości zapisane w decyzji środowiskowej są wartościami maksymalnymi. Poziom hałasu ma być porównywalny z funkcjonowaniem pobliskiego centrum handlowego. Otoczenie inwestycji ma już dziś charakter przemysłowo-usługowy i sąsiaduje z rozdzielnią energetyczną przy ul. Energetycznej. Nowy obiekt nie wprowadzi więc do tej przestrzeni obcej dotąd jakości akustycznej. Założenia dotyczące hałasu będą weryfikowane pomiarami zgodnie z wymaganiami certyfikacji BREEAM i LEED, a o wynikach uzyskanych certyfikacji inwestor poinformuje opinię publiczną.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Zmiana z trzech na cztery kondygnacje oznacza wyższy, głośniejszy budynek.</strong>Zmiana w pozwoleniu odczytana jako powiększenie budynku.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Zmiana z trzech na cztery kondygnacje oznacza wyższy, głośniejszy budynek.</strong>Czy zmiana liczby kondygnacji oznacza większy budynek?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Wysokość budynku się nie zmienia.</strong>Zmiana dotyczy wyłącznie podziału wnętrza budynku na kondygnacje, nie jego finalnej wysokości, i nie ma wpływu na oddziaływanie akustyczne. Obowiązek dotrzymania norm na granicy działki obowiązuje niezależnie od ostatecznych parametrów budynków, a wysokość urządzeń na dachach mieści się w wysokości zabudowy dopuszczonej planem miejscowym.</p></div>
           </div>
         </div>
@@ -672,11 +709,11 @@
         <h3 class="myth-group-title">Procedura i standardy</h3>
         <div class="myth-grid">
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Ta inwestycja powstaje bez nadzoru i w tajemnicy przed mieszkańcami.</strong>Wrażenie, że o budowie dowiedziano się dopiero, gdy na terenie stanęło ogrodzenie.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Ta inwestycja powstaje bez nadzoru i w tajemnicy przed mieszkańcami.</strong>Dlaczego wielu mieszkańców dowiedziało się o budowie dopiero z ogrodzenia?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Postępowanie środowiskowe prowadzono jawnie, z udziałem trzech instytucji.</strong>Obowiązek pełnej oceny oddziaływania na środowisko nałożył Burmistrz Piaseczna. Formalny udział społeczeństwa zapewniono dwukrotnie, w kwietniu 2023 i styczniu 2024 r., a obwieszczenia publikowano w BIP, w urzędzie, na terenie inwestycji i w prasie lokalnej. Decyzję środowiskową wydano 12 kwietnia 2024 r., z udziałem RDOŚ, Wód Polskich i Państwowej Inspekcji Sanitarnej. Inwestor przyznaje jednocześnie, że sama procedura nie zastąpiła rozmowy z sąsiadami.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>„Standard środowiskowy” to tylko marketingowe hasło.</strong>Wątpliwość, czy deklaracje o ekologii obiektu mają realne pokrycie.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>„Standard środowiskowy” to tylko marketingowe hasło.</strong>Czy deklaracje o standardzie środowiskowym mają realne pokrycie?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Budowa i eksploatacja podlegają zewnętrznemu audytowi certyfikacji BREEAM i LEED.</strong>To międzynarodowe standardy, które nakładają obowiązki wykraczające poza przepisy krajowe: dotyczą gospodarowania zasobami, ograniczania uciążliwości dla sąsiedztwa i ochrony jakości życia mieszkańców. Ocenia je podmiot zewnętrzny, a nie sam inwestor.</p></div>
           </div>
         </div>
@@ -686,15 +723,15 @@
         <h3 class="myth-group-title">Otoczenie i infrastruktura</h3>
         <div class="myth-grid">
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Ta budowa zniszczy charakter okolicy i obniży wartość naszych domów.</strong>Obawa, że nowoczesny obiekt przemysłowy nie pasuje do sąsiedztwa.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Ta budowa zniszczy charakter okolicy i obniży wartość naszych domów.</strong>Czy taki obiekt pasuje do tego sąsiedztwa?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Inwestycja nie zmienia charakteru okolicy, tylko wpisuje się w jej przeznaczenie.</strong>Ze względu na przemysłową historię miejsca plan miejscowy od kilkudziesięciu lat przeznacza ten teren wyłącznie pod funkcje usługowe i przemysłowe, a sąsiedztwo tworzy zabudowa przemysłowa, handlowa i biurowa. Cała okolica leży również w obszarze oddziaływania akustycznego Lotniska Chopina.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Budowa i eksploatacja oznaczają stały ruch ciężarówek i utrudnienia.</strong>Wizja kolumn ciężarówek na okolicznych ulicach.</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Docelowy ruch to głównie samochody osobowe pracowników.</strong>Ruch drogowy w okolicy nie wzrośnie w istotny sposób względem stanu obecnego. Na etapie budowy wymogi certyfikacji BREEAM i LEED zobowiązują inwestora do ograniczania oddziaływania prac na otoczenie. Godziny prac uciążliwych są uzgadniane w trybie przewidzianym dla realizacji budowy, a mieszkańcy są o nich informowani.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Budowa i eksploatacja oznaczają stały ruch ciężarówek i utrudnienia.</strong>Czy przez okolicę pojadą kolumny ciężarówek?</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Docelowy ruch to głównie samochody osobowe pracowników.</strong>Ruch drogowy w okolicy nie wzrośnie w istotny sposób względem stanu obecnego. Na etapie budowy wymogi certyfikacji BREEAM i LEED zobowiązują inwestora do ograniczania oddziaływania prac na otoczenie. Godziny prac hałaśliwych i organizacja ruchu budowlanego są planowane i uzgadniane z gminą, a mieszkańcy informowani o nich z wyprzedzeniem.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych „zabiera” prąd mieszkańcom.</strong>Pytanie o to, czy w okolicy wystarczy prądu.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych „zabiera” prąd mieszkańcom.</strong>Czy w okolicy wystarczy prądu?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Obiekt ma dedykowaną infrastrukturę zasilania.</strong>Projekt przewiduje własną stację transformatorową oraz systemy awaryjnego zasilania, wpięte w sieć zgodnie z warunkami przyłączeniowymi. Budowa stacji energetycznej WN/SN jest objęta decyzją środowiskową i pozwoleniem na budowę. Dzięki infrastrukturze pozostałej po dawnym kombinacie obiekt korzysta z istniejących przyłączy, zamiast wymuszać budowę nowych linii przesyłowych przez tereny zabudowane.</p></div>
           </div>
         </div>
@@ -704,17 +741,57 @@
         <h3 class="myth-group-title">Branża centrów danych</h3>
         <div class="myth-grid">
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>To „puste” budynki bez miejsc pracy.</strong>Wrażenie, że centrum danych obsługuje się „samo”.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>To „puste” budynki bez miejsc pracy.</strong>Czy centrum danych obsługuje się samo?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>To praca dla wykonawców, dostawców i obsługi obiektu.</strong>Inwestycja generuje pracę na etapie budowy (wykonawcy, poddostawcy), a na etapie eksploatacji obejmuje kadrę techniczną i inżynierską, utrzymanie ruchu oraz ochronę obiektu. Polskie Stowarzyszenie Centrów Danych (PLDCA) zrzesza ponad 60 firm z całego łańcucha wartości branży, a wg jego danych sektor wygenerował w Polsce w 2025 r. 10,6 mld zł wartości dodanej i 4,3 mld zł wpływów fiskalnych.</p></div>
           </div>
           <div class="myth-card">
-            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Polska jest już „zalana” centrami danych.</strong>Wrażenie masowej, niekontrolowanej ekspansji sektora.</p></div>
+            <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Polska jest już „zalana” centrami danych.</strong>Czy centra danych powstają w Polsce masowo?</p></div>
             <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>To wciąż rynek na dorobku.</strong>Według PLDCA Polska dysponuje ok. 200 MW mocy centrów danych, podczas gdy cała Europa to już ok. 10 GW. Około 80% polskich obiektów skupionych jest w rejonie Warszawy.</p></div>
           </div>
         </div>
       </div>
 
       <p class="src-note" style="margin-top:36px;">Dane o inwestycji: komunikat prasowy i materiały inwestora (Sien Real) dotyczące gospodarki wodnej, akustyki i procedury środowiskowej. Dane sektorowe: Polskie Stowarzyszenie Centrów Danych (PLDCA, <a href="https://pldca.pl" target="_blank" rel="noopener">pldca.pl</a>) oraz raport Komisji Europejskiej „Assessment of the Energy Performance and Sustainability of Data Centres in the EU”.</p>
+    </div>
+  </section>
+
+  <section id="zobowiazania" class="pledge">
+    <div class="wrap">
+      <div class="eyebrow">Zobowiązania</div>
+      <h2>Sześć zobowiązań wobec mieszkańców</h2>
+      <p class="lead">Zobowiązania, które inwestor przyjmuje wobec lokalnej społeczności na czas budowy i eksploatacji obiektu.</p>
+      <div class="pledge-grid">
+        <div class="pledge-card">
+          <div class="pledge-num">1</div>
+          <h3>Publiczne raportowanie zużycia wody</h3>
+          <p>Po uruchomieniu co kwartał opublikujemy na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">www.sienreal.pl</a> dane o rzeczywistym poborze wody przez obiekt, w ujęciu dobowym i miesięcznym.</p>
+        </div>
+        <div class="pledge-card">
+          <div class="pledge-num">2</div>
+          <h3>Niezależne pomiary hałasu po uruchomieniu</h3>
+          <p>Zgodnie z założeniami certyfikacji BREEAM i LEED założenia dotyczące hałasu będą weryfikowane pomiarami. O wynikach uzyskanych certyfikacji inwestor będzie informował opinię publiczną.</p>
+        </div>
+        <div class="pledge-card">
+          <div class="pledge-num">3</div>
+          <h3>Stały kanał kontaktu dla mieszkańców</h3>
+          <p>Od dziś działa strona <a href="https://www.sienreal.pl" target="_blank" rel="noopener">www.sienreal.pl</a> oraz adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>. Na każde zgłoszenie odpowiemy w ciągu 3 dni roboczych, a powtarzające się pytania będziemy publikować na ww. stronie.</p>
+        </div>
+        <div class="pledge-card">
+          <div class="pledge-num">4</div>
+          <h3>Uzgodniony harmonogram prac uciążliwych</h3>
+          <p>Godziny prac hałaśliwych oraz organizację ruchu budowlanego będziemy odpowiednio planować i uzgadniać z gminą, informując o nich mieszkańców z wyprzedzeniem.</p>
+        </div>
+        <div class="pledge-card">
+          <div class="pledge-num">5</div>
+          <h3>Regularne informowanie samorządu i sołectw</h3>
+          <p>Co kwartał przekażemy Radzie Miejskiej w Piasecznie oraz sołectwom Józefosławia i Julianowa informację o postępie prac, kolejnych etapach i parametrach eksploatacyjnych obiektu.</p>
+        </div>
+        <div class="pledge-card">
+          <div class="pledge-num">6</div>
+          <h3>Dialog</h3>
+          <p>Zapraszamy mieszkańców do powołania lokalnego zespołu dialogu, z którym będziemy spotykać się regularnie przez cały okres budowy i eksploatacji.</p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -737,7 +814,7 @@
 
         <details class="faq-item">
           <summary class="faq-q">Ile wody zużyje obiekt? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>W normalnej eksploatacji zapotrzebowanie jest około pięciokrotnie mniejsze od wartości zapisanej w warunkach przyłączenia. Według obliczeń projektowych dla wszystkich czterech budynków jest to ok. 35 m³ na dobę na cele socjalno-bytowe i porządkowe oraz ok. 20 m³ na dobę na sezonowe nawilżanie powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Powtarzana w dyskusji wartość 286 m³ na dobę to maksymalne zapotrzebowanie wynikające z warunków przyłączenia dla całej, czteroetapowej inwestycji, potrzebne jednorazowo do napełnienia zbiorników przeciwpożarowych.</p></div>
+          <div class="faq-a"><p>Aktualny projekt zakłada zapotrzebowanie maksymalnie do 55 m³ na dobę, czyli około pięciokrotnie mniej niż wartość zapisana w warunkach przyłączenia. Według obliczeń projektowych dla wszystkich czterech budynków składa się na to ok. 35 m³ na dobę na cele socjalno-bytowe i porządkowe oraz ok. 20 m³ na dobę na sezonowe nawilżanie powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Powtarzana w dyskusji wartość 286 m³ na dobę to maksymalne zapotrzebowanie wynikające z warunków przyłączenia dla całej, czteroetapowej inwestycji, potrzebne jednorazowo do napełnienia zbiorników przeciwpożarowych po realizacji pierwszego etapu.</p></div>
         </details>
 
         <details class="faq-item">
@@ -752,7 +829,7 @@
 
         <details class="faq-item">
           <summary class="faq-q">Czy planowane jest spotkanie z mieszkańcami? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Tak. Inwestor zaprasza mieszkańców Józefosławia, Julianowa i Piaseczna na otwarte spotkanie. Poprzedzi je prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy oraz niezależni eksperci z zakresu gospodarki wodnej, systemów chłodzenia i akustyki. O terminie inwestor poinformuje przez stronę sienreal.pl oraz Urząd Gminy Piaseczno. Pytania można zadać na miejscu lub przesłać wcześniej na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p></div>
+          <div class="faq-a"><p>Tak. Inwestor zaprasza mieszkańców Józefosławia, Julianowa i Piaseczna na otwarte spotkanie. Poprzedzi je prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy oraz niezależni eksperci z zakresu gospodarki wodnej, systemów chłodzenia i akustyki. Spotkanie odbędzie się między 15 a 30 września, a dokładna data zależy od liczby pytań, które zbierzemy i poddamy analizie w ramach przygotowań. Termin zostanie ogłoszony przez stronę sienreal.pl oraz Urząd Gminy Piaseczno. Pytania można zadać na miejscu lub przesłać wcześniej na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p></div>
         </details>
 
         <details class="faq-item">
@@ -866,7 +943,7 @@
     var fill = document.getElementById('wmFill');
     if ('IntersectionObserver' in window) {
       document.body.classList.add('reveal-ready');
-      var items = document.querySelectorAll('.stat, .notice, .arg, .spec, .tl-item, .gallery-grid a, .wm, .myth-card, .faq-item, .contact-panel');
+      var items = document.querySelectorAll('.stat, .notice, .arg, .spec, .tl-item, .gallery-grid a, .wm, .myth-card, .pledge-card, .faq-item, .contact-panel');
       Array.prototype.forEach.call(items, function(el){
         el.classList.add('reveal');
         var i = Array.prototype.indexOf.call(el.parentNode.children, el);
