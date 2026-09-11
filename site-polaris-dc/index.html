@@ -249,6 +249,66 @@
     line-height:1.35;margin-bottom:4px;color:var(--navy-deep);
   }
 
+  /* wyeksponowana ramka na gorze sekcji */
+  .myth-lead{
+    background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--radius-lg);
+    overflow:hidden;margin-top:38px;box-shadow:var(--shadow);
+  }
+  .myth-lead-head{
+    background:var(--navy-deep);color:#fff;padding:22px 30px;
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .myth-lead-flag{
+    flex-shrink:0;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+    background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);
+    padding:6px 10px;border-radius:6px;color:rgba(255,255,255,.9);
+  }
+  .myth-lead-head h3{
+    margin:0;font-family:var(--display);font-size:20px;font-weight:600;
+    letter-spacing:-0.02em;color:#fff;
+  }
+  .myth-lead-body{display:grid;grid-template-columns:1fr 1fr;align-items:stretch;}
+  .myth-lead-main{border-right:1px solid var(--line);}
+  .myth-lead-main .myth-row{padding:24px 30px;}
+  .myth-lead-main .myth-row.fact{border-bottom:0;}
+  .myth-findings{padding:26px 30px 28px;}
+  .myth-findings h4,.myth-docs h4{
+    font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--ink-soft);margin:0 0 16px;
+  }
+  .myth-find{padding:14px 0;border-top:1px solid var(--line);}
+  .myth-find:first-of-type{border-top:0;padding-top:0;}
+  .myth-find:last-child{padding-bottom:0;}
+  .myth-find b{
+    display:block;font-family:var(--display);font-size:15px;font-weight:600;
+    letter-spacing:-0.01em;color:var(--navy-deep);margin-bottom:5px;
+  }
+  .myth-find p{margin:0;font-size:14px;line-height:1.65;color:var(--ink-soft);}
+
+  /* pasek z zapisem kontroli */
+  .myth-docs{background:var(--surface-soft);border-top:1px solid var(--line-strong);padding:26px 30px 28px;}
+  .doc-track{
+    list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+  }
+  .doc-track li{position:relative;padding-top:22px;}
+  .doc-track li::before{
+    content:"";position:absolute;left:0;top:2px;width:9px;height:9px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);z-index:1;
+  }
+  .doc-track li::after{
+    content:"";position:absolute;left:9px;top:6px;right:-24px;height:1px;background:var(--line-strong);
+  }
+  .doc-track li:last-child::after{display:none;}
+  .doc-date{
+    display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:5px;
+  }
+  .doc-track p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-soft);}
+  .doc-foot{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-strong);}
+  .doc-note{margin:0;font-size:13.5px;line-height:1.65;color:var(--ink-soft);max-width:76ch;}
+  .doc-note a{color:var(--navy);font-weight:600;text-decoration:none;border-bottom:1px solid var(--line-strong);}
+  .doc-note a:hover{border-bottom-color:var(--navy);}
+
   /* COMMITMENTS */
   .pledge{background:var(--navy-deep);color:#fff;}
   .pledge h2{color:#fff;}
@@ -413,6 +473,10 @@
     .gallery-grid a:first-child{grid-row:auto;}
     .gallery-grid a{height:260px;}
     .myth-grid{grid-template-columns:1fr;}
+    .myth-lead-body{grid-template-columns:1fr;}
+    .myth-lead-main{border-right:0;border-bottom:1px solid var(--line);}
+    .doc-track{grid-template-columns:repeat(2,1fr);gap:20px 24px;}
+    .doc-track li:nth-child(2)::after{display:none;}
     .pledge-grid{grid-template-columns:1fr;}
     .notice-side{width:100%;}
     .contact-panel{grid-template-columns:1fr;padding:36px 26px;gap:32px;}
@@ -427,6 +491,18 @@
     .hero-actions{flex-direction:column;align-items:stretch;}
     .hero-actions .btn{width:100%;}
     .spec,.arg{padding:24px 22px;}
+    .myth-lead-head{padding:20px 22px;gap:12px;}
+    .myth-lead-head h3{font-size:18px;}
+    .myth-lead-main .myth-row{padding:22px;}
+    .myth-findings{padding:22px 22px 24px;}
+    .myth-docs{padding:22px;}
+    .doc-track{grid-template-columns:1fr;gap:0;}
+    .doc-track li{padding:0 0 18px 22px;}
+    .doc-track li:last-child{padding-bottom:0;}
+    .doc-track li::before{left:0;top:5px;}
+    .doc-track li::after{left:4px;top:18px;right:auto;bottom:0;width:1px;height:auto;}
+    .doc-track li:nth-child(2)::after{display:block;}
+    .doc-track li:last-child::after{display:none;}
     .wm{padding:24px 22px;}
     .wm-max{text-align:left;}
   }
@@ -516,19 +592,19 @@
   <section id="o-inwestycji">
     <div class="wrap">
       <div class="eyebrow">O inwestycji</div>
-      <h2>Co powstaje w Piasecznie</h2>
+      <h2>Co powstaje w Piasecznie?</h2>
       <p class="lead">Centrum przetwarzania danych przy ulicy Energetycznej, realizowane w czterech etapach na terenie po dawnym kombinacie UNITRA-Polkolor.</p>
 
       <div class="arg-grid">
         <div class="arg">
           <span class="arg-k">Skala</span>
           <h3>Skala adekwatna do miejsca</h3>
-          <p>Obiekt nie należy do przedsięwzięć wielkoskalowych, o jakich mówi się w dyskusji o centrach danych. Ani architektura, ani skala nie odbiegają od zabudowy usługowo-przemysłowej, która od dekad dominuje w tej części Piaseczna. Porównania do megaprojektów z innych kontynentów nie oddają rzeczywistego charakteru inwestycji, która w pełni podlega polskim i unijnym normom środowiskowym.</p>
+          <p>Obiekt nie należy do przedsięwzięć wielkoskalowych, o jakich mówi się w dyskusji o centrach danych. Ani architektura, ani wielkość nie odbiegają od zabudowy usługowo-przemysłowej, która od dekad dominuje w tej części Piaseczna. Porównania do megaprojektów z innych kontynentów nie oddają rzeczywistego charakteru inwestycji, która w pełni podlega polskim i unijnym normom środowiskowym.</p>
         </div>
         <div class="arg">
           <span class="arg-k">Inwestor</span>
           <h3>Kto realizuje inwestycję</h3>
-          <p>Inwestorem jest Sien Real, spółka z Grupy Budimex. Kampus powstaje jako inwestycja własna grupy, dlatego za sposób prowadzenia budowy i standard obiektu odpowiada bezpośrednio inwestor.</p>
+          <p>Inwestorem jest Sien Real, spółka z Grupy Budimex. Kampus powstaje jako inwestycja własna grupy. Za sposób prowadzenia budowy i standard obiektu odpowiada bezpośrednio inwestor.</p>
         </div>
         <div class="arg">
           <span class="arg-k">Zakres</span>
@@ -538,7 +614,7 @@
         <div class="arg">
           <span class="arg-k">Lokalizacja</span>
           <h3>Dlaczego akurat ten teren</h3>
-          <p>W dawnym kombinacie UNITRA-Polkolor w produkcji kineskopów wykorzystywano ciężkie pierwiastki i substancje toksyczne. Dlatego miejscowy plan zagospodarowania przestrzennego od kilkudziesięciu lat konsekwentnie przeznacza ten obszar wyłącznie pod funkcje usługowe i przemysłowe. Nie jest to teren pod zabudowę mieszkaniową. Pozostała po kombinacie infrastruktura energetyczna pozwala korzystać z istniejących przyłączy, zamiast budować nowe linie przesyłowe przez tereny zabudowane.</p>
+          <p>W dawnym kombinacie UNITRA-Polkolor w produkcji kineskopów wykorzystywano ciężkie pierwiastki i substancje toksyczne. Dlatego miejscowy plan zagospodarowania przestrzennego przeznacza ten obszar pod funkcje usługowe i przemysłowe. Pozostała po kombinacie infrastruktura energetyczna pozwala korzystać z istniejących przyłączy, zamiast budować nowe linie przesyłowe przez tereny zabudowane.</p>
         </div>
         <div class="arg">
           <span class="arg-k">Procedura</span>
@@ -672,6 +748,62 @@
       <h2>Co się mówi, a co wynika z danych</h2>
       <p class="lead">Poniżej najczęściej powtarzane twierdzenia o inwestycji i dane, które je weryfikują.</p>
 
+      <div class="myth-lead">
+        <div class="myth-lead-head">
+          <span class="myth-lead-flag">Sprawa bieżąca</span>
+          <h3>Wycinka i nadzór przyrodniczy</h3>
+        </div>
+        <div class="myth-lead-body">
+          <div class="myth-lead-main">
+            <div class="myth-row myth">
+              <span class="myth-tag">Mit</span>
+              <p><strong>Drzewa na terenie inwestycji wycięto bez nadzoru przyrodniczego.</strong>Czy zanim weszły maszyny, ktoś sprawdził, co rośnie i żyje na tej działce?</p>
+            </div>
+            <div class="myth-row fact">
+              <span class="myth-tag">Fakt</span>
+              <p><strong>Prace poprzedziła kontrola przyrodnicza, a jej ustalenia aktualizowano na kolejnych etapach przygotowania terenu.</strong>Obowiązek takiej kontroli wynika z warunku 1.1 decyzji o środowiskowych uwarunkowaniach. Ma ona zostać wykonana bezpośrednio przed rozpoczęciem prac, dlatego przyrodnicy wracali na teren przed karczowaniem i zdjęciem warstwy humusu. Zakres obejmował ptaki, nietoperze, płazy, gady i ssaki, a także roślinność oraz bezkręgowce. Prace przy ogrodzeniu, prowadzone w sąsiedztwie czynnego gniazda, odbywały się pod nadzorem ornitologicznym.</p>
+            </div>
+          </div>
+          <div class="myth-findings">
+            <h4>Co wykazały kontrole</h4>
+            <div class="myth-find">
+              <b>Brak kolizji z gatunkami chronionymi</b>
+              <p>Na terenie przeznaczonym do karczowania i zdjęcia warstwy humusu nie stwierdzono chronionych roślin, grzybów, bezkręgowców, płazów, gadów ani ssaków. Nie znaleziono również ich siedlisk, które kolidowałyby z zakresem robót.</p>
+            </div>
+            <div class="myth-find">
+              <b>Gniazda pod obserwacją ornitologa</b>
+              <p>Wcześniejsza kontrola wykazała trzy gniazda, w tym jedno czynne gniazdo grzywacza. Wyznaczono wokół niego strefę ochronną, a prace przy ogrodzeniu prowadzono pod nadzorem ornitologicznym. Podczas kolejnej kontroli gniazdo było już opuszczone i uszkodzone przez niekorzystne warunki atmosferyczne. Nowych gniazd nie stwierdzono.</p>
+            </div>
+            <div class="myth-find">
+              <b>Drzewa, które zostają na terenie</b>
+              <p>Nadzór potwierdził prawidłowe zabezpieczenie drzew przeznaczonych do zachowania oraz brak przyrodniczych przeciwwskazań do karczowania, koszenia i miejscowego zdjęcia warstwy humusu.</p>
+            </div>
+          </div>
+        </div>
+        <div class="myth-docs">
+          <h4>Zapis kolejnych kontroli</h4>
+          <ol class="doc-track">
+            <li>
+              <span class="doc-date">29 lipca 2026</span>
+              <p>Przegląd przyrodniczy terenu inwestycji, czyli kontrola przed rozpoczęciem prac, obejmująca ptaki, nietoperze, płazy, gady i ssaki wraz z oceną roślinności oraz bezkręgowców.</p>
+            </li>
+            <li>
+              <span class="doc-date">30 lipca 2026</span>
+              <p>Notatka z nadzoru ornitologicznego nad pracami przy ogrodzeniu, prowadzonymi w sąsiedztwie czynnego gniazda grzywacza.</p>
+            </li>
+            <li>
+              <span class="doc-date">5 sierpnia 2026</span>
+              <p>Notatka z kontroli bezpośrednio przed karczowaniem i zdjęciem warstwy humusu, aktualizująca wcześniejsze ustalenia.</p>
+            </li>
+            <li>
+              <span class="doc-date">27 sierpnia 2026</span>
+              <p>Notatka z kontroli zabezpieczenia drzew przeznaczonych do zachowania oraz stanu gniazda grzywacza.</p>
+            </li>
+          </ol>
+          <div class="doc-foot"><p class="doc-note">Z dokumentacji wynika, że wymagania warunku 1.1 decyzji środowiskowej zostały spełnione, a prace przygotowawcze prowadzono zgodnie z przepisami o ochronie przyrody. Pytania o zakres kontroli można <a href="#kontakt">przesłać do nas</a>.</p></div>
+        </div>
+      </div>
+
       <div class="myth-group">
         <h3 class="myth-group-title">Woda</h3>
 
@@ -703,7 +835,7 @@
         <div class="myth-grid">
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Centrum danych zużyje ogromne ilości wody i zabraknie jej mieszkańcom.</strong>Czy chłodzenie serwerowni pochłania wodę bez ograniczeń?</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Aktualny projekt zakłada zapotrzebowanie maksymalnie do 55 m³ na dobę, czyli około pięć razy mniej niż wartość z warunków przyłączenia.</strong>Woda służy przede wszystkim celom socjalno-bytowym pracowników obsługujących obiekt, celom porządkowym oraz sezonowemu nawilżaniu powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Zdecydowana większość pobranej wody wraca po wykorzystaniu do kanalizacji, a bezpowrotnie zużywana jest jej niewielka część.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Aktualny projekt zakłada zapotrzebowanie maksymalnie do 55 m³ na dobę, czyli około pięć razy mniej niż wartość z warunków przyłączenia.</strong>Woda służy przede wszystkim celom socjalno-bytowym pracowników obsługujących obiekt, celom porządkowym oraz sezonowemu nawilżaniu powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Zdecydowana większość pobranej wody wraca po wykorzystaniu do instalacji, a bezpowrotnie zużywana jest jej niewielka część.</p></div>
           </div>
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>286 m³ wody na dobę to tyle, co osiedle na kilka tysięcy mieszkańców.</strong>Czy 286 m³ to prognoza codziennego zużycia?</p></div>
@@ -753,7 +885,7 @@
         <div class="myth-grid">
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Ta budowa zniszczy charakter okolicy i obniży wartość naszych domów.</strong>Czy taki obiekt pasuje do tego sąsiedztwa?</p></div>
-            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Inwestycja nie zmienia charakteru okolicy, tylko wpisuje się w jej przeznaczenie.</strong>Ze względu na przemysłową historię miejsca plan miejscowy od kilkudziesięciu lat przeznacza ten teren wyłącznie pod funkcje usługowe i przemysłowe, a sąsiedztwo tworzy zabudowa przemysłowa, handlowa i biurowa. Cała okolica leży również w obszarze oddziaływania akustycznego Lotniska Chopina.</p></div>
+            <div class="myth-row fact"><span class="myth-tag">Fakt</span><p><strong>Inwestycja nie zmienia charakteru okolicy, tylko wpisuje się w jej przeznaczenie.</strong>Ze względu na przemysłową historię miejsca plan miejscowy od kilkudziesięciu lat przeznacza ten teren pod funkcje usługowe i przemysłowe, a sąsiedztwo tworzy zabudowa przemysłowa, handlowa i biurowa. Cała okolica leży również w obszarze oddziaływania akustycznego Lotniska Chopina.</p></div>
           </div>
           <div class="myth-card">
             <div class="myth-row myth"><span class="myth-tag">Mit</span><p><strong>Budowa i eksploatacja oznaczają stały ruch ciężarówek i utrudnienia.</strong>Czy przez okolicę pojadą kolumny ciężarówek?</p></div>
@@ -991,7 +1123,7 @@
     var fill = document.getElementById('wmFill');
     if ('IntersectionObserver' in window) {
       document.body.classList.add('reveal-ready');
-      var items = document.querySelectorAll('.stat, .notice, .arg, .spec, .tl-item, .gallery-grid a, .wm, .myth-card, .pledge-card, .faq-item, .contact-panel');
+      var items = document.querySelectorAll('.stat, .notice, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .faq-item, .contact-panel');
       Array.prototype.forEach.call(items, function(el){
         el.classList.add('reveal');
         var i = Array.prototype.indexOf.call(el.parentNode.children, el);
@@ -1067,7 +1199,7 @@
     if (stored === 'all' || stored === 'necessary') {
       applyConsent(stored);
     } else {
-      setTimeout(showBanner, 700);
+      setTimeout(function(){ if (!readConsent()) showBanner(); }, 700);
     }
 
     Array.prototype.forEach.call(document.querySelectorAll('.faq-item'), function(item){
