@@ -141,24 +141,53 @@
   }
   .stat span{display:block;font-size:13.5px;line-height:1.45;color:var(--ink-soft);}
 
-  /* NOTICE BAND */
-  .notice{
+  /* AKTUALNOSCI (slider) */
+  .news{
     background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--navy);
-    border-radius:var(--radius);padding:28px 32px;display:flex;gap:28px;
+    border-radius:var(--radius);padding:24px 32px 26px;
+  }
+  .news-head{
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding-bottom:16px;margin-bottom:22px;border-bottom:1px solid var(--line);
+  }
+  .news-head .eyebrow{margin:0;}
+  .news-nav{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .news-arrow{
+    width:34px;height:34px;flex-shrink:0;border:1px solid var(--line-strong);background:var(--surface);
+    border-radius:9px;color:var(--navy-deep);cursor:pointer;padding:0;
+    display:flex;align-items:center;justify-content:center;
+    transition:background .2s,border-color .2s,color .2s;
+  }
+  .news-arrow:hover{background:var(--surface-soft);border-color:var(--navy);}
+  .news-arrow svg{width:14px;height:14px;display:block;}
+  .news-count{font-size:12px;color:var(--ink-soft);min-width:38px;text-align:center;letter-spacing:.04em;}
+  .news-count b{color:var(--navy-deep);font-weight:700;}
+  .news-viewport{overflow:hidden;transition:height .45s cubic-bezier(.2,.7,.3,1);}
+  .news-track{display:flex;align-items:flex-start;transition:transform .45s cubic-bezier(.2,.7,.3,1);}
+  .news-slide{
+    flex:0 0 100%;min-width:0;display:flex;gap:28px;
     align-items:center;justify-content:space-between;flex-wrap:wrap;
   }
-  .notice-text{flex:1 1 480px;}
-  .notice .eyebrow{margin-bottom:8px;}
-  .notice h3{font-size:21px;margin-bottom:8px;}
-  .notice p{margin:0;font-size:14.5px;color:var(--ink-soft);}
-  .notice p+p{margin-top:10px;}
-  .notice-side{display:flex;flex-direction:column;gap:14px;align-items:stretch;flex-shrink:0;width:232px;}
-  .notice-date{
+  .news-slide[aria-hidden="true"]{visibility:hidden;transition:visibility 0s linear .45s;}
+  .news-text{flex:1 1 480px;min-width:0;}
+  .news-text .eyebrow{margin-bottom:8px;}
+  .news-text h3{font-size:21px;margin-bottom:8px;}
+  .news-text p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+  .news-text p+p{margin-top:10px;}
+  .news-side{display:flex;flex-direction:column;gap:14px;align-items:stretch;flex-shrink:0;width:232px;}
+  .news-date{
     border:1px solid var(--line);border-radius:12px;padding:14px 20px;text-align:center;background:var(--accent-soft);
   }
-  .notice-date span{display:block;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
-  .notice-date b{display:block;font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-0.02em;color:var(--navy-deep);line-height:1.25;}
-  .notice .btn{flex-shrink:0;}
+  .news-date span{display:block;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
+  .news-date b{display:block;font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-0.02em;color:var(--navy-deep);line-height:1.25;}
+  .news-side .btn{flex-shrink:0;}
+  .news-dots{display:flex;gap:7px;justify-content:center;margin-top:22px;}
+  .news-dot{
+    width:7px;height:7px;padding:0;border:0;border-radius:50%;background:var(--line-strong);
+    cursor:pointer;transition:background .25s,width .25s,border-radius .25s;
+  }
+  .news-dot:hover{background:var(--ink-soft);}
+  .news-dot.on{background:var(--navy);width:24px;border-radius:4px;}
 
   /* ARGUMENT FRAMES */
   .arg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:44px;}
@@ -371,6 +400,7 @@
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.001ms !important;animation-delay:0ms !important;transition-duration:.001ms !important;}
     body.reveal-ready .reveal{opacity:1;transform:none;}
+    .news-viewport,.news-track{transition:none;}
   }
 
   /* FAQ */
@@ -478,10 +508,10 @@
     .doc-track{grid-template-columns:repeat(2,1fr);gap:20px 24px;}
     .doc-track li:nth-child(2)::after{display:none;}
     .pledge-grid{grid-template-columns:1fr;}
-    .notice-side{width:100%;}
+    .news-side{width:100%;}
     .contact-panel{grid-template-columns:1fr;padding:36px 26px;gap:32px;}
     section{padding:68px 0;}
-    .notice{padding:26px;}
+    .news{padding:22px 22px 24px;}
     .cookie{left:12px;right:12px;bottom:12px;padding:20px;gap:16px;}
     .cookie-actions{width:100%;}
     .cookie-actions .btn{flex:1 1 160px;justify-content:center;}
@@ -574,19 +604,55 @@
 
   <section id="spotkanie" class="section-alt" style="padding:52px 0;">
     <div class="wrap">
-      <div class="notice">
-        <div class="notice-text">
-          <div class="eyebrow">Komunikat z 15 września 2026</div>
-          <h3>Spotkanie z mieszkańcami w ostatnim tygodniu września</h3>
-          <p>15 września 2026 roku odbyło się spotkanie z sołtysem Józefosławia, panem Maciejem Dłużniewskim, oraz ze stowarzyszeniami działającymi na terenie Józefosławia i Piaseczna. Rozmowa była rzeczowa, a poruszone na niej tematy będą punktem wyjścia do spotkania z mieszkańcami, poświęconego pytaniom i wątpliwościom lokalnej społeczności wobec inwestycji.</p>
-          <p>Zapowiadane spotkanie otwarte dla mieszkańców planujemy zorganizować w ostatnim tygodniu września. Dokładny termin i miejsce podamy na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a>.</p>
-          <p>Ze względu na prywatność uczestników, w tym projektantów i architektów, spotkanie nie będzie transmitowane ani nagrywane.</p>
-          <p>Prosimy o przesyłanie pytań na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>. Zbierzemy je i odniesiemy się do nich na spotkaniu, którego zasadniczą częścią będzie sesja pytań i odpowiedzi z udziałem przedstawicieli inwestora, zespołu projektowego i ekspertów. Chcemy odpowiedzieć na wszystkie Państwa pytania.</p>
+      <div class="news" id="news">
+        <div class="news-head">
+          <div class="eyebrow">Aktualności</div>
+          <div class="news-nav">
+            <button type="button" class="news-arrow" id="newsPrev" aria-label="Poprzednia aktualność">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <span class="news-count"><b id="newsIdx">1</b> / 2</span>
+            <button type="button" class="news-arrow" id="newsNext" aria-label="Następna aktualność">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="notice-side">
-          <div class="notice-date"><span>Termin</span><b>Ostatni tydzień września</b></div>
-          <a href="mailto:pytania@sienreal.pl?subject=Pytanie%20na%20spotkanie%20%E2%80%93%20centrum%20danych%20Piaseczno" class="btn btn-dark">Prześlij pytanie</a>
+
+        <div class="news-viewport" id="newsViewport">
+          <div class="news-track" id="newsTrack">
+
+            <article class="news-slide">
+              <div class="news-text">
+                <div class="eyebrow">Komunikat z 21 września 2026</div>
+                <h3>Prace budowlane od 22 września, możliwy hałas i drgania</h3>
+                <p>We wtorek, 22 września, na terenie inwestycji rozpoczną się prace budowlane, którym mogą towarzyszyć hałas i drgania odczuwalne w okolicy. Prace potrwają kilka dni.</p>
+                <p>Przepraszamy za niedogodności i dziękujemy za wyrozumiałość.</p>
+              </div>
+              <div class="news-side">
+                <div class="news-date"><span>Start</span><b>wtorek, 22 września</b></div>
+                <div class="news-date"><span>Czas trwania</span><b>kilka dni</b></div>
+              </div>
+            </article>
+
+            <article class="news-slide">
+              <div class="news-text">
+                <div class="eyebrow">Komunikat z 15 września 2026</div>
+                <h3>Spotkanie z mieszkańcami w ostatnim tygodniu września</h3>
+                <p>15 września 2026 roku odbyło się spotkanie z sołtysem Józefosławia, panem Maciejem Dłużniewskim, oraz ze stowarzyszeniami działającymi na terenie Józefosławia i Piaseczna. Rozmowa była rzeczowa, a poruszone na niej tematy będą punktem wyjścia do spotkania z mieszkańcami, poświęconego pytaniom i wątpliwościom lokalnej społeczności wobec inwestycji.</p>
+                <p>Zapowiadane spotkanie otwarte dla mieszkańców planujemy zorganizować w ostatnim tygodniu września. Dokładny termin i miejsce podamy na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a>.</p>
+                <p>Ze względu na prywatność uczestników, w tym projektantów i architektów, spotkanie nie będzie transmitowane ani nagrywane.</p>
+                <p>Prosimy o przesyłanie pytań na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>. Zbierzemy je i odniesiemy się do nich na spotkaniu, którego zasadniczą częścią będzie sesja pytań i odpowiedzi z udziałem przedstawicieli inwestora, zespołu projektowego i ekspertów. Chcemy odpowiedzieć na wszystkie Państwa pytania.</p>
+              </div>
+              <div class="news-side">
+                <div class="news-date"><span>Termin</span><b>Ostatni tydzień września</b></div>
+                <a href="mailto:pytania@sienreal.pl?subject=Pytanie%20na%20spotkanie%20%E2%80%93%20centrum%20danych%20Piaseczno" class="btn btn-dark">Prześlij pytanie</a>
+              </div>
+            </article>
+
+          </div>
         </div>
+
+        <div class="news-dots" id="newsDots"></div>
       </div>
     </div>
   </section>
@@ -1121,7 +1187,7 @@
     var fill = document.getElementById('wmFill');
     if ('IntersectionObserver' in window) {
       document.body.classList.add('reveal-ready');
-      var items = document.querySelectorAll('.stat, .notice, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .faq-item, .contact-panel');
+      var items = document.querySelectorAll('.stat, .news, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .faq-item, .contact-panel');
       Array.prototype.forEach.call(items, function(el){
         el.classList.add('reveal');
         var i = Array.prototype.indexOf.call(el.parentNode.children, el);
@@ -1159,6 +1225,75 @@
     } else if (fill) {
       fill.style.width = '19.1%';
     }
+
+    // --- slider aktualnosci ---
+    (function(){
+      var track = document.getElementById('newsTrack');
+      var viewport = document.getElementById('newsViewport');
+      var dotsBox = document.getElementById('newsDots');
+      var idxEl = document.getElementById('newsIdx');
+      if (!track || !viewport) return;
+
+      var slides = Array.prototype.slice.call(track.children);
+      if (slides.length < 2) return;
+      var current = 0;
+
+      var dots = slides.map(function(slide, n){
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'news-dot';
+        dot.setAttribute('aria-label', 'Aktualność ' + (n + 1));
+        dot.addEventListener('click', function(){ go(n); });
+        dotsBox.appendChild(dot);
+        return dot;
+      });
+
+      function setHeight(){
+        viewport.style.height = slides[current].offsetHeight + 'px';
+      }
+
+      function go(n){
+        current = (n + slides.length) % slides.length;
+        track.style.transform = 'translateX(' + (-current * 100) + '%)';
+        slides.forEach(function(slide, k){
+          slide.setAttribute('aria-hidden', k === current ? 'false' : 'true');
+        });
+        dots.forEach(function(dot, k){
+          dot.classList.toggle('on', k === current);
+          dot.setAttribute('aria-current', k === current ? 'true' : 'false');
+        });
+        if (idxEl) idxEl.textContent = current + 1;
+        setHeight();
+      }
+
+      document.getElementById('newsPrev').addEventListener('click', function(){ go(current - 1); });
+      document.getElementById('newsNext').addEventListener('click', function(){ go(current + 1); });
+
+      // strzalki na klawiaturze, gdy fokus jest w obrebie slidera
+      document.getElementById('news').addEventListener('keydown', function(e){
+        if (e.key === 'ArrowLeft'){ go(current - 1); }
+        else if (e.key === 'ArrowRight'){ go(current + 1); }
+      });
+
+      // przesuwanie palcem
+      var startX = null, startY = null;
+      track.addEventListener('touchstart', function(e){
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, {passive: true});
+      track.addEventListener('touchend', function(e){
+        if (startX === null) return;
+        var dx = e.changedTouches[0].clientX - startX;
+        var dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) go(current + (dx < 0 ? 1 : -1));
+        startX = null; startY = null;
+      });
+
+      go(0);
+      window.addEventListener('load', setHeight);
+      window.addEventListener('resize', setHeight);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(setHeight);
+    })();
 
     // --- zgoda na pliki cookies ---
     var STORE_KEY = 'sienreal-cookie-consent';
