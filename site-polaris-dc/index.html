@@ -180,6 +180,8 @@
   }
   .news-date span{display:block;font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;}
   .news-date b{display:block;font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-0.02em;color:var(--navy-deep);line-height:1.25;}
+  .news-date small{display:block;margin-top:4px;font-size:13px;line-height:1.45;color:var(--ink-soft);}
+  .news-side .btn{justify-content:center;text-align:center;}
   .news-side .btn{flex-shrink:0;}
   .news-dots{display:flex;gap:7px;justify-content:center;margin-top:22px;}
   .news-dot{
@@ -611,7 +613,7 @@
             <button type="button" class="news-arrow" id="newsPrev" aria-label="Poprzednia aktualność">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
             </button>
-            <span class="news-count"><b id="newsIdx">1</b> / 2</span>
+            <span class="news-count"><b id="newsIdx">1</b> / <span id="newsTotal">3</span></span>
             <button type="button" class="news-arrow" id="newsNext" aria-label="Następna aktualność">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
             </button>
@@ -620,6 +622,23 @@
 
         <div class="news-viewport" id="newsViewport">
           <div class="news-track" id="newsTrack">
+
+            <article class="news-slide">
+              <div class="news-text">
+                <div class="eyebrow">Zaproszenie z 24 września 2026</div>
+                <h3>Spotkanie z mieszkańcami 29 września</h3>
+                <p>Szanowni Państwo,</p>
+                <p>zapraszamy na spotkanie poświęcone budowie centrum danych przy ul. Energetycznej w Piasecznie. Odbędzie się we wtorek, 29 września 2026 roku, w godzinach 18:00–21:00 w Szkole Podstawowej im. Janusza Korczaka w Józefosławiu (mała hala sportowa), przy ul. Kameralnej 11.</p>
+                <p>Spotkanie rozpocznie krótka prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi z udziałem przedstawicieli inwestora, zespołu projektowego i ekspertów. Pytania można zadać na miejscu lub przesłać wcześniej na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p>
+                <p>Ze względu na prywatność uczestników spotkanie nie będzie transmitowane ani nagrywane.</p>
+              </div>
+              <div class="news-side">
+                <div class="news-date"><span>Kiedy</span><b>wtorek, 29 września</b><small>18:00–21:00</small></div>
+                <div class="news-date"><span>Gdzie</span><b>SP w Józefosławiu</b><small>mała hala sportowa<br>ul. Kameralna 11<br>05-500 Józefosław</small></div>
+                <a href="https://www.google.com/maps/search/?api=1&amp;query=ul.%20Kameralna%2011%2C%2005-500%20J%C3%B3zefos%C5%82aw" target="_blank" rel="noopener" class="btn btn-outline">Pokaż na mapie</a>
+                <a href="mailto:pytania@sienreal.pl?subject=Pytanie%20na%20spotkanie%20%E2%80%93%20centrum%20danych%20Piaseczno" class="btn btn-dark">Prześlij pytanie</a>
+              </div>
+            </article>
 
             <article class="news-slide">
               <div class="news-text">
@@ -1054,7 +1073,7 @@
 
         <details class="faq-item">
           <summary class="faq-q">Czy planowane jest spotkanie z mieszkańcami? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Tak. Inwestor zaprasza mieszkańców Józefosławia, Julianowa i Piaseczna na otwarte spotkanie. Poprzedzi je prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi bez ograniczenia czasu. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy i eksperci. Spotkanie planujemy zorganizować w ostatnim tygodniu września, a dokładny termin i miejsce podamy na stronie sienreal.pl. Pytania można zadać na miejscu lub przesłać wcześniej na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>. Ze względu na prywatność uczestników, w tym projektantów i architektów, spotkanie nie będzie transmitowane ani nagrywane.</p></div>
+          <div class="faq-a"><p>Tak. Inwestor zaprasza mieszkańców Józefosławia, Julianowa i Piaseczna na otwarte spotkanie. Odbędzie się we wtorek, 29 września 2026 roku, w godzinach 18:00–21:00 w Szkole Podstawowej im. Janusza Korczaka w Józefosławiu (mała hala sportowa), przy ul. Kameralnej 11. Rozpocznie je krótka prezentacja projektu, a jego zasadniczą częścią będzie sesja pytań i odpowiedzi. Wezmą w nim udział przedstawiciele inwestora, zespół projektowy i eksperci. Pytania można zadać na miejscu lub przesłać wcześniej na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>. Ze względu na prywatność uczestników, w tym projektantów i architektów, spotkanie nie będzie transmitowane ani nagrywane.</p></div>
         </details>
 
         <details class="faq-item">
@@ -1237,6 +1256,8 @@
       var slides = Array.prototype.slice.call(track.children);
       if (slides.length < 2) return;
       var current = 0;
+      var totalEl = document.getElementById('newsTotal');
+      if (totalEl) totalEl.textContent = slides.length;
 
       var dots = slides.map(function(slide, n){
         var dot = document.createElement('button');
@@ -1249,7 +1270,7 @@
       });
 
       function setHeight(){
-        viewport.style.height = slides[current].offsetHeight + 'px';
+        viewport.style.height = Math.ceil(slides[current].getBoundingClientRect().height) + 'px';
       }
 
       function go(n){
