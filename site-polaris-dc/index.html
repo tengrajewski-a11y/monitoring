@@ -613,7 +613,7 @@
             <button type="button" class="news-arrow" id="newsPrev" aria-label="Poprzednia aktualność">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
             </button>
-            <span class="news-count"><b id="newsIdx">1</b> / <span id="newsTotal">3</span></span>
+            <span class="news-count"><b id="newsIdx">1</b> / <span id="newsTotal">4</span></span>
             <button type="button" class="news-arrow" id="newsNext" aria-label="Następna aktualność">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
             </button>
@@ -622,6 +622,19 @@
 
         <div class="news-viewport" id="newsViewport">
           <div class="news-track" id="newsTrack">
+
+            <article class="news-slide">
+              <div class="news-text">
+                <div class="eyebrow">Komunikat z 25 września 2026</div>
+                <h3>Odpowiedzi na pytania podczas spotkania 29 września</h3>
+                <p>Dziękujemy za przesłane pytania. Odpowiedzi na nie przedstawimy podczas spotkania, które odbędzie się 29 września o godzinie 18:00. Raz jeszcze serdecznie Państwa zapraszamy.</p>
+                <p>Po spotkaniu przekażemy odpowiedzi również w formie pisemnej.</p>
+              </div>
+              <div class="news-side">
+                <div class="news-date"><span>Spotkanie</span><b>wtorek, 29 września</b><small>godz. 18:00, SP w Józefosławiu</small></div>
+                <button type="button" class="btn btn-outline" data-news-go="1">Szczegóły zaproszenia</button>
+              </div>
+            </article>
 
             <article class="news-slide">
               <div class="news-text">
@@ -1285,6 +1298,9 @@
       }
 
       document.getElementById('newsPrev').addEventListener('click', function(){ go(current - 1); });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-news-go]'), function(btn){
+        btn.addEventListener('click', function(){ go(parseInt(btn.getAttribute('data-news-go'), 10)); });
+      });
       document.getElementById('newsNext').addEventListener('click', function(){ go(current + 1); });
 
       // strzalki na klawiaturze, gdy fokus jest w obrebie slidera
