@@ -18,7 +18,8 @@ site-polaris-dc/
 └── assets/
     ├── wizualizacja-1.jpg
     ├── wizualizacja-2.jpg
-    └── wizualizacja-3.jpg
+    ├── wizualizacja-3.jpg
+    └── prezentacja-spotkanie-2026-09-29.pdf   # prezentacja ze spotkania z mieszkańcami
 ```
 
 ## Wdrożenie
