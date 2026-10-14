@@ -87,11 +87,6 @@
   }
   nav.links a:hover{color:var(--navy-deep);}
   nav.links a:hover::after{transform:scaleX(1);}
-  .nav-cta{
-    background:var(--navy);color:#fff;padding:10px 18px;border-radius:10px;
-    font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background .18s;
-  }
-  .nav-cta:hover{background:var(--navy-deep);}
   .burger{display:none;background:none;border:0;cursor:pointer;padding:8px;}
   .burger span{display:block;width:22px;height:1.8px;background:var(--navy-deep);margin:5px 0;border-radius:2px;}
 
@@ -452,20 +447,14 @@
   .qa-cat-body .faq-a p+p{margin-top:10px;}
 
   /* CONTACT */
-  .contact-panel{
-    background:var(--navy-deep);color:#fff;border-radius:var(--radius-lg);padding:56px;
-    display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:start;
+  .info-panel{
+    background:var(--navy-deep);color:#fff;border-radius:var(--radius-lg);padding:36px 44px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
   }
-  .contact-panel h2{color:#fff;}
-  .contact-panel .eyebrow{color:rgba(255,255,255,.6);}
-  .contact-panel .lead{color:rgba(255,255,255,.78);}
-  .contact-mail{display:inline-block;margin-top:22px;font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:-0.02em;color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;}
-  .contact-mail:hover{border-color:#fff;}
-  .contact-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:28px;}
-  .contact-box .row{display:flex;justify-content:space-between;gap:16px;font-size:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.09);}
-  .contact-box .row:last-of-type{border-bottom:none;}
-  .contact-box .row span:first-child{color:rgba(255,255,255,.6);}
-  .contact-box .row span:last-child{font-weight:600;text-align:right;}
+  .info-item span{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-bottom:8px;}
+  .info-item b{display:block;font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:-0.01em;color:#fff;}
+  .info-item a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.35);}
+  .info-item a:hover{border-color:#fff;}
 
   footer{padding:40px 0 48px;color:var(--ink-soft);font-size:13px;}
   footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid var(--line);padding-top:28px;}
@@ -530,7 +519,7 @@
     .doc-track li:nth-child(2)::after{display:none;}
     .pledge-grid{grid-template-columns:1fr;}
     .news-side{width:100%;}
-    .contact-panel{grid-template-columns:1fr;padding:36px 26px;gap:32px;}
+    .info-panel{grid-template-columns:1fr;padding:28px 26px;gap:20px;}
     section{padding:68px 0;}
     .news{padding:22px 22px 24px;}
     .cookie{left:12px;right:12px;bottom:12px;padding:20px;gap:16px;}
@@ -583,7 +572,6 @@
       <a href="#zobowiazania">Zobowiązania</a>
       <a href="#faq">Q&amp;A</a>
     </nav>
-    <a class="nav-cta" href="#kontakt">Kontakt</a>
     <button class="burger" id="burgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
   <nav class="links" id="mobileMenu" style="flex-direction:column;gap:0;padding:0 24px 18px;">
@@ -593,8 +581,7 @@
     <a href="#wizualizacje" style="padding:12px 0;border-bottom:1px solid var(--line);">Wizualizacje</a>
     <a href="#fakty-i-mity" style="padding:12px 0;border-bottom:1px solid var(--line);">Fakty i mity</a>
     <a href="#zobowiazania" style="padding:12px 0;border-bottom:1px solid var(--line);">Zobowiązania</a>
-    <a href="#faq" style="padding:12px 0;border-bottom:1px solid var(--line);">Q&amp;A</a>
-    <a href="#kontakt" style="padding:12px 0;">Kontakt</a>
+    <a href="#faq" style="padding:12px 0;">Q&amp;A</a>
   </nav>
 </header>
 
@@ -1510,19 +1497,12 @@
     </div>
   </section>
 
-  <section id="kontakt" class="section-alt">
+  <section id="inwestor" class="section-alt">
     <div class="wrap">
-      <div class="contact-panel">
-        <div>
-          <div class="eyebrow">Kontakt</div>
-          <h2>Kontakt z inwestorem</h2>
-          <a class="contact-mail" href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>
-        </div>
-        <div class="contact-box">
-          <div class="row"><span>Lokalizacja</span><span>Piaseczno, ul. Energetyczna</span></div>
-          <div class="row"><span>Inwestor</span><span>Sien Real Sp. z o.o.</span></div>
-          <div class="row"><span>Strona inwestora</span><span><a href="https://www.sienreal.pl" target="_blank" rel="noopener" style="color:#fff;">sienreal.pl</a></span></div>
-        </div>
+      <div class="info-panel">
+        <div class="info-item"><span>Lokalizacja</span><b>Piaseczno, ul.&nbsp;Energetyczna</b></div>
+        <div class="info-item"><span>Inwestor</span><b>Sien Real Sp. z o.o.</b></div>
+        <div class="info-item"><span>Strona inwestora</span><b><a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a></b></div>
       </div>
     </div>
   </section>
@@ -1534,6 +1514,7 @@
     <span>© 2026 Sien Real · Piaseczno</span>
     <span class="footer-links">
       <button type="button" class="cookie-reopen" id="cookieReopen">Ustawienia cookies</button>
+      <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>
       <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a>
     </span>
   </div>
@@ -1607,7 +1588,7 @@
     var fill = document.getElementById('wmFill');
     if ('IntersectionObserver' in window) {
       document.body.classList.add('reveal-ready');
-      var items = document.querySelectorAll('.stat, .news, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .qa-cat, .contact-panel');
+      var items = document.querySelectorAll('.stat, .news, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .qa-cat, .info-panel');
       Array.prototype.forEach.call(items, function(el){
         el.classList.add('reveal');
         var i = Array.prototype.indexOf.call(el.parentNode.children, el);
