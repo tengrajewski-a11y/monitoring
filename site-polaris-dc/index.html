@@ -427,6 +427,32 @@
   .faq-a p{margin:0;}
   .faq-a a{color:var(--navy);font-weight:600;text-decoration:underline;text-underline-offset:2px;}
 
+  /* Q&A: kategorie */
+  .qa-cats{margin-top:40px;display:flex;flex-direction:column;gap:12px;}
+  .qa-cat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);transition:border-color .18s,box-shadow .18s;}
+  .qa-cat[open]{border-color:var(--line-strong);box-shadow:var(--shadow);}
+  .qa-cat-head{
+    list-style:none;cursor:pointer;padding:20px 24px;display:flex;align-items:center;gap:14px;
+  }
+  .qa-cat-head::-webkit-details-marker{display:none;}
+  .qa-cat-title{flex:1 1 auto;font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-0.02em;color:var(--navy-deep);}
+  .qa-cat-count{flex-shrink:0;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--surface-soft);border-radius:999px;padding:5px 11px;white-space:nowrap;}
+  .qa-cat-chev{flex-shrink:0;width:30px;height:30px;border-radius:9px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;color:var(--accent);transition:transform .2s,background .2s;}
+  .qa-cat-chev svg{width:15px;height:15px;}
+  .qa-cat[open] .qa-cat-chev{transform:rotate(180deg);background:var(--accent-soft);}
+  .qa-cat-head:hover .qa-cat-title{color:var(--navy);}
+  .qa-cat-body{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:16px;}
+  .qa-cat-body .faq-item{background:var(--bg);border-color:var(--line);}
+  .qa-cat-body .faq-item[open]{background:var(--surface);}
+  .qa-cat-body .faq-q{padding:16px 18px;font-size:15px;justify-content:flex-start;align-items:flex-start;}
+  .qa-q{flex:1 1 auto;line-height:1.45;}
+  .qa-n{flex-shrink:0;min-width:28px;height:22px;padding:0 6px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:700;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .qa-cat-body .faq-q .plus{margin-left:auto;}
+  .qa-cat-body .faq-a{padding:0 18px 18px;}
+  .qa-cat-body .faq-a p+p{margin-top:10px;}
+  .qa-more{margin:22px 0 0;font-size:14px;color:var(--ink-soft);}
+  .qa-more a{color:var(--navy);font-weight:600;text-decoration:underline;text-underline-offset:2px;}
+
   /* CONTACT */
   .contact-panel{
     background:var(--navy-deep);color:#fff;border-radius:var(--radius-lg);padding:56px;
@@ -525,6 +551,12 @@
     .hero-actions{flex-direction:column;align-items:stretch;}
     .hero-actions .btn{width:100%;}
     .spec,.arg{padding:24px 22px;}
+    .qa-cat-head{padding:16px 16px;gap:10px;flex-wrap:wrap;}
+    .qa-cat-title{flex:1 1 calc(100% - 48px);font-size:16px;}
+    .qa-cat-count{order:3;}
+    .qa-cat-body{padding:12px 10px 10px;}
+    .qa-cat-body .faq-q{padding:14px 14px;gap:10px;}
+    .qa-cat-body .faq-a{padding:0 14px 16px;}
     .myth-lead-head{padding:20px 22px;gap:12px;}
     .myth-lead-head h3{font-size:18px;}
     .myth-lead-main .myth-row{padding:22px;}
@@ -558,7 +590,7 @@
       <a href="#wizualizacje">Wizualizacje</a>
       <a href="#fakty-i-mity">Fakty i mity</a>
       <a href="#zobowiazania">Zobowiązania</a>
-      <a href="#faq">Pytania</a>
+      <a href="#faq">Q&amp;A</a>
     </nav>
     <a class="nav-cta" href="#kontakt">Kontakt</a>
     <button class="burger" id="burgerBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -570,7 +602,7 @@
     <a href="#wizualizacje" style="padding:12px 0;border-bottom:1px solid var(--line);">Wizualizacje</a>
     <a href="#fakty-i-mity" style="padding:12px 0;border-bottom:1px solid var(--line);">Fakty i mity</a>
     <a href="#zobowiazania" style="padding:12px 0;border-bottom:1px solid var(--line);">Zobowiązania</a>
-    <a href="#faq" style="padding:12px 0;border-bottom:1px solid var(--line);">Pytania</a>
+    <a href="#faq" style="padding:12px 0;border-bottom:1px solid var(--line);">Q&amp;A</a>
     <a href="#kontakt" style="padding:12px 0;">Kontakt</a>
   </nav>
 </header>
@@ -615,7 +647,7 @@
             <button type="button" class="news-arrow" id="newsPrev" aria-label="Poprzednia aktualność">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
             </button>
-            <span class="news-count"><b id="newsIdx">1</b> / <span id="newsTotal">8</span></span>
+            <span class="news-count"><b id="newsIdx">1</b> / <span id="newsTotal">9</span></span>
             <button type="button" class="news-arrow" id="newsNext" aria-label="Następna aktualność">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
             </button>
@@ -624,6 +656,18 @@
 
         <div class="news-viewport" id="newsViewport">
           <div class="news-track" id="newsTrack">
+
+            <article class="news-slide">
+              <div class="news-text">
+                <div class="eyebrow">Komunikat z 14 października 2026</div>
+                <h3>Nowy termin zakończenia robót</h3>
+                <p>Roboty związane z budową linii kablowej elektroenergetycznej, o których informowaliśmy 5 października, potrwają do 13 listopada 2026 roku.</p>
+              </div>
+              <div class="news-side">
+                <div class="news-date"><span>Zakończenie robót</span><b>13 listopada</b></div>
+                <button type="button" class="btn btn-outline" data-news-go="2">Komunikat z 5 października</button>
+              </div>
+            </article>
 
             <article class="news-slide">
               <div class="news-text">
@@ -687,7 +731,7 @@
               </div>
               <div class="news-side">
                 <div class="news-date"><span>Spotkanie</span><b>wtorek, 29 września</b><small>godz. 18:00, SP w Józefosławiu</small></div>
-                <button type="button" class="btn btn-outline" data-news-go="5">Szczegóły zaproszenia</button>
+                <button type="button" class="btn btn-outline" data-news-go="6">Szczegóły zaproszenia</button>
                 <a href="assets/prezentacja-spotkanie-2026-09-29.pdf" target="_blank" rel="noopener" class="btn btn-dark">Prezentacja ze spotkania <span class="btn-meta">PDF, 3,6 MB</span></a>
               </div>
             </article>
@@ -1108,52 +1152,375 @@
 
   <section id="faq">
     <div class="wrap">
-      <div class="eyebrow">Pytania i odpowiedzi</div>
-      <h2>Najczęściej zadawane pytania</h2>
-      <p class="lead">Odpowiedzi na pytania, które najczęściej pojawiają się w związku z inwestycją.</p>
-      <div class="faq-list">
-
-        <details class="faq-item" open>
-          <summary class="faq-q">Co dokładnie powstanie w Piasecznie? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Docelowo kampus czterech budynków centrum przetwarzania danych wraz z infrastrukturą techniczną, energetyczną i drogową, w tym stacją transformatorową oraz systemami awaryjnego zasilania. Inwestycja realizowana jest w czterech etapach.</p></div>
+      <div class="eyebrow">Q&amp;A</div>
+      <h2>Pytania i odpowiedzi</h2>
+      <p class="lead">Odpowiedzi na pytania dotyczące inwestycji pogrupowaliśmy w kategorie tematyczne. Po rozwinięciu kategorii wyświetlą się należące do niej pytania.</p>
+      <div class="qa-cats">
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Informacje ogólne o inwestycji</span>
+            <span class="qa-cat-count">6 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-q">Co dokładnie powstanie w Piasecznie?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Docelowo kampus czterech budynków centrum przetwarzania danych wraz z infrastrukturą techniczną, energetyczną i drogową, w tym stacją transformatorową oraz systemami awaryjnego zasilania. Inwestycja realizowana jest w czterech etapach.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-q">Kto jest inwestorem?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestorem jest Sien Real Sp. z o.o. Za sposób prowadzenia budowy i standard obiektu odpowiada bezpośrednio inwestor, niezależnie od tego, kto będzie docelowym operatorem obiektu.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-q">Jakie prace trwają obecnie na terenie?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Na terenie trwają prace prowadzone przez wykonawcę na podstawie zawartej umowy: przygotowanie terenu, ogrodzenie i system monitoringu, przyłącza sanitarne, tymczasowe zasilanie energetyczne, drogi technologiczne, parkingi oraz zaplecze budowy. Zakres prac jest sukcesywnie rozszerzany o kolejne elementy inwestycji.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-q">Czy inwestor spotkał się z mieszkańcami?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Otwarte spotkanie z mieszkańcami Józefosławia, Julianowa i Piaseczna odbyło się 29 września 2026 roku w Szkole Podstawowej im. Janusza Korczaka w Józefosławiu. Wzięli w nim udział przedstawiciele inwestora, zespół projektowy i eksperci. Prezentację przedstawioną podczas spotkania można <a href="assets/prezentacja-spotkanie-2026-09-29.pdf" target="_blank" rel="noopener">pobrać w formacie PDF</a>. Odpowiedzi na przesłane pytania przekażemy również w formie pisemnej. Kolejne pytania można przesyłać na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-q">Kto będzie operatorem obiektu i jaka będzie jego moc obliczeniowa?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Na obecnym etapie inwestor nie może ujawnić informacji o docelowym użytkowniku i operatorze obiektu ani o mocy IT i łącznej powierzchni technicznej, ponieważ wiążą go ustalenia z partnerem biznesowym.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-q">Skąd pochodzą informacje przedstawione na tej stronie?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Treści oparte są na komunikacie prasowym i materiałach inwestycyjnych dotyczących centrum danych przy ul. Energetycznej w Piasecznie, publikowanych przez inwestora, Sien Real Sp. z o.o. Aktualne informacje o projekcie dostępne są na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a>.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Kto jest inwestorem? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Inwestorem jest Sien Real Sp. z o.o. Za sposób prowadzenia budowy i standard obiektu odpowiada bezpośrednio inwestor, niezależnie od tego, kto będzie docelowym operatorem obiektu.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Hałas i praca obiektu w porze nocnej</span>
+            <span class="qa-cat-count">5 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">1</span><span class="qa-q">Czy analiza akustyczna obejmuje sytuację maksymalnego obciążenia centrum danych, a nie tylko standardowy lub średni tryb pracy?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Analiza akustyczna została wykonana dla najbardziej wymagającego wariantu pracy obiektu. Przyjęto jednoczesną pracę wszystkich czterech budynków centrum danych przy pełnym projektowym obciążeniu infrastruktury technicznej, w tym systemów chłodzenia. Oznacza to scenariusz znacznie bardziej wymagający niż typowe warunki eksploatacji. Dzięki takiemu podejściu możliwe było sprawdzenie, czy nawet w najbardziej niekorzystnych warunkach inwestycja spełnia obowiązujące normy hałasu.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">2</span><span class="qa-q">Czy modelowanie hałasu uwzględnia jednoczesną pracę wszystkich urządzeń oraz możliwe oddziaływania skumulowane?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Model akustyczny uwzględnia jednoczesną pracę wszystkich projektowanych źródeł hałasu związanych z funkcjonowaniem centrum danych. Analizę wykonano dla wariantu maksymalnego obciążenia wszystkich czterech budynków, co pozwoliło ocenić również skumulowany wpływ urządzeń pracujących równocześnie. Jest to podejście bardziej rygorystyczne niż analiza oparta na przeciętnych warunkach eksploatacji.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">3</span><span class="qa-q">W jaki sposób uwzględniono hałas tonalny, niskoczęstotliwościowy, ciągły oraz zmienny w czasie?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Analiza akustyczna została wykonana zgodnie z obowiązującymi przepisami oraz metodyką stosowaną przy ocenie tego typu inwestycji. W modelu wykorzystano dostępne parametry akustyczne urządzeń. Ocena została wykonana zgodnie z wymaganiami obowiązujących norm i procedur środowiskowych. W przypadku urządzeń stosowanych w centrach danych producenci nie udostępniają wszystkich danych pozwalających na odrębne modelowanie wszystkich rodzajów dźwięku, takich jak hałas tonalny czy niskoczęstotliwościowy. Co istotne, urządzenia wykorzystywane zarówno w tej inwestycji, jak i w innych centrach danych działających w Polsce, co do zasady nie posiadają w dokumentacji technicznej parametrów umożliwiających przeprowadzenie szczegółowych symulacji dla każdego rodzaju hałasu oddzielnie. Nie jest to też wymagane przez polskie prawo. Wyniki analiz potwierdziły dotrzymanie obowiązujących norm środowiskowych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">4</span><span class="qa-q">Czy wykonano pomiary tła akustycznego przed rozpoczęciem inwestycji? Jeśli tak, prosimy o udostępnienie wyników.</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Ocena oddziaływania akustycznego została przeprowadzona zgodnie z obowiązującą metodyką stosowaną dla tego rodzaju inwestycji. Prognozowane poziomy hałasu zostały odniesione do obowiązujących dopuszczalnych poziomów hałasu w środowisku. Szczegółowe wyniki analiz zostały przedstawione w raporcie o oddziaływaniu przedsięwzięcia na środowisko, który stanowił podstawę wydania decyzji środowiskowej.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">5</span><span class="qa-q">Czy po uruchomieniu obiektu planowane są niezależne, cykliczne pomiary hałasu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Po uruchomieniu centrum danych zakres pomiarów środowiskowych będzie realizowany zgodnie z obowiązującymi przepisami prawa oraz wymaganiami wynikającymi z decyzji administracyjnych i pozwoleń dotyczących eksploatacji obiektu. Ich pełny zakres będzie dostępny po uruchomieniu serwerowni. Inwestor będzie realizował wszystkie wymagane prawem pomiary i kontrole środowiskowe. Jednocześnie już na etapie projektowania przyjęto najbardziej wymagające scenariusze pracy obiektu, tak aby zapewnić zachowanie obowiązujących norm również w warunkach maksymalnego obciążenia.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Ile wody zużyje obiekt? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Aktualny projekt zakłada zapotrzebowanie maksymalnie do 55 m³ na dobę, czyli około pięciokrotnie mniej niż wartość zapisana w warunkach przyłączenia. Według obliczeń projektowych dla wszystkich czterech budynków składa się na to ok. 35 m³ na dobę na cele socjalno-bytowe i porządkowe oraz ok. 20 m³ na dobę na sezonowe nawilżanie powietrza. Chłodzenie serwerów pracuje w obiegu zamkniętym, bez stałego poboru wody. Powtarzana w dyskusji wartość 286 m³ na dobę to maksymalne zapotrzebowanie wynikające z warunków przyłączenia dla całej, czteroetapowej inwestycji, potrzebne jednorazowo do napełnienia zbiorników przeciwpożarowych po realizacji pierwszego etapu.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Urządzenia techniczne i systemy chłodzenia</span>
+            <span class="qa-cat-count">6 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">6</span><span class="qa-q">Czy przewidziano automatyczne sterowanie prędkością wentylatorów w zależności od obciążenia oraz temperatury zewnętrznej?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Praca wentylatorów będzie automatycznie dostosowywana do aktualnego obciążenia obiektu oraz warunków pogodowych. Niezależnie od pory dnia czy warunków pogodowych oddziaływanie akustyczne nie będzie przekraczało dopuszczalnych norm.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">7</span><span class="qa-q">Jakie rozwiązania techniczne zastosowano w celu ograniczenia emisji hałasu do otoczenia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Od początku projektowania obiektu jednym z priorytetów było ograniczenie wpływu inwestycji na otoczenie. W tym celu część urządzeń technicznych została umieszczona wewnątrz budynków technicznych i maszynowni, zamiast na otwartych przestrzeniach. Zaprojektowano również osłony akustyczne, których zadaniem jest ograniczenie rozprzestrzeniania się dźwięku. Dodatkowo zmniejszono liczbę urządzeń lokalizowanych na dachach budynków. Między innymi osiem chillerów zostało przeniesionych do wnętrza budynku, co znacząco ogranicza emisję dźwięku do otoczenia. Ponadto przy północnej i południowej krawędzi działki zastosowano dry coolery, które będą uruchamiane wyłącznie w sytuacjach awaryjnych, a nie podczas standardowej eksploatacji obiektu. Zamienny projekt budowlany przewiduje również dodatkowe osłony akustyczne od strony południowej, które nie były wymagane przez decyzję środowiskową. Zostały one zastosowane dobrowolnie w celu dalszego ograniczenia potencjalnego oddziaływania inwestycji na otoczenie.</p><p>Wszystkie te rozwiązania zostały uwzględnione w analizach środowiskowych. Inwestor pracuje również nad analizą dodatkowych rozwiązań ograniczających poziom hałasu. O ewentualnych dodatkowych usprawnieniach będziemy informować na naszej stronie www.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">8</span><span class="qa-q">Czy przeprowadzono analizę wpływu odbić dźwięku od elewacji budynków, ekranów, ogrodzeń i innych obiektów znajdujących się w sąsiedztwie?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Analiza akustyczna została przeprowadzona zgodnie z obowiązującymi przepisami i uwzględniała wpływ odbić dźwięku od pobliskich budynków, ekranów oraz innych obiektów znajdujących się w otoczeniu inwestycji zgodnie z metodyką stosowaną w postępowaniach środowiskowych. Wpływ tych elementów został uwzględniony w końcowym modelu akustycznym, który był podstawą oceny zgodności inwestycji z obowiązującymi normami hałasu.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">9</span><span class="qa-q">Czy inwestor przewiduje możliwość rozbudowy systemów chłodzenia w przyszłości?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Nie. System chłodzenia został zaprojektowany jako kompletne rozwiązanie przeznaczone dla docelowego funkcjonowania każdego budynku. Nie przewiduje się późniejszej rozbudowy systemu ponad parametry uwzględnione w projekcie i przeprowadzonych analizach środowiskowych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">10</span><span class="qa-q">Czy w dokumentacji uwzględniono awaryjne lub nietypowe tryby pracy systemów chłodzenia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Dokumentacja projektowa uwzględnia zarówno standardowe, jak i awaryjne scenariusze pracy systemów chłodzenia. System został zaprojektowany z odpowiednią rezerwą techniczną. Oznacza to, że część urządzeń pozostaje w gotowości i może przejąć pracę w przypadku awarii innego elementu instalacji. Dzięki temu bez zwiększania oddziaływania na otoczenie możliwe jest utrzymanie ciągłości działania centrum danych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">11</span><span class="qa-q">Jakie czynniki chłodnicze będą wykorzystywane w instalacjach chłodniczych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>W części instalacji chłodniczej zastosowano glikol etylenowy. Rozwiązanie to zostało wybrane ze względu na bardzo dobre właściwości eksploatacyjne, wysoką efektywność pracy oraz możliwość bezpiecznego działania w szerokim zakresie temperatur. System został wyposażony w zabezpieczenia środowiskowe, a projekt przewiduje również wykonanie zbiornika awaryjnego umożliwiającego bezpieczne przechwycenie medium w przypadku wystąpienia awarii. Dzięki temu ryzyko wpływu na środowisko zostało ograniczone do minimum.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Czy inwestycję będzie słychać? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Na granicy działki spełnione będą wszystkie obowiązujące normy hałasu dla tego typu inwestycji i tej lokalizacji. Decyzja środowiskowa określa m.in. maksymalną liczbę urządzeń chłodniczych i ich parametry akustyczne, a w porze nocnej urządzenia pracują ze zmniejszoną wydajnością. Zastosowane zostaną ekrany akustyczne i żaluzje. Analizy akustyczne dla normalnej pracy obiektu nie wykazują przekroczeń dopuszczalnych poziomów, a wartości zapisane w decyzji środowiskowej są wartościami maksymalnymi, doprecyzowywanymi na kolejnych etapach projektu wraz z parametrami konkretnych urządzeń. Poziom hałasu ma być porównywalny z tym, który wiąże się z funkcjonowaniem pobliskiego centrum handlowego.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Agregaty prądotwórcze, emisje i magazynowanie paliwa</span>
+            <span class="qa-cat-count">7 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">12</span><span class="qa-q">Czy testy agregatów będą prowadzone w porze nocnej, w weekendy lub dni świąteczne?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Agregaty prądotwórcze będą poddawane testom technicznym zgodnie z wymaganiami producentów oraz procedurami bezpieczeństwa. Testy te nie będą jednak odbywały się zarówno w nocy, jak i dni świąteczne. Testy mają charakter okresowy i trwają maksymalnie do jednej godziny. Nie oznaczają jednoczesnej pracy wszystkich agregatów przez dłuższy czas. Agregaty zostały zlokalizowane wewnątrz budynków technicznych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">13</span><span class="qa-q">Jakie zabezpieczenia przewidziano w celu ochrony gruntu i wód podziemnych przed wyciekiem paliwa?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Każdy zbiornik paliwa został zaprojektowany jako zbiornik dwupłaszczowy, co oznacza zastosowanie dwóch niezależnych warstw zabezpieczenia. Pomiędzy płaszczami działa system ciągłego monitorowania szczelności. W przypadku wykrycia nawet niewielkiego wycieku automatycznie uruchamiany jest alarm. O zdarzeniu niezwłocznie informowany jest personel odpowiedzialny za eksploatację obiektu, który podejmuje działania zgodnie z obowiązującymi procedurami bezpieczeństwa. Zastosowane rozwiązania należą do najwyższych standardów zabezpieczeń stosowanych w tego rodzaju obiektach.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">14</span><span class="qa-q">Czy przewidziano systemy wykrywania wycieków, retencji awaryjnej oraz procedury reagowania na awarie instalacji paliwowych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Instalacje paliwowe będą objęte systemem monitorowania szczelności oraz wykrywania wycieków. W przypadku wykrycia nieprawidłowości uruchamiane są procedury bezpieczeństwa obejmujące identyfikację źródła zdarzenia, zabezpieczenie instalacji oraz działania naprawcze.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">15</span><span class="qa-q">Jakie substancje i zanieczyszczenia będą emitowane podczas pracy agregatów?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Szczegółowe zestawienie szacowanych wielkości emisji zostało przedstawione w raporcie o oddziaływaniu przedsięwzięcia na środowisko przygotowanym dla inwestycji. Analizy te były jednym z podstawowych elementów procedury środowiskowej i potwierdziły możliwość funkcjonowania inwestycji przy zachowaniu obowiązujących norm jakości powietrza.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">16</span><span class="qa-q">Czy inwestycja wymaga uzyskania pozwolenia emisyjnego lub dokonania zgłoszeń dotyczących emisji do powietrza?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestor będzie uzyskiwał wszystkie wymagane prawem decyzje, pozwolenia i zgłoszenia środowiskowe właściwe dla poszczególnych etapów realizacji oraz eksploatacji inwestycji. Oznacza to, że funkcjonowanie centrum danych będzie podlegało bieżącemu nadzorowi wynikającemu z obowiązujących przepisów oraz warunków określonych przez właściwe organy administracyjne.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">17</span><span class="qa-q">Czy przeprowadzono analizę wpływu emisji z agregatów na jakość powietrza w sąsiednich obszarach mieszkaniowych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Wpływ emisji z agregatów prądotwórczych został przeanalizowany w ramach oceny oddziaływania przedsięwzięcia na środowisko. Analizy zostały przeprowadzone zgodnie z obowiązującymi przepisami i obejmowały cały obszar oddziaływania inwestycji określony zgodnie z metodyką stosowaną w postępowaniach środowiskowych. Wyniki tych analiz potwierdziły spełnienie obowiązujących wymagań dotyczących jakości powietrza.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">18</span><span class="qa-q">Jakie procedury obowiązują w przypadku długotrwałej awarii zasilania i konieczności wielogodzinnej lub wielodniowej pracy agregatów?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>W przypadku zaniku zasilania agregaty prądotwórcze uruchamiają się automatycznie i zapewniają ciągłość działania centrum danych do czasu przywrócenia dostaw energii z sieci. Długotrwałe awarie sieci elektroenergetycznej należą do sytuacji wyjątkowych i występują bardzo rzadko. Centrum danych jest projektowane właśnie po to, aby zapewnić ciągłość działania również w takich sytuacjach.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Jakie prace trwają obecnie na terenie? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Na terenie trwają prace prowadzone przez wykonawcę na podstawie zawartej umowy: przygotowanie terenu, ogrodzenie i system monitoringu, przyłącza sanitarne, tymczasowe zasilanie energetyczne, drogi technologiczne, parkingi oraz zaplecze budowy. Zakres prac jest sukcesywnie rozszerzany o kolejne elementy inwestycji.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Zużycie wody i infrastruktura wodno-kanalizacyjna</span>
+            <span class="qa-cat-count">8 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">19</span><span class="qa-q">Z czego wynikają ewentualne rozbieżności pomiędzy wartościami zużycia wody wskazanymi w poszczególnych dokumentach inwestycji?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Różnice pomiędzy wartościami pojawiającymi się w dokumentacji wynikają z uwzględniania różnych scenariuszy wykorzystania wody. Najwyższe wartości dotyczą sytuacji związanych z ochroną przeciwpożarową, w szczególności możliwością napełniania lub uzupełniania zbiorników przeciwpożarowych po ewentualnej akcji gaśniczej. W codziennej eksploatacji centrum danych zapotrzebowanie na wodę jest wielokrotnie niższe. Wynika ono głównie z potrzeb pracowników oraz systemu nawilżania powietrza w części biurowej.</p><p>Wartość 286 m³ na dobę odpowiada maksymalnemu zapotrzebowaniu uzgodnionemu w warunkach przyłączenia dla całej inwestycji, obejmującej wszystkie cztery etapy. Wynika przede wszystkim z konieczności jednorazowego napełnienia zbiorników przeciwpożarowych, zgodnie z wymaganymi przepisami, co nastąpi dopiero po zakończeniu budowy kolejnych etapów inwestycji. Nie jest to prognoza codziennego zużycia. Rzeczywiste, maksymalne zapotrzebowanie na wodę w normalnej eksploatacji, nawet przy pełnym wykorzystaniu wszystkich czterech budynków, to około 55 metrów sześciennych na dobę, czyli ponad pięć razy mniej niż wartość zawarta w warunkach przyłączenia.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">20</span><span class="qa-q">Czy podane zapotrzebowanie na wodę obejmuje wyłącznie potrzeby socjalne, czy również potrzeby technologiczne, przeciwpożarowe i eksploatacyjne?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Podane wartości uwzględniają wszystkie potrzeby związane z funkcjonowaniem obiektu, w tym cele socjalno-bytowe, oraz wymagania związane z ochroną przeciwpożarową.</p><p>Wartość 286 m³ na dobę odpowiada maksymalnemu zapotrzebowaniu uzgodnionemu w warunkach przyłączenia dla całej inwestycji, obejmującej wszystkie cztery etapy. Wynika przede wszystkim z konieczności jednorazowego napełnienia zbiorników przeciwpożarowych, zgodnie z wymaganymi przepisami, co nastąpi dopiero po zakończeniu budowy kolejnych etapów inwestycji. Nie jest to prognoza codziennego zużycia. Rzeczywiste, maksymalne zapotrzebowanie na wodę w normalnej eksploatacji, nawet przy pełnym wykorzystaniu wszystkich czterech budynków, to około 55 metrów sześciennych na dobę, czyli ponad pięć razy mniej niż wartość zawarta w warunkach przyłączenia.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">21</span><span class="qa-q">Czy centrum danych będzie korzystało z wody do celów chłodzenia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Nie. Centrum danych będzie wykorzystywało system chłodzenia powietrznego oparty na technologii dry coolerów. Oznacza to, że proces chłodzenia serwerowni nie wymaga poboru wody. Jest to rozwiązanie ograniczające zużycie zasobów wodnych oraz wpływ inwestycji na lokalną gospodarkę wodną.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">22</span><span class="qa-q">Jakie są maksymalne wymagania dotyczące dostaw wody w okresach wysokich temperatur i maksymalnego obciążenia obiektu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>System chłodzenia nie wykorzystuje wody do bieżącej pracy, dlatego wysokie temperatury zewnętrzne nie powodują dodatkowego zapotrzebowania na wodę ze strony centrum danych. Oznacza to, że nawet podczas upałów oraz przy wysokim obciążeniu infrastruktury IT nie występuje dodatkowy pobór wody związany z chłodzeniem urządzeń. Zapotrzebowanie pozostaje związane przede wszystkim z potrzebami pracowników i ich potrzebami socjalno-bytowymi.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">23</span><span class="qa-q">Czy istniejąca infrastruktura wodociągowa i kanalizacyjna ma wystarczającą przepustowość dla obsługi inwestycji w wariancie docelowym?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Warunki techniczne przyłączenia zostały wydane przez przedsiębiorstwo wodociągowe. Oznacza to, że operator sieci potwierdził możliwość obsługi inwestycji w ramach istniejącej infrastruktury. Ocena wydajności, przepustowości i bezpieczeństwa funkcjonowania sieci wodociągowej należy do właściciela i operatora tej infrastruktury. Inwestor jest zobowiązany do przestrzegania parametrów określonych w wydanych warunkach technicznych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">24</span><span class="qa-q">Czy przeprowadzono analizę wpływu inwestycji na dostępność wody i przepustowość sieci dla obecnych oraz przyszłych mieszkańców okolicy?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Analiza przepustowości sieci wodociągowej oraz wpływu poszczególnych odbiorców na funkcjonowanie systemu należy do kompetencji przedsiębiorstwa wodociągowego jako właściciela i operatora infrastruktury. Wydanie warunków technicznych przyłączenia oznacza, że operator sieci dopuścił możliwość obsługi inwestycji w ramach obowiązującego systemu zaopatrzenia w wodę.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">25</span><span class="qa-q">W jaki sposób będą zagospodarowywane ścieki bytowe, technologiczne oraz wody popłuczne?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Ścieki bytowe oraz wody powstające podczas eksploatacji instalacji będą odprowadzane do kanalizacji sanitarnej zgodnie z obowiązującymi przepisami oraz warunkami określonymi przez operatora sieci. Projekt został przygotowany w sposób zapewniający zgodność z obowiązującymi wymaganiami środowiskowymi oraz technicznymi.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">26</span><span class="qa-q">Jaki łączny przepływ wody jest potrzebny do zapewnienia ochrony przeciwpożarowej?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Na potrzeby ochrony przeciwpożarowej przewidziano dedykowane zbiorniki wody przeciwpożarowej zlokalizowane na terenie inwestycji. Oznacza to, że podczas ewentualnej akcji gaśniczej centrum danych nie będzie uzależnione od bieżącego poboru wody z miejskiej sieci wodociągowej. Rozwiązanie to ogranicza potencjalny wpływ na lokalną infrastrukturę wodociągową i zwiększa bezpieczeństwo obiektu.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Czy inwestor spotkał się z mieszkańcami? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Tak. Otwarte spotkanie z mieszkańcami Józefosławia, Julianowa i Piaseczna odbyło się 29 września 2026 roku w Szkole Podstawowej im. Janusza Korczaka w Józefosławiu. Wzięli w nim udział przedstawiciele inwestora, zespół projektowy i eksperci. Prezentację przedstawioną podczas spotkania można <a href="assets/prezentacja-spotkanie-2026-09-29.pdf" target="_blank" rel="noopener">pobrać w formacie PDF</a>. Odpowiedzi na przesłane pytania przekażemy również w formie pisemnej. Kolejne pytania można przesyłać na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Wody opadowe, odwodnienie i ochrona środowiska wodnego</span>
+            <span class="qa-cat-count">4 pytania</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">27</span><span class="qa-q">Czy przeprowadzono analizę wpływu inwestycji na lokalne stosunki wodne, poziom wód gruntowych i ryzyko podtopień?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Analizy takie zostały wykonane na etapie przygotowania dokumentacji środowiskowej i projektowej. Projekt uwzględnia lokalne warunki gruntowo-wodne (poziom wód gruntowych na głębokości 9–13 m) oraz rozwiązania służące retencji wód opadowych. Na terenie inwestycji przewidziano zbiornik retencyjny o pojemności ponad 1100 m³, który pozwala ograniczyć odpływ wód opadowych oraz zmniejszyć ryzyko lokalnych podtopień.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">28</span><span class="qa-q">Czy wody opadowe z powierzchni, na których mogą występować substancje ropopochodne, będą poddawane podczyszczaniu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Wody opadowe pochodzące z powierzchni, na których potencjalnie mogą występować substancje ropopochodne, będą poddawane podczyszczaniu zgodnie z obowiązującymi przepisami prawa i wymaganiami środowiskowymi. Zastosowane rozwiązania zostały zaprojektowane w celu ochrony gruntu oraz wód powierzchniowych i podziemnych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">29</span><span class="qa-q">Jakie zabezpieczenia zastosowano w celu zapobiegania przedostawaniu się paliwa, olejów i innych substancji niebezpiecznych do kanalizacji lub gruntu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Instalacje paliwowe zostały wyposażone w zbiorniki dwupłaszczowe oraz system ciągłego monitorowania szczelności. Każda nieprawidłowość jest automatycznie sygnalizowana przez system zarządzania budynkiem. Dzięki temu możliwe jest natychmiastowe podjęcie działań zabezpieczających. Rozwiązania te należą do najwyższych standardów bezpieczeństwa stosowanych w nowoczesnych obiektach tego typu.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">30</span><span class="qa-q">Czy inwestycja może wpływać na istniejące rowy, cieki wodne, systemy melioracyjne lub inne elementy lokalnego systemu odwodnienia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Nie. Projekt nie przewiduje odprowadzania wód opadowych do lokalnych cieków wodnych ani systemów melioracyjnych. System gospodarowania wodami opadowymi został zaprojektowany w sposób ograniczający wpływ inwestycji na istniejącą infrastrukturę odwodnieniową oraz środowisko naturalne.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Kto będzie operatorem obiektu i jaka będzie jego moc obliczeniowa? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Na obecnym etapie inwestor nie może ujawnić informacji o docelowym użytkowniku i operatorze obiektu ani o mocy IT i łącznej powierzchni technicznej, ponieważ wiążą go ustalenia z partnerem biznesowym.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Ciepło odpadowe i wpływ na mikroklimat</span>
+            <span class="qa-cat-count">7 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">31</span><span class="qa-q">Jaka jest przewidywana maksymalna moc cieplna odprowadzana przez centrum danych do otoczenia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Przy maksymalnym projektowym obciążeniu wszystkich czterech budynków moc cieplna generowana przez centrum danych może wynosić maksymalnie 48 MW. Jest to wartość odpowiadająca najbardziej wymagającemu scenariuszowi pracy obiektu, przyjętemu również do analiz środowiskowych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">32</span><span class="qa-q">Jaką ilość ciepła obiekt będzie emitował w typowym trybie pracy oraz przy maksymalnym obciążeniu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Najwyższe wartości emisji ciepła występują przy pełnym projektowym wykorzystaniu infrastruktury i wynoszą 48 MW. W praktyce centra danych rzadko pracują stale przy maksymalnym obciążeniu. Dlatego rzeczywiste emisje ciepła podczas normalnej eksploatacji są zazwyczaj niższe niż wartości przyjęte do najbardziej wymagających analiz środowiskowych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">33</span><span class="qa-q">Czy wykonano analizę wpływu emisji ciepła na lokalny mikroklimat, temperaturę powietrza i warunki życia mieszkańców?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Wpływ emisji ciepła został przeanalizowany przy wykorzystaniu specjalistycznych analiz CFD, pozwalających ocenić sposób rozchodzenia się ciepła oraz przepływu powietrza w otoczeniu inwestycji.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">34</span><span class="qa-q">Czy analiza uwzględnia kumulację ciepła w okresach upałów, bezwietrznej pogody i wysokiej temperatury otoczenia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Tak. Analizy zostały przeprowadzone dla najbardziej niekorzystnych scenariuszy pogodowych, obejmujących między innymi wysokie temperatury zewnętrzne, ograniczony ruch powietrza oraz inne warunki, które mogą zwiększać oddziaływanie inwestycji. Takie podejście pozwala zweryfikować bezpieczeństwo projektu również w sytuacjach skrajnych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">35</span><span class="qa-q">Czy przewidziano możliwość odzysku lub ponownego wykorzystania ciepła odpadowego?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Projekt przewiduje rozwiązania techniczne umożliwiające wykorzystanie ciepła odpadowego. Jest to kierunek zgodny z najlepszymi praktykami stosowanymi w nowoczesnych centrach danych oraz celami związanymi z poprawą efektywności energetycznej i ograniczaniem śladu środowiskowego inwestycji.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">36</span><span class="qa-q">Czy zastosowane systemy chłodzenia mogą powodować lokalne zwiększenie temperatury odczuwalnej w sąsiedztwie inwestycji?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Przeprowadzone analizy nie wykazały wpływu inwestycji, który powodowałby istotną zmianę średniej temperatury otoczenia lub pogorszenie warunków życia mieszkańców. Ocena została wykonana dla najbardziej wymagających wariantów eksploatacji obiektu i potwierdziła zgodność inwestycji z przyjętymi wymaganiami środowiskowymi.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">37</span><span class="qa-q">Czy wykonano analizę wpływu inwestycji na roślinność, tereny zielone oraz warunki przewietrzania sąsiednich obszarów?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Analizy takie zostały wykonane na etapie procedury oceny oddziaływania przedsięwzięcia na środowisko. Wyniki przeprowadzonych ocen zostały przedstawione w raporcie OOŚ i były jednym z elementów weryfikowanych przez właściwe organy administracji publicznej przed wydaniem decyzji środowiskowej. Jednocześnie projekt przewiduje działania wzmacniające lokalną bioróżnorodność oraz rozwój terenów zielonych w otoczeniu inwestycji.</p></div>
+            </details>
+          </div>
         </details>
-
-        <details class="faq-item">
-          <summary class="faq-q">Skąd pochodzą informacje przedstawione na tej stronie? <span class="plus">+</span></summary>
-          <div class="faq-a"><p>Treści oparte są na komunikacie prasowym i materiałach inwestycyjnych dotyczących centrum danych przy ul. Energetycznej w Piasecznie, publikowanych przez inwestora, Sien Real Sp. z o.o. Aktualne informacje o projekcie dostępne są na stronie <a href="https://www.sienreal.pl" target="_blank" rel="noopener">sienreal.pl</a>.</p></div>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Pole elektromagnetyczne i infrastruktura energetyczna</span>
+            <span class="qa-cat-count">5 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">38</span><span class="qa-q">Jakie urządzenia i instalacje będą stanowiły źródła pól elektromagnetycznych na terenie centrum danych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Źródłami pól elektromagnetycznych będą standardowe urządzenia elektroenergetyczne wykorzystywane w nowoczesnych obiektach tego typu, w szczególności transformatory, systemy zasilania awaryjnego UPS oraz instalacje średniego i niskiego napięcia. Urządzenia te zostały zaprojektowane zgodnie z obowiązującymi normami technicznymi i środowiskowymi. Ich oddziaływanie musi mieścić się w obowiązujących limitach bezpieczeństwa dla miejsc dostępnych dla ludzi.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">39</span><span class="qa-q">Jakie są parametry oraz lokalizacja transformatorów, rozdzielni, linii kablowych i innych instalacji elektroenergetycznych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Parametry techniczne oraz lokalizacja urządzeń elektroenergetycznych są zgodne z zatwierdzoną dokumentacją projektową oraz obowiązującymi wymaganiami prawa budowlanego i przepisów technicznych. Rozwiązania zostały zaprojektowane w sposób zapewniający bezpieczną eksploatację obiektu oraz spełnienie wszystkich obowiązujących norm środowiskowych i energetycznych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">40</span><span class="qa-q">Czy przeprowadzono obliczenia lub pomiary natężenia pól elektromagnetycznych na granicy działki oraz w miejscach dostępnych dla osób postronnych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestycja została zaprojektowana zgodnie z obowiązującymi przepisami dotyczącymi pól elektromagnetycznych. Oznacza to, że poziomy pól elektromagnetycznych muszą spełniać wymagania określone w obowiązujących normach i przepisach dla miejsc dostępnych dla ludzi.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">41</span><span class="qa-q">Czy przewidywane poziomy pól elektromagnetycznych zostały ocenione dla normalnej pracy oraz sytuacji maksymalnego obciążenia instalacji?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Należy podkreślić, że centrum danych nie wykorzystuje napowietrznych linii wysokiego napięcia 110 kV czy 400 kV, dla których wyznacza się rozległe strefy oddziaływania pól elektromagnetycznych. Głównymi źródłami pól elektromagnetycznych na terenie obiektu będą standardowe urządzenia elektroenergetyczne, takie jak transformatory, systemy UPS oraz instalacje średniego i niskiego napięcia. Dla transformatorów SN/nn obszar oddziaływania jest bardzo ograniczony i zgodnie z obowiązującymi przepisami wynosi około 2,8 m od urządzenia. Projekt został przygotowany zgodnie z obowiązującymi normami i wymaganiami dotyczącymi ochrony przed polami elektromagnetycznymi. Oznacza to, że zarówno podczas normalnej pracy, jak i przy maksymalnym projektowym obciążeniu infrastruktury, poziomy pól elektromagnetycznych poza wyznaczoną strefą techniczną pozostają zgodne z obowiązującymi wymaganiami bezpieczeństwa dla miejsc dostępnych dla ludzi.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">42</span><span class="qa-q">Czy po uruchomieniu centrum danych planuje się wykonywanie pomiarów kontrolnych pól elektromagnetycznych przez niezależny podmiot?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Pomiary pól elektromagnetycznych będą wykonywane zgodnie z obowiązującymi przepisami prawa przez uprawnione podmioty. Jest to standardowa procedura (wymagana przepisami prawa) stosowana przy tego rodzaju inwestycjach. Dzięki temu możliwe będzie potwierdzenie, że rzeczywiste parametry pracy obiektu pozostają zgodne z obowiązującymi normami.</p></div>
+            </details>
+          </div>
         </details>
-
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Środowisko, zieleń i oddziaływania skumulowane</span>
+            <span class="qa-cat-count">3 pytania</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">43</span><span class="qa-q">Jakie działania kompensacyjne lub ograniczające negatywny wpływ na środowisko przewidziano w związku z realizacją inwestycji?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Od początku projektowania inwestycji przyjęto założenie ograniczania jej wpływu na środowisko oraz wzmacniania lokalnej bioróżnorodności. Projekt przewiduje między innymi nasadzenia roślinności poprawiającej mikroklimat, zwiększającej bioróżnorodność oraz ograniczającej konieczność intensywnego podlewania czy pielęgnacji terenów zielonych. Zaplanowano również nawierzchnie przepuszczalne wspierające naturalną retencję wód opadowych. W ramach kompensacji przyrodniczej wykonane zostaną również nasadzenia zastępcze obejmujące ponad 300 nowych drzew. Zastosowane rozwiązania stawiają na bezpieczeństwo: wszystkie zbiorniki i rury są w systemie dwupłaszczowym z detekcją ewentualnego wycieku. Oraz jedną z najnowocześniejszych na świecie instalacji przeciwpożarowych instalowaną w tego typu obiektach.</p><p>Dodatkowo inwestycja realizowana jest zgodnie z wymaganiami certyfikacji BREEAM i LEED. Przewidziano m.in. budki dla ptaków i nietoperzy, schronienia dla jeży, hotele dla owadów oraz pocket forest wspierający lokalny ekosystem.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">44</span><span class="qa-q">Czy przeprowadzono analizę oddziaływań skumulowanych z innymi inwestycjami przemysłowymi, usługowymi, energetycznymi lub infrastrukturalnymi w okolicy?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Możliwość wystąpienia oddziaływań skumulowanych została przeanalizowana w trakcie procedury oceny oddziaływania przedsięwzięcia na środowisko. Analiza obejmowała również inne przedsięwzięcia znajdujące się w otoczeniu inwestycji. Wyniki tych ocen zostały uwzględnione w raporcie OOŚ oraz były podstawą wydania decyzji środowiskowej.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">45</span><span class="qa-q">Czy oceniono łączny wpływ hałasu, emisji, ruchu samochodowego, ciepła i zużycia zasobów na mieszkańców Józefosławia?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Wszystkie te elementy zostały przeanalizowane w ramach procedury oceny oddziaływania na środowisko. Oceny przeprowadzono zgodnie z obowiązującymi przepisami oraz metodologią stosowaną dla tego typu postępowań. Wyniki analiz potwierdziły możliwość realizacji inwestycji przy zachowaniu obowiązujących norm środowiskowych.</p></div>
+            </details>
+          </div>
+        </details>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Zgodność inwestycji z dokumentacją i nadzór</span>
+            <span class="qa-cat-count">3 pytania</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">46</span><span class="qa-q">Czy inwestor przeprowadził analizę, czy wprowadzone zmiany nie powodują zwiększenia oddziaływania inwestycji na środowisko i mieszkańców?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Każda zmiana projektowa podlega ocenie pod kątem zgodności z obowiązującymi przepisami oraz wydanymi decyzjami administracyjnymi. Przeprowadzone analizy wykazały możliwość realizacji inwestycji przy zachowaniu wymaganych standardów środowiskowych. Oznacza to, że projekt na każdym etapie spełniał obowiązujące normy dotyczące oddziaływania na otoczenie.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">47</span><span class="qa-q">Jakie organy administracji publicznej sprawują nadzór nad realizacją i przyszłą eksploatacją obiektu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Każde centrum danych, także to, które powstanie w Piasecznie, podlega i będzie podlegało kontroli oraz nadzorowi właściwych organów administracji publicznej na każdym etapie realizacji i funkcjonowania inwestycji. Obiekt będzie musiał przez cały okres działalności spełniać wymagania określone przez obowiązujące przepisy prawa, decyzje administracyjne oraz warunki wydane przez właściwe organy. W przypadku stwierdzenia nieprawidłowości organy te posiadają uprawnienia do prowadzenia kontroli oraz nakładania obowiązków wynikających z przepisów.</p><p>Nowoczesne centra danych objęte są coraz szerszymi obowiązkami raportowymi wynikającymi z regulacji Unii Europejskiej. Obejmują one m.in. przekazywanie informacji dotyczących efektywności energetycznej, wykorzystania zasobów oraz parametrów środowiskowych do właściwych instytucji publicznych. Celem tych regulacji jest zapewnienie przejrzystości funkcjonowania sektora centrów danych oraz możliwość monitorowania jego wpływu na środowisko i system energetyczny w skali całej Unii Europejskiej. Niezależnie od obowiązków wynikających z przepisów, inwestor deklaruje także prowadzenie dialogu z mieszkańcami i pozostaje otwarty na zgłaszanie uwag dotyczących funkcjonowania obiektu. Naszym celem jest nie tylko spełnienie wymagań formalnych, ale również utrzymanie dobrych relacji z lokalną społecznością przez cały okres funkcjonowania centrum danych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">48</span><span class="qa-q">Czy po rozpoczęciu eksploatacji planowane są regularne kontrole hałasu, emisji, gospodarki wodnej i innych parametrów środowiskowych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>W trakcie eksploatacji obiektu prowadzony będzie monitoring środowiskowy zgodnie z obowiązującymi przepisami, decyzjami administracyjnymi oraz wymaganiami właściwych organów. Inwestor będzie realizował wszystkie obowiązki monitoringowe wynikające z przepisów prawa. Dzięki temu możliwe będzie bieżące potwierdzanie zgodności funkcjonowania obiektu z obowiązującymi normami środowiskowymi. Niezależnie od obowiązków wynikających z przepisów, inwestor deklaruje także prowadzenie dialogu z mieszkańcami i pozostaje otwarty na zgłaszanie uwag dotyczących funkcjonowania obiektu. Naszym celem jest nie tylko spełnienie wymagań formalnych, ale również utrzymanie dobrych relacji z lokalną społecznością przez cały okres funkcjonowania centrum danych.</p></div>
+            </details>
+          </div>
+        </details>
+        <details class="qa-cat">
+          <summary class="qa-cat-head">
+            <span class="qa-cat-title">Monitoring, odpowiedzialność i komunikacja z mieszkańcami</span>
+            <span class="qa-cat-count">12 pytań</span>
+            <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
+          </summary>
+          <div class="qa-cat-body">
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">49</span><span class="qa-q">Czy inwestor zobowiązuje się do prowadzenia stałego monitoringu hałasu w punktach zlokalizowanych w pobliżu zabudowy mieszkaniowej?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Pomiary hałasu będą wykonywane zgodnie z obowiązującymi przepisami prawa oraz wymaganiami wynikającymi z decyzji administracyjnych dotyczących eksploatacji obiektu. Inwestor będzie realizował wszystkie obowiązki związane z monitoringiem poszczególnych parametrów, określone przez właściwe organy administracji publicznej.</p><p>W praktyce oznacza to, że funkcjonowanie centrum danych nie będzie opierało się wyłącznie na deklaracjach inwestora. Obiekt będzie musiał przez cały okres działalności spełniać wymagania określone przez obowiązujące przepisy prawa, decyzje administracyjne oraz warunki wydane przez właściwe organy. W przypadku stwierdzenia nieprawidłowości organy te posiadają uprawnienia do prowadzenia kontroli oraz nakładania obowiązków wynikających z przepisów.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">50</span><span class="qa-q">Czy wyniki pomiarów hałasu, emisji i innych parametrów środowiskowych będą publicznie dostępne dla mieszkańców?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Informacje dotyczące monitoringu środowiskowego będą udostępniane w zakresie wynikającym z obowiązujących przepisów prawa oraz wymagań określonych w uzyskanych decyzjach administracyjnych. Inwestor zakłada również prezentowanie wybranych danych środowiskowych w ramach raportowania zrównoważonego rozwoju i działań informacyjnych kierowanych do interesariuszy.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">51</span><span class="qa-q">Czy inwestor przewiduje utworzenie stałego kanału komunikacji z mieszkańcami, umożliwiającego zgłaszanie skarg, pytań i uwag?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Uruchomiona została platforma sienreal.pl, która stanowi stały kanał komunikacji z mieszkańcami. Za jej pośrednictwem można zgłaszać pytania, uwagi oraz wątpliwości dotyczące inwestycji. Celem inwestora jest prowadzenie długofalowego dialogu z lokalną społecznością.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">52</span><span class="qa-q">Jaka będzie procedura rozpatrywania zgłoszeń dotyczących hałasu, zapachów, emisji, światła, transportu lub innych uciążliwości?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Każde zgłoszenie będzie analizowane bez zbędnej zwłoki, z uwzględnieniem jego charakteru oraz zakresu. Jeżeli dane zagadnienie podlega obowiązkom wynikającym z przepisów prawa lub decyzji administracyjnych, działania będą realizowane zgodnie z określonymi procedurami i terminami. Celem inwestora jest rzetelne wyjaśnianie zgłaszanych spraw oraz utrzymywanie bieżącego dialogu z mieszkańcami.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">53</span><span class="qa-q">W jakim terminie inwestor będzie reagował na zgłoszenia mieszkańców dotyczące potencjalnego przekroczenia norm lub warunków określonych w decyzjach administracyjnych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestor będzie reagował na zgłoszenia mieszkańców bez zbędnej zwłoki. Sposób i termin podejmowanych działań będą zależały od charakteru zgłoszenia oraz obowiązków wynikających z przepisów prawa i decyzji administracyjnych. Każda sprawa będzie analizowana indywidualnie. Celem inwestora jest rzetelne wyjaśnianie zgłaszanych spraw oraz utrzymywanie bieżącego dialogu z mieszkańcami.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">54</span><span class="qa-q">Czy inwestor przewiduje wdrożenie dodatkowych środków ograniczających oddziaływanie obiektu w przypadku stwierdzenia przekroczeń dopuszczalnych poziomów?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>W przypadku stwierdzenia przekroczenia obowiązujących norm lub warunków określonych w decyzjach administracyjnych inwestor będzie zobowiązany do podjęcia odpowiednich działań naprawczych i ograniczających oddziaływanie obiektu. Zakres działań będzie dostosowany do rodzaju i skali problemu. Jednocześnie inwestor pozostaje otwarty na analizę dodatkowych rozwiązań ograniczających potencjalne oddziaływania obiektu na otoczenie.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">55</span><span class="qa-q">Czy inwestor posiada procedury awaryjne dotyczące pożaru, wycieku paliwa, awarii agregatów, awarii systemów chłodzenia oraz innych zdarzeń mogących wpływać na mieszkańców?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Centrum danych będzie funkcjonowało zgodnie z obowiązującymi przepisami prawa, wymaganiami uzyskanych decyzji administracyjnych oraz procedurami bezpieczeństwa stosowanymi w nowoczesnych obiektach tego typu. Projekt został wyposażony w szereg rozwiązań technicznych mających na celu ograniczenie ryzyka wystąpienia awarii oraz minimalizację ich potencjalnych skutków dla otoczenia. Jednocześnie inwestycja nie będzie kwalifikowana jako zakład o zwiększonym lub dużym ryzyku w rozumieniu przepisów dotyczących substancji niebezpiecznych. Nie będzie miała też statusu inwestycji strategicznej.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">56</span><span class="qa-q">Czy mieszkańcy i właściwe służby zostaną poinformowani o procedurach postępowania w sytuacjach awaryjnych?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestycja będzie funkcjonowała zgodnie z obowiązującymi przepisami prawa, wymaganiami właściwych organów oraz wewnętrznymi procedurami bezpieczeństwa. Wszelkie obowiązki informacyjne wynikające z przepisów prawa będą realizowane przez inwestora. Współpraca z właściwymi służbami będzie prowadzona zgodnie z obowiązującymi procedurami bezpieczeństwa.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">57</span><span class="qa-q">Czy inwestor przeprowadził analizę potencjalnego wpływu inwestycji na atrakcyjność i wartość nieruchomości znajdujących się w jej bezpośrednim sąsiedztwie?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Analiza wartości nieruchomości nie stanowi elementu procedury oceny oddziaływania przedsięwzięcia na środowisko i nie należy do kompetencji inwestora. Przedmiotem analiz środowiskowych były natomiast wszystkie aspekty oddziaływania inwestycji wymagane przez obowiązujące przepisy prawa.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">58</span><span class="qa-q">Czy inwestor deklaruje gotowość do współpracy z mieszkańcami, organizacjami społecznymi i właściwymi organami w zakresie monitorowania i ograniczania oddziaływań inwestycji?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestorowi zależy na budowaniu dobrych relacji sąsiedzkich oraz prowadzeniu otwartego i długofalowego dialogu z mieszkańcami, organizacjami społecznymi oraz przedstawicielami administracji publicznej. Celem jest nie tylko rzetelne informowanie o przebiegu inwestycji i odpowiadanie na zgłaszane pytania, ale również wspólne poszukiwanie najlepszych rozwiązań służących ograniczaniu potencjalnych oddziaływań inwestycji na otoczenie. Inwestor chce być aktywnym uczestnikiem życia lokalnego i dobrym sąsiadem. Dlatego zamierza angażować się w inicjatywy wspierające mieszkańców oraz rozwój najbliższego otoczenia inwestycji. Wierzymy, że nowoczesne centrum danych powinno nie tylko spełniać najwyższe standardy techniczne, środowiskowe i bezpieczeństwa, ale także wnosić pozytywną wartość do lokalnej społeczności. Inwestor nie wyklucza również rozmów dotyczących innych potrzeb mieszkańców związanych z lokalną infrastrukturą, bezpieczeństwem, przestrzenią publiczną czy projektami poprawiającymi jakość życia w okolicy. Zakres takiego zaangażowania będzie przedmiotem dalszego dialogu z mieszkańcami i samorządem. Naszym celem jest prowadzenie zarówno realizacji inwestycji, a później jej funkcjonowania w sposób odpowiedzialny i uwzględniający potrzeby otoczenia. Dlatego deklarujemy gotowość do dalszych rozmów oraz współpracy na wszystkich etapach realizacji i późniejszego funkcjonowania centrum danych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">59</span><span class="qa-q">Jakie normy poza polskimi zostały wykorzystane na etapie projektowania?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Projekt został opracowany zgodnie z obowiązującymi polskimi i europejskimi normami oraz wymaganiami technicznymi stosowanymi dla nowoczesnych centrów danych. Celem było zapewnienie zgodności inwestycji z najwyższymi standardami bezpieczeństwa, jakości i ochrony środowiska obowiązującymi na terenie Unii Europejskiej. Nowoczesne centra danych objęte są coraz szerszymi obowiązkami raportowymi wynikającymi z regulacji Unii Europejskiej. Obejmują one m.in. przekazywanie informacji dotyczących efektywności energetycznej, wykorzystania zasobów oraz parametrów środowiskowych do właściwych instytucji publicznych. Celem tych regulacji jest zapewnienie przejrzystości funkcjonowania sektora centrów danych oraz możliwość monitorowania jego wpływu na środowisko i system energetyczny w skali całej Unii Europejskiej.</p><p>Niezależnie od obowiązków wynikających z przepisów, inwestor deklaruje także prowadzenie dialogu z mieszkańcami i pozostaje otwarty na zgłaszanie uwag dotyczących funkcjonowania obiektu. Naszym celem jest nie tylko spełnienie wymagań formalnych, ale również utrzymanie dobrych relacji z lokalną społecznością przez cały okres funkcjonowania centrum danych.</p></div>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-q"><span class="qa-n">60</span><span class="qa-q">Jakie certyfikaty jakości będą obowiązywały na etapie budowy i na etapie eksploatacji obiektu?</span><span class="plus">+</span></summary>
+              <div class="faq-a"><p>Inwestycja jest realizowana zgodnie z wymaganiami certyfikacji BREEAM i LEED. Wymagania wynikające z tych systemów certyfikacji są uwzględniane już na etapie projektowania i budowy obiektu, a następnie będą wspierały jego odpowiedzialną eksploatację. Certyfikacje te obejmują między innymi efektywność energetyczną, gospodarowanie zasobami, ochronę środowiska oraz jakość przestrzeni użytkowych.</p></div>
+            </details>
+          </div>
+        </details>
       </div>
+      <p class="qa-more">Kolejne pytania prosimy kierować na adres <a href="mailto:pytania@sienreal.pl">pytania@sienreal.pl</a>.</p>
     </div>
   </section>
 
@@ -1273,7 +1640,7 @@
     var fill = document.getElementById('wmFill');
     if ('IntersectionObserver' in window) {
       document.body.classList.add('reveal-ready');
-      var items = document.querySelectorAll('.stat, .news, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .faq-item, .contact-panel');
+      var items = document.querySelectorAll('.stat, .news, .arg, .spec, .tl-item, .gallery-grid a, .myth-lead, .wm, .myth-card, .pledge-card, .qa-cat, .contact-panel');
       Array.prototype.forEach.call(items, function(el){
         el.classList.add('reveal');
         var i = Array.prototype.indexOf.call(el.parentNode.children, el);
@@ -1426,11 +1793,12 @@
       setTimeout(function(){ if (!readConsent()) showBanner(); }, 700);
     }
 
+    // Q&A: w obrebie kategorii otwarte jest jedno pytanie naraz
     Array.prototype.forEach.call(document.querySelectorAll('.faq-item'), function(item){
       item.addEventListener('toggle', function(){
         if(item.open){
-          Array.prototype.forEach.call(document.querySelectorAll('.faq-item'), function(other){
-            if(other !== item) other.removeAttribute('open');
+          Array.prototype.forEach.call(item.parentNode.children, function(other){
+            if(other !== item && other.classList.contains('faq-item')) other.removeAttribute('open');
           });
         }
       });
