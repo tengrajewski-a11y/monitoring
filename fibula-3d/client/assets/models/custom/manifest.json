@@ -33,5 +33,12 @@
     "rotY": 0.0,
     "rotX": 0.0,
     "source": "triposr"
+  },
+  "slime": {
+    "file": "slime.glb",
+    "height": 0.6,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr"
   }
 }
