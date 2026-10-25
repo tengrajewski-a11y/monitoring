@@ -138,6 +138,12 @@ location / {
   na własnym GPU, licencja MIT) albo `tools/meshy_generate.py` (Meshy AI, płatne API). Wygenerowany
   GLB trafia do `client/assets/models/custom/` i automatycznie zastępuje wybrany typ potwora.
 
+Dziesięć zwierząt i potworów (szczur, królik, wilk, jeleń, niedźwiedź, pająki, galareta, smoki)
+ma modele z TripoSR zrobione z obrazków LCM Dreamshaper; pozostałe stworzenia to KayKit
+albo modele proceduralne:
+
+![Przed i po TripoSR](docs/triposr-before-after.jpg)
+
 ### TripoSR krok po kroku
 
 Wymaga Pythona 3.10+, ok. 6 GB VRAM (karta NVIDIA) albo cierpliwości na CPU (ok. minuty na
