@@ -40,5 +40,12 @@
     "rotY": 0.0,
     "rotX": 0.0,
     "source": "triposr"
+  },
+  "dragon_hatchling": {
+    "file": "dragon_hatchling.glb",
+    "height": 1.0,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr"
   }
 }
