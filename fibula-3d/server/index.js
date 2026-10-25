@@ -112,7 +112,7 @@ export function startServer(overrides = {}) {
   const shutdown = () => {
     console.log('\n[server] zapisywanie postaci...');
     clearInterval(timer);
-    world.saveAll(true);
+    world.shutdown();
     for (const c of wss.clients) c.close();
     server.close(() => process.exit(0));
     setTimeout(() => process.exit(0), 1000).unref();
@@ -121,7 +121,7 @@ export function startServer(overrides = {}) {
   return new Promise((resolve) => {
     server.listen(config.port, config.host, () => {
       const addr = server.address();
-      resolve({ server, wss, world, config, port: addr.port, stop: () => new Promise((r) => { clearInterval(timer); world.saveAll(true); for (const c of wss.clients) c.terminate(); wss.close(); server.close(() => r()); }), shutdown });
+      resolve({ server, wss, world, config, port: addr.port, stop: () => new Promise((r) => { clearInterval(timer); world.shutdown(); for (const c of wss.clients) c.terminate(); wss.close(); server.close(() => r()); }), shutdown });
     });
   });
 }

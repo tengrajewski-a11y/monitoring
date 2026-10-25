@@ -55,7 +55,7 @@ export class Storage {
 
   saveSync(rec) {
     const file = this.file(rec.name);
-    const tmp = `${file}.${process.pid}.tmp`;
+    const tmp = `${file}.${process.pid}.sync.tmp`; // never shares a temp file with an async save
     fs.writeFileSync(tmp, JSON.stringify(rec));
     fs.renameSync(tmp, file);
   }

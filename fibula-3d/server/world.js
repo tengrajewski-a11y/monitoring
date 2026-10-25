@@ -770,13 +770,18 @@ export class World {
     const c = cmd.toLowerCase();
     if (c === 'pomoc' || c === 'help') {
       p.message('Komendy: /online, /w <imię>, <tekst> (prywatna wiadomość), /czas, /wyloguj. Zaklęcia: wpisz słowa zaklęcia (np. "sana"). Rozmowa z NPC: "witaj".', 'info');
-      if (p.gm) p.message('GM: /tp x y z, /idz <imię>, /m <potwór> [n], /i <przedmiot> [n], /lvl <n>, /lecz, /ogloszenie <tekst>, /kick <imię>, /god', 'info');
+      if (p.gm) p.message('GM: /tp x y z, /czas <godzina>, /idz <imię>, /m <potwór> [n], /i <przedmiot> [n], /lvl <n>, /lecz, /ogloszenie <tekst>, /kick <imię>, /god', 'info');
       return;
     }
     if (c === 'online' || c === 'kto') {
       const list = [...this.players.values()].map((o) => `${o.name} (${o.level})`).join(', ');
       p.message(`Graczy online: ${this.players.size}. ${list}`, 'info');
       return;
+    }
+    if (c === 'czas' && p.gm && arg) {
+      const h = Math.max(0, Math.min(24, Number(arg) || 0));
+      this.dayStart = Date.now() - Math.floor((h / 24) * this.dayLen);
+      for (const o of this.players.values()) o.send({ t: 'time', start: this.dayStart, len: this.dayLen, now: Date.now() });
     }
     if (c === 'czas') {
       const phase = (((Date.now() - this.dayStart) % this.dayLen) + this.dayLen) % this.dayLen / this.dayLen;
@@ -867,10 +872,16 @@ export class World {
     }
   }
 
-  saveAll(sync = false) {
+  saveAll() {
+    for (const p of this.players.values()) this.storage.save(p.serialize());
+  }
+
+  // Server shutdown: save everyone synchronously and detach the sessions, so
+  // the socket close events that follow do not start another (async) save.
+  shutdown() {
     for (const p of this.players.values()) {
-      if (sync) this.storage.saveSync(p.serialize());
-      else this.storage.save(p.serialize());
+      this.storage.saveSync(p.serialize());
+      if (p.session) { p.session.player = null; p.session = null; }
     }
   }
 

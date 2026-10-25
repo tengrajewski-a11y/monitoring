@@ -450,12 +450,12 @@ class Generator {
 
   // ------------------------------------------------------------------------
   // Underground helpers
-  carveDisk(z, cx, cy, r, ground = G.CAVE) {
+  carveDisk(z, cx, cy, r, ground = G.CAVE, amp = 2.4) {
     const R = Math.ceil(r + 2);
     for (let y = cy - R; y <= cy + R; y++) for (let x = cx - R; x <= cx + R; x++) {
       if (x < 2 || y < 2 || x >= MAP_W - 2 || y >= MAP_H - 2) continue;
       const d = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-      const n = (this.noise(x * 1.7 + z * 50, y * 1.7, 0.3, 2) - 0.5) * 2.4;
+      const n = (this.noise(x * 1.7 + z * 50, y * 1.7, 0.3, 2) - 0.5) * amp;
       if (d <= r + n) this.set(x, y, z, ground, O.NONE, this.r(0, 255));
     }
   }
@@ -466,7 +466,7 @@ class Generator {
       const dx = bx - x, dy = by - y, len = Math.sqrt(dx * dx + dy * dy);
       x += dx / len + (this.rnd() - 0.5) * 1.2;
       y += dy / len + (this.rnd() - 0.5) * 1.2;
-      this.carveDisk(z, Math.round(x), Math.round(y), width);
+      this.carveDisk(z, Math.round(x), Math.round(y), Math.max(1.25, width), G.CAVE, 0.3);
     }
   }
 
@@ -492,7 +492,9 @@ class Generator {
       let walls = 0;
       for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) if (m.obj(x + ox, y + oy, z) === O.WALL_CAVE) walls++;
       const v = this.r(0, 255);
-      if (walls >= 3 && this.chance(0.08)) m.setObj(x, y, z, O.STALAGMITE, v);
+      let open = 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (m.walkable(x + dx, y + dy, z)) open++;
+      if (walls >= 3 && open >= 3 && this.chance(0.08)) m.setObj(x, y, z, O.STALAGMITE, v);
       else if (this.chance(0.04)) m.setObj(x, y, z, O.PEBBLES, v);
       else if (this.chance(0.015)) m.setObj(x, y, z, O.MUSHROOMS, v);
       else if (this.chance(0.01)) m.setObj(x, y, z, O.BONES, v);
@@ -611,6 +613,47 @@ class Generator {
     this.region('Smocze Leże', 28, 100, -2);
   }
 
+  // Guarantees that every surface spawn and quest chest is reachable from the
+  // temple: BFS through tiles that are only blocked by vegetation or rocks and
+  // clear those obstacles along the found trail.
+  carveTrails() {
+    const m = this.map, z = 0, W = MAP_W, H = MAP_H;
+    const soft = new Set([O.PINE, O.OAK, O.BIRCH, O.DEAD_TREE, O.BUSH, O.BOULDER, O.ROCK_SMALL]);
+    const open = (x, y) => {
+      if (!m.inBounds(x, y, z)) return false;
+      const g = GROUND[m.ground(x, y, z)];
+      if (!g || !g.walk) return false;
+      const o = m.obj(x, y, z);
+      return !o || !OBJ[o].block || soft.has(o);
+    };
+    const t = this.temple;
+    const prev = new Int32Array(W * H).fill(-2);
+    const q = [t.y * W + t.x];
+    prev[q[0]] = -1;
+    for (let qi = 0; qi < q.length; qi++) {
+      const i = q[qi], x = i % W, y = (i - x) / W;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy, ni = ny * W + nx;
+        if (nx < 0 || ny < 0 || nx >= W || ny >= H || prev[ni] !== -2 || !open(nx, ny)) continue;
+        prev[ni] = i;
+        q.push(ni);
+      }
+    }
+    const targets = this.spawns.filter((s) => s.z === 0).map((s) => [s.x, s.y, 2])
+      .concat(this.questChests.filter((c) => c.z === 0).map((c) => [c.x, c.y + 1, 0]));
+    for (const [tx, ty, r] of targets) {
+      // clear a small glade, then follow the BFS tree back to the temple
+      for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (soft.has(m.obj(tx + dx, ty + dy, z))) m.setObj(tx + dx, ty + dy, z, O.NONE);
+      let i = ty * W + tx;
+      if (prev[i] === -2) continue;
+      while (i >= 0) {
+        const x = i % W, y = (i - x) / W;
+        if (soft.has(m.obj(x, y, z))) m.setObj(x, y, z, this.chance(0.3) ? O.TALL_GRASS : O.NONE);
+        i = prev[i];
+      }
+    }
+  }
+
   validate() {
     const m = this.map;
     // Later carving may have overwritten portal objects, restore them.
@@ -632,6 +675,7 @@ class Generator {
     this.caves();
     this.crypt();
     this.lair();
+    this.carveTrails();
     this.validate();
     this.map.meta = {
       name: 'Fibula',

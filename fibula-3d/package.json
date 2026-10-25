@@ -10,14 +10,16 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "test": "node --test test/"
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "build:assets": "node tools/build-assets.mjs",
+    "build:audio": "node tools/compose-audio.mjs"
   },
   "dependencies": {
     "three": "0.186.1",
     "ws": "8.22.0"
   },
   "devDependencies": {
-    "@gltf-transform/core": "^4.2.1",
-    "@gltf-transform/functions": "^4.2.1"
+    "@gltf-transform/core": "4.2.1",
+    "@gltf-transform/functions": "4.2.1"
   }
 }

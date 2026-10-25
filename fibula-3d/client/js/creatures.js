@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { OUTFIT_COLORS } from '/shared/constants.js';
-import { assets, cloneCharacter, cloneGear, recolorObject } from './assets.js';
+import { assets, cloneCharacter, cloneGear, cloneCustom, recolorObject } from './assets.js';
 import { Geo, lin } from './geo.js';
 
 const CHAR_SCALE = 0.4;
@@ -284,7 +284,8 @@ export class CreatureView {
     else look = MONSTER_LOOK[d.type] || { proc: 'other' };
     if (d.type !== 'human' && d.look) look = { ...look, human: true, ...d.look, kk: look.kk || 'Rogue_Hooded' };
     this.look = look;
-    if ((look.human || look.kk) && assets.ready) this.buildCharacter(look);
+    if (assets.custom.has(d.type)) this.buildCustom(d.type);
+    else if ((look.human || look.kk) && assets.ready) this.buildCharacter(look);
     else if (look.proc) this.buildProcedural(look);
     else this.buildFallbackHuman(look);
   }
@@ -360,6 +361,42 @@ export class CreatureView {
     if (this.loop) this.loop.fadeOut(fade);
     this.loop = action;
     this.loopName = name;
+  }
+
+  buildCustom(type) {
+    const c = cloneCustom(type);
+    this.custom = c;
+    this.root.add(c.root);
+    this.headY = c.height + 0.05;
+    if (c.animations && c.animations.length) {
+      this.customMixer = new THREE.AnimationMixer(c.root);
+      const find = (re) => c.animations.find((a) => re.test(a.name));
+      this.customClips = { idle: find(/idle/i) || c.animations[0], walk: find(/walk|run/i) || c.animations[0] };
+      this.customAction = this.customMixer.clipAction(this.customClips.idle).play();
+    }
+  }
+
+  animateCustom(dt, walking) {
+    const c = this.custom;
+    if (this.customMixer) {
+      const want = walking ? this.customClips.walk : this.customClips.idle;
+      if (this.customAction.getClip() !== want) {
+        const next = this.customMixer.clipAction(want);
+        next.reset().fadeIn(0.2).play();
+        this.customAction.fadeOut(0.2);
+        this.customAction = next;
+      }
+      this.customMixer.update(dt);
+    } else {
+      // no rig: a little procedural life
+      const t = this.time;
+      c.root.position.y = walking ? Math.abs(Math.sin(t * 9)) * 0.06 : Math.sin(t * 2) * 0.01;
+      c.root.rotation.z = walking ? Math.sin(t * 9) * 0.05 : 0;
+    }
+    if (this.lunge > 0) {
+      this.lunge = Math.max(0, this.lunge - dt * 4);
+      c.root.position.z = Math.sin(this.lunge * Math.PI) * 0.2;
+    }
   }
 
   buildProcedural(look) {
@@ -456,7 +493,8 @@ export class CreatureView {
         }
       }
       this.mixer.update(dt);
-    } else if (this.proc) this.animateProc(dt, walking, tps);
+    } else if (this.custom) this.animateCustom(dt, walking);
+    else if (this.proc) this.animateProc(dt, walking, tps);
   }
 
   animateProc(dt, walking, tps) {
@@ -495,6 +533,10 @@ export class CreatureView {
       const clip = assets.clips.get(deadPose ? 'Death_A_Pose' : 'Idle');
       if (clip) { const a = this.mixer.clipAction(clip); a.play(); this.mixer.update(0.01); }
       this.mixer = null;
+    } else if (this.custom) {
+      this.custom.root.rotation.z = Math.PI / 2;
+      this.custom.root.position.y = 0.15;
+      this.customMixer = null;
     } else if (this.proc) {
       this.proc.group.rotation.z = Math.PI / 2;
       this.proc.group.position.y = 0.12;

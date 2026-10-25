@@ -1,0 +1,18 @@
+{
+  "port": 7172,
+  "worldName": "Fibula",
+  "motd": "Witaj na Fibuli! Powiedz \"witaj\" do NPC, by zacząć rozmowę.",
+  "maxPlayers": 200,
+  "rateExp": 3,
+  "rateSkill": 3,
+  "rateMagic": 3,
+  "rateLoot": 1,
+  "rateSpawn": 1,
+  "rateHpRegen": 3,
+  "rateManaRegen": 3,
+  "pvp": true,
+  "protectionLevel": 8,
+  "deathLossPercent": 10,
+  "dayLengthMin": 40,
+  "gms": []
+}

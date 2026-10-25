@@ -19,6 +19,7 @@ export const assets = {
   gear: new Map(),    // key -> Object3D template
   chars: new Map(),   // name -> Object3D template
   clips: new Map(),   // name -> AnimationClip
+  custom: new Map(),  // creature type -> { scene, animations, cfg } (e.g. Meshy AI models)
   failed: false,
 };
 
@@ -88,12 +89,50 @@ export async function loadAssets(onProgress = () => {}) {
       assets.chars.set(name, g.scene);
       step();
     }));
+    await loadCustom(loader);
     assets.ready = true;
   } catch (e) {
     console.warn('Nie udało się wczytać modeli 3D, używam modeli zastępczych.', e);
     assets.failed = true;
   }
   return assets;
+}
+
+// Optional user models (tools/meshy_generate.py writes models/custom/manifest.json).
+async function loadCustom(loader) {
+  let manifest;
+  try {
+    const r = await fetch(BASE + 'custom/manifest.json');
+    if (!r.ok) return;
+    manifest = await r.json();
+  } catch { return; }
+  await Promise.all(Object.entries(manifest).map(async ([key, cfg]) => {
+    try {
+      const g = await loader.loadAsync(BASE + 'custom/' + cfg.file);
+      prepare(g.scene);
+      assets.custom.set(key, { scene: g.scene, animations: g.animations, cfg });
+    } catch (e) { console.warn('Nie udało się wczytać modelu', key, e); }
+  }));
+}
+
+export function cloneCustom(key) {
+  const c = assets.custom.get(key);
+  if (!c) return null;
+  const inner = cloneSkinned(c.scene);
+  inner.rotation.x = ((c.cfg.rotX || 0) * Math.PI) / 180;
+  const root = new THREE.Group();
+  root.add(inner);
+  // normalise: requested height in tiles, centred, standing on y = 0
+  const box = new THREE.Box3().setFromObject(root);
+  const size = box.getSize(new THREE.Vector3());
+  const s = (c.cfg.height || 1) / Math.max(0.001, size.y);
+  root.scale.setScalar(s);
+  const center = box.getCenter(new THREE.Vector3());
+  root.position.set(-center.x * s, -box.min.y * s, -center.z * s);
+  const wrap = new THREE.Group();
+  wrap.rotation.y = ((c.cfg.rotY || 0) * Math.PI) / 180;
+  wrap.add(root);
+  return { root: wrap, animations: c.animations, height: c.cfg.height || 1 };
 }
 
 export function cloneCharacter(name) {
