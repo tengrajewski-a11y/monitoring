@@ -5,5 +5,12 @@
     "rotY": 60.0,
     "rotX": 0.0,
     "source": "triposr"
+  },
+  "rabbit": {
+    "file": "rabbit.glb",
+    "height": 0.45,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr"
   }
 }
