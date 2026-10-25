@@ -35,6 +35,7 @@ export function toLambert(m) {
     name: m.name, map: m.map || null, color: m.color ? m.color.clone() : new THREE.Color(0xffffff),
     emissive: m.emissive ? m.emissive.clone() : new THREE.Color(0), emissiveMap: m.emissiveMap || null,
     transparent: m.transparent, opacity: m.opacity, alphaTest: m.alphaTest, side: m.side, vertexColors: m.vertexColors,
+    flatShading: m.flatShading, // GLTFLoader sets it for meshes without normals (e.g. TripoSR output)
   });
   if (m.emissive && m.emissive.getHex() !== 0) out.emissiveIntensity = Math.max(1, m.emissiveIntensity || 1);
   matCache.set(m.uuid, out);

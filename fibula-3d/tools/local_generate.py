@@ -114,8 +114,9 @@ def run_triposr(image_path, out, args):
     model = TSR.from_pretrained(args.model or "stabilityai/TripoSR", config_name="config.yaml", weight_name="model.ckpt")
     model.renderer.set_chunk_size(8192)
     model.to(device)
-    # same preprocessing as TripoSR's run.py
-    image = remove_background(Image.open(image_path), rembg.new_session())
+    # same preprocessing as TripoSR's run.py; u2net (170 MB, Apache-2.0) because newer
+    # rembg defaults to a 1 GB background model with a non-commercial licence
+    image = remove_background(Image.open(image_path), rembg.new_session("u2net"))
     image = resize_foreground(image, 0.85)
     image = np.array(image).astype(np.float32) / 255.0
     image = image[:, :, :3] * image[:, :, 3:4] + (1 - image[:, :, 3:4]) * 0.5
