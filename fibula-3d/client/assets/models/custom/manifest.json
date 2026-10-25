@@ -4,69 +4,226 @@
     "height": 1.0,
     "rotY": 60.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "quad"
   },
   "deer": {
     "file": "deer.glb",
     "height": 1.1,
     "rotY": -60.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "quad"
   },
   "dragon": {
     "file": "dragon.glb",
     "height": 2.0,
     "rotY": 60.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "dragon"
   },
   "dragon_hatchling": {
     "file": "dragon_hatchling.glb",
     "height": 1.0,
     "rotY": 60.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "dragon"
   },
   "giant_spider": {
     "file": "giant_spider.glb",
     "height": 0.8,
     "rotY": 0.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "spider"
+  },
+  "orc": {
+    "file": "orc.glb",
+    "height": 1.05,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
+  },
+  "orc_shaman": {
+    "file": "orc_shaman.glb",
+    "height": 1.0,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
+  },
+  "orc_spearman": {
+    "file": "orc_spearman.glb",
+    "height": 1.0,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
+  },
+  "orc_warrior": {
+    "file": "orc_warrior.glb",
+    "height": 1.2,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
   },
   "poison_spider": {
     "file": "poison_spider.glb",
     "height": 0.4,
     "rotY": 0.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "spider"
   },
   "rabbit": {
     "file": "rabbit.glb",
     "height": 0.45,
     "rotY": 20.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "hop"
   },
   "rat": {
     "file": "rat.glb",
     "height": 0.35,
     "rotY": 75.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "quad"
   },
   "slime": {
     "file": "slime.glb",
     "height": 0.6,
     "rotY": 40.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "blob"
+  },
+  "swamp_troll": {
+    "file": "swamp_troll.glb",
+    "height": 1.2,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
+  },
+  "troll": {
+    "file": "troll.glb",
+    "height": 1.35,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
+  },
+  "troll_champion": {
+    "file": "troll_champion.glb",
+    "height": 1.55,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "troll-model",
+    "gait": "biped",
+    "hands": {
+      "r": [
+        -0.292,
+        0.213,
+        -0.02
+      ],
+      "l": [
+        0.292,
+        0.213,
+        -0.02
+      ]
+    },
+    "gearScale": 0.4
   },
   "wolf": {
     "file": "wolf.glb",
     "height": 0.75,
     "rotY": 60.0,
     "rotX": 0.0,
-    "source": "triposr"
+    "source": "triposr",
+    "gait": "quad"
   }
 }

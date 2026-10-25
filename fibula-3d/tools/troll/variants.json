@@ -1,0 +1,9 @@
+{
+  "orc":            {"height": 1.05, "faces": 9000, "palette": {"skin":"#6f9a3a","armor":"#7a5634","leather":"#4e3420","cloth":"#8a3226","bone":"#e8dcc0","metal":"#6a6a70","rope":"#b89a60"}},
+  "orc_warrior":    {"height": 1.2,  "faces": 9000, "palette": {"skin":"#4f7a2c","armor":"#8d939c","leather":"#33261a","cloth":"#2e2e30","bone":"#e0d4b8","metal":"#a4aab2","rope":"#7a6a50"}},
+  "orc_spearman":   {"height": 1.0,  "faces": 9000, "palette": {"skin":"#7aa048","armor":"#9a6a38","leather":"#5a3c22","cloth":"#6a7a3a","bone":"#ece2c8","metal":"#7a7a80","rope":"#c0a468"}},
+  "orc_shaman":     {"height": 1.0,  "faces": 9000, "palette": {"skin":"#6a8a52","armor":"#d8ccb0","leather":"#4a3020","cloth":"#5a2a6a","bone":"#f0e8d0","metal":"#b08a3a","rope":"#8a5a9a"}},
+  "troll":          {"height": 1.35, "faces": 9000, "palette": {"skin":"#7a8a9a","armor":"#6a5a4a","leather":"#3e3226","cloth":"#4a5a3a","bone":"#e4dccb","metal":"#707276","rope":"#9a8a6a"}},
+  "troll_champion": {"height": 1.55, "faces": 9000, "palette": {"skin":"#8a7a98","armor":"#8a2a2a","leather":"#2e2420","cloth":"#262628","bone":"#efe6d2","metal":"#b0b4ba","rope":"#c8a040"}},
+  "swamp_troll":    {"height": 1.2,  "faces": 9000, "palette": {"skin":"#5a6a3a","armor":"#4a4a2a","leather":"#3a3020","cloth":"#3a4a2a","bone":"#d0c8a8","metal":"#5a5c58","rope":"#6a6a3a"}}
+}

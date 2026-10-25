@@ -6,6 +6,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { OUTFIT_COLORS } from '/shared/constants.js';
 import { assets, cloneCharacter, cloneGear, cloneCustom, recolorObject } from './assets.js';
 import { Geo, lin } from './geo.js';
+import { applyGait } from './gait.js';
 
 const CHAR_SCALE = 0.4;
 const DIR_ANGLE = [Math.PI, Math.PI / 2, 0, -Math.PI / 2, -Math.PI / 4, Math.PI / 4, -3 * Math.PI / 4, 3 * Math.PI / 4];
@@ -365,6 +366,7 @@ export class CreatureView {
 
   buildCustom(type) {
     const c = cloneCustom(type);
+    const cfg = c.cfg;
     this.custom = c;
     this.root.add(c.root);
     this.headY = c.height + 0.05;
@@ -373,10 +375,41 @@ export class CreatureView {
       const find = (re) => c.animations.find((a) => re.test(a.name));
       this.customClips = { idle: find(/idle/i) || c.animations[0], walk: find(/walk|run/i) || c.animations[0] };
       this.customAction = this.customMixer.clipAction(this.customClips.idle).play();
+    } else {
+      // static mesh: procedural walk cycle in the vertex shader
+      const box = new THREE.Box3();
+      c.root.traverse((o) => {
+        if (!o.isMesh) return;
+        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+        box.union(o.geometry.boundingBox);
+      });
+      this.gait = cfg.gait || 'none';
+      this.gaitU = applyGait(c.root, this.gait, box, cfg.rotY || 0);
+      this.gaitPhase = Math.random() * 6.3;
+      this.gaitAmt = 0;
+    }
+    // weapons in the hands of models that list hand positions (fractions of the height)
+    const look = MONSTER_LOOK[type] || {};
+    this.customGear = [];
+    if (cfg.hands) {
+      for (const [side, key] of [['r', look.r], ['l', look.l]]) {
+        const p = cfg.hands[side];
+        const m = key && p && gearModel(key);
+        if (!m) continue;
+        const h = c.height;
+        m.scale.multiplyScalar((cfg.gearScale || 0.4) * h);
+        m.position.set(p[0] * h, p[1] * h, p[2] * h);
+        m.rotation.x = 0.45;
+        if (side === 'l') { m.rotation.set(0, Math.PI / 2, 0); m.scale.multiplyScalar(0.8); }
+        m.userData.base = m.position.clone();
+        m.userData.side = side;
+        c.root.add(m);
+        this.customGear.push(m);
+      }
     }
   }
 
-  animateCustom(dt, walking) {
+  animateCustom(dt, walking, tps = 1) {
     const c = this.custom;
     if (this.customMixer) {
       const want = walking ? this.customClips.walk : this.customClips.idle;
@@ -388,10 +421,32 @@ export class CreatureView {
       }
       this.customMixer.update(dt);
     } else {
-      // no rig: a little procedural life
+      // no rig: shader walk cycle, or whole-body hops and squashes
       const t = this.time;
-      c.root.position.y = walking ? Math.abs(Math.sin(t * 9)) * 0.06 : Math.sin(t * 2) * 0.01;
-      c.root.rotation.z = walking ? Math.sin(t * 9) * 0.05 : 0;
+      this.gaitAmt += ((walking ? 1 : 0) - this.gaitAmt) * Math.min(1, dt * 8);
+      this.gaitPhase += dt * Math.max(4, tps * 5) * this.gaitAmt;
+      const a = this.gaitAmt, ph = this.gaitPhase;
+      if (this.gaitU) {
+        this.gaitU.uPhase.value = ph;
+        this.gaitU.uAmt.value = a;
+        this.gaitU.uTime.value = t;
+        c.root.position.y = Math.abs(Math.cos(ph)) * 0.025 * a * c.height;
+        c.root.rotation.z = Math.sin(ph) * 0.02 * a;
+      } else if (this.gait === 'hop') {
+        c.root.position.y = Math.abs(Math.sin(ph * 0.5)) * 0.16 * a;
+        c.root.rotation.z = 0;
+      } else if (this.gait === 'blob') {
+        const k = 1 + Math.sin(walking ? ph : t * 3) * (0.04 + 0.1 * a);
+        c.root.scale.set(1 / Math.sqrt(k), k, 1 / Math.sqrt(k));
+      } else {
+        c.root.position.y = walking ? Math.abs(Math.sin(t * 9)) * 0.06 : Math.sin(t * 2) * 0.01;
+        c.root.rotation.z = walking ? Math.sin(t * 9) * 0.05 : 0;
+      }
+      // held weapons swing with the arms (right arm forward when the left leg is)
+      for (const m of this.customGear) {
+        const swing = Math.sin(ph) * a * (m.userData.side === 'r' ? 1 : -1);
+        m.position.z = m.userData.base.z + swing * 0.1 * c.height;
+      }
     }
     if (this.lunge > 0) {
       this.lunge = Math.max(0, this.lunge - dt * 4);
@@ -493,7 +548,7 @@ export class CreatureView {
         }
       }
       this.mixer.update(dt);
-    } else if (this.custom) this.animateCustom(dt, walking);
+    } else if (this.custom) this.animateCustom(dt, walking, tps);
     else if (this.proc) this.animateProc(dt, walking, tps);
   }
 

@@ -41,6 +41,12 @@ The creature models in `client/assets/models/custom/` were made for Fibula 3D: c
 turned into meshes with TripoSR (MIT) by `tools/local_generate.py`. Prompts and settings are listed
 in `concept/README.md`.
 
+## Orc and troll models
+
+`client/assets/models/custom/orc*.glb` and `*troll*.glb` are decimated, recoloured versions of a
+troll model supplied by the project owner (`Troll.obj`, exported from Blender 2.93); original author
+and licence to be confirmed by the owner. Conversion: `tools/troll/`.
+
 ## Optional AI model generators (not bundled)
 
 - TripoSR – MIT – Tripo AI & Stability AI – <https://github.com/VAST-AI-Research/TripoSR>

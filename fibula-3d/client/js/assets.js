@@ -100,6 +100,18 @@ export async function loadAssets(onProgress = () => {}) {
 }
 
 // Optional user models (tools/meshy_generate.py writes models/custom/manifest.json).
+// Zero-length normals (e.g. back to back faces sharing vertices) light as NaN.
+function fixNormals(root) {
+  root.traverse((o) => {
+    const n = o.isMesh && o.geometry.attributes.normal;
+    if (!n) return;
+    for (let i = 0; i < n.count; i++) {
+      if (!(Math.abs(n.getX(i)) + Math.abs(n.getY(i)) + Math.abs(n.getZ(i)) > 1e-6)) n.setXYZ(i, 0, 1, 0);
+    }
+    n.needsUpdate = true;
+  });
+}
+
 async function loadCustom(loader) {
   let manifest;
   try {
@@ -110,6 +122,7 @@ async function loadCustom(loader) {
   await Promise.all(Object.entries(manifest).map(async ([key, cfg]) => {
     try {
       const g = await loader.loadAsync(BASE + 'custom/' + cfg.file);
+      fixNormals(g.scene);
       prepare(g.scene);
       assets.custom.set(key, { scene: g.scene, animations: g.animations, cfg });
     } catch (e) { console.warn('Nie udało się wczytać modelu', key, e); }
@@ -133,7 +146,7 @@ export function cloneCustom(key) {
   const wrap = new THREE.Group();
   wrap.rotation.y = ((c.cfg.rotY || 0) * Math.PI) / 180;
   wrap.add(root);
-  return { root: wrap, animations: c.animations, height: c.cfg.height || 1 };
+  return { root: wrap, animations: c.animations, height: c.cfg.height || 1, cfg: c.cfg };
 }
 
 export function cloneCharacter(name) {

@@ -63,6 +63,7 @@ float aoBlur(float d) {
 void main() {
   vec2 px = 1.0 / uRes;
   vec3 col = texture2D(tColor, vUv).rgb;
+  if (any(isnan(col)) || any(isinf(col))) col = vec3(0.0);
   float d = linDepth(vUv);
   if (uDebug > 0.5) { gl_FragColor = vec4(vec3(aoBlur(d)), 1.0); return; }
   if (uAO > 0.0 && d < uFar * 0.98) col *= mix(1.0, aoBlur(d), uAO);
@@ -137,8 +138,9 @@ varying vec2 vUv;
 void main() {
   vec3 c = (texture2D(tColor, vUv + vec2(-1.0, -1.0) * uSrcPx).rgb + texture2D(tColor, vUv + vec2(1.0, -1.0) * uSrcPx).rgb
           + texture2D(tColor, vUv + vec2(-1.0, 1.0) * uSrcPx).rgb + texture2D(tColor, vUv + vec2(1.0, 1.0) * uSrcPx).rgb) * 0.25;
+  if (any(isnan(c)) || any(isinf(c))) c = vec3(0.0);   // never let a bad pixel spread through the blur
   float m = max(c.r, max(c.g, c.b));
-  gl_FragColor = vec4(c * smoothstep(uThreshold, uThreshold * 1.6, m), 1.0);
+  gl_FragColor = vec4(min(c, vec3(16.0)) * smoothstep(uThreshold, uThreshold * 1.6, m), 1.0);
 }`;
 
 const BLUR_FRAG = `
