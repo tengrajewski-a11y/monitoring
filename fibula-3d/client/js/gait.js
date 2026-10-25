@@ -12,7 +12,51 @@ uniform float uTime;
 uniform vec2 uFwd;
 uniform vec2 uCen;
 uniform vec4 uBox; // minY, height, half length, half width
+#if defined(GAIT_RIG)
+// limbs: joints (feet on 0, height 1) hipL, kneeL, shoulderL, elbowL, hipR, kneeR, shoulderR, elbowR
+uniform vec3 uJ[8];
+uniform float uAng[8];
+int gaitPart() {
+#ifdef USE_COLOR_ALPHA
+  return int(color.a * 16.0);
+#else
+  return 0;
+#endif
+}
+vec3 rotX(vec3 q, vec3 pivot, float a) {
+  vec3 d = q - pivot;
+  float c = cos(a), s = sin(a);
+  return pivot + vec3(d.x, d.y * c - d.z * s, d.y * s + d.z * c);
+}
+// the same rotations as gaitOffset, for normals (no pivots)
+vec3 gaitNormal(vec3 n) {
+  int part = gaitPart();
+  if (part == 2) n = rotX(n, vec3(0.0), uAng[1]);
+  if (part == 1 || part == 2) n = rotX(n, vec3(0.0), uAng[0]);
+  if (part == 6) n = rotX(n, vec3(0.0), uAng[3]);
+  if (part == 5 || part == 6) n = rotX(n, vec3(0.0), uAng[2]);
+  if (part == 4) n = rotX(n, vec3(0.0), uAng[5]);
+  if (part == 3 || part == 4) n = rotX(n, vec3(0.0), uAng[4]);
+  if (part == 8) n = rotX(n, vec3(0.0), uAng[7]);
+  if (part == 7 || part == 8) n = rotX(n, vec3(0.0), uAng[6]);
+  return n;
+}
+#endif
 vec3 gaitOffset(vec3 p) {
+#if defined(GAIT_RIG)
+  int part = gaitPart();
+  vec3 n = vec3((p.x - uCen.x) / uBox.y, (p.y - uBox.x) / uBox.y, (p.z - uCen.y) / uBox.y);
+  vec3 q = n;
+  if (part == 2) q = rotX(q, uJ[1], uAng[1]);
+  if (part == 1 || part == 2) q = rotX(q, uJ[0], uAng[0]);
+  if (part == 6) q = rotX(q, uJ[3], uAng[3]);
+  if (part == 5 || part == 6) q = rotX(q, uJ[2], uAng[2]);
+  if (part == 4) q = rotX(q, uJ[5], uAng[5]);
+  if (part == 3 || part == 4) q = rotX(q, uJ[4], uAng[4]);
+  if (part == 8) q = rotX(q, uJ[7], uAng[7]);
+  if (part == 7 || part == 8) q = rotX(q, uJ[6], uAng[6]);
+  return (q - n) * uBox.y;
+#endif
   vec2 d = p.xz - uCen;
   float fw = dot(d, uFwd);                      // + towards the front
   float sd = dot(d, vec2(uFwd.y, -uFwd.x));     // lateral
@@ -48,13 +92,13 @@ vec3 gaitOffset(vec3 p) {
   return vec3(uFwd.x * along + uFwd.y * lat, up, uFwd.y * along - uFwd.x * lat);
 }`;
 
-const SHADER_GAITS = { biped: 'GAIT_BIPED', quad: 'GAIT_QUAD', dragon: 'GAIT_DRAGON', spider: 'GAIT_SPIDER' };
+const SHADER_GAITS = { biped: 'GAIT_BIPED', quad: 'GAIT_QUAD', dragon: 'GAIT_DRAGON', spider: 'GAIT_SPIDER', rig: 'GAIT_RIG' };
 
 // Patches every mesh under root; returns the per-instance uniforms (or null
 // for gaits animated on the whole object, like 'hop' and 'blob').
-export function applyGait(root, gait, box, rotYDeg) {
+export function applyGait(root, gait, box, rotYDeg, cfg = {}) {
   const def = SHADER_GAITS[gait];
-  if (!def) return null;
+  if (!def || (gait === 'rig' && !cfg.joints)) return null;
   const th = (rotYDeg * Math.PI) / 180;
   const size = box.getSize(new THREE.Vector3());
   const c = box.getCenter(new THREE.Vector3());
@@ -68,13 +112,20 @@ export function applyGait(root, gait, box, rotYDeg) {
   const hl = Math.abs(f.x) * size.x / 2 + Math.abs(f.y) * size.z / 2;
   const hw = Math.abs(f.y) * size.x / 2 + Math.abs(f.x) * size.z / 2;
   u.uBox = { value: new THREE.Vector4(box.min.y, Math.max(1e-3, size.y), Math.max(1e-3, hl), Math.max(1e-3, hw)) };
+  if (gait === 'rig') {
+    u.uJ = { value: cfg.joints.map((j) => new THREE.Vector3(...j)) };
+    u.uAng = { value: new Array(8).fill(0) };
+  }
   root.traverse((o) => {
     if (!o.isMesh) return;
     const m = o.material.clone();
     m.defines = { ...(m.defines || {}), [def]: '' };
     m.onBeforeCompile = (sh) => {
       Object.assign(sh.uniforms, u);
-      sh.vertexShader = GAIT_GLSL + '\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += gaitOffset(position);');
+      let vs = sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed += gaitOffset(position);');
+      if (gait === 'rig') vs = vs.replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nobjectNormal = gaitNormal(objectNormal);');
+      // after the common chunk so that "color" is declared before the gait functions use it
+      sh.vertexShader = vs.replace('#include <common>', '#include <common>\n' + GAIT_GLSL);
     };
     m.customProgramCacheKey = () => `gait-${gait}`;
     o.material = m;

@@ -47,6 +47,13 @@ in `concept/README.md`.
 troll model supplied by the project owner (`Troll.obj`, exported from Blender 2.93); original author
 and licence to be confirmed by the owner. Conversion: `tools/troll/`.
 
+## Humanoid monster models
+
+`client/assets/models/custom/{zombie,ghoul,mummy,cultist,barbarian}.glb` are re-posed, recoloured
+versions of a low-poly human base mesh supplied by the project owner (`lowpolykarakter0.obj`, face
+groups named after Rigify bones); original author and licence to be confirmed by the owner.
+Conversion: `tools/human/`.
+
 ## Optional AI model generators (not bundled)
 
 - TripoSR – MIT – Tripo AI & Stability AI – <https://github.com/VAST-AI-Research/TripoSR>

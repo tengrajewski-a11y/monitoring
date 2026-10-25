@@ -1,0 +1,7 @@
+{
+  "zombie":    {"height": 0.95, "palette": {"skin":"#8fa07a","eyes":"#e04040","hair":"#3a3a2a","hands":"#8fa07a","forearm":"#8fa07a","sleeve":"#6a5a48","top":"#6a5a48","pants":"#3e4256","boots":"#2a241c"}},
+  "ghoul":     {"height": 0.95, "palette": {"skin":"#9a96a8","eyes":"#f0d040","hair":"#2a2a30","hands":"#9a96a8","forearm":"#9a96a8","sleeve":"#9a96a8","top":"#4a3e4a","pants":"#3a3038","boots":"#8a8698"}},
+  "mummy":     {"height": 1.0,  "palette": {"skin":"#d8c8a0","eyes":"#40c0ff","hair":"#c8b890","hands":"#cbb890","forearm":"#d0c098","sleeve":"#d8c8a0","top":"#c8b890","pants":"#d0c098","boots":"#b8a880"}},
+  "cultist":   {"height": 1.0,  "palette": {"skin":"#d8a888","eyes":"#202020","hair":"#3a0a0a","hands":"#d8a888","forearm":"#6a1414","sleeve":"#6a1414","top":"#6a1414","pants":"#4a0e0e","boots":"#241818"}},
+  "barbarian": {"height": 1.1,  "palette": {"skin":"#c89068","eyes":"#202020","hair":"#8a4a20","hands":"#c89068","forearm":"#c89068","sleeve":"#c89068","top":"#6a4a2a","pants":"#4a3a2a","boots":"#3a2a1a"}}
+}

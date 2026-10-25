@@ -146,6 +146,28 @@ export const MONSTERS = {
     loot: [['gold', 1, 100, 300], ['lich_crown', 1, 1, 1], ['sapphire', 0.3, 1, 2], ['great_health_potion', 0.5, 1, 3],
       ['runed_sword', 0.1, 1, 1], ['ring_vigor', 0.2, 1, 1], ['wand_embers', 0.15, 1, 1], ['rod_frost', 0.15, 1, 1]],
   },
+  zombie: {
+    name: 'Zombie', hp: 130, exp: 55, speed: 110, attack: 22, skill: 25, defense: 6, armor: 5,
+    blood: 'red', immune: ['poison'], elements: { fire: 1.2, holy: 1.2 }, sounds: ['Mózgiii...', 'Uuurgh...'],
+    loot: [['gold', 0.6, 1, 15], ['meat', 0.3, 1, 1], ['bone', 0.2, 1, 1], ['leather_boots', 0.03, 1, 1]],
+  },
+  mummy: {
+    name: 'Mumia', hp: 220, exp: 150, speed: 130, attack: 30, skill: 40, defense: 16, armor: 10,
+    blood: 'bone', immune: ['poison', 'death'], elements: { fire: 1.3, holy: 1.2 }, sounds: ['Kto zakłóca mój spoczynek?'],
+    spells: [{ type: 'drain', element: 'lifedrain', min: 20, max: 40, range: 1, chance: 0.2, cd: 3500, effect: 'death' }],
+    loot: [['gold', 0.9, 5, 40], ['bone_amulet', 0.04, 1, 1], ['ruby', 0.03, 1, 1], ['health_potion', 0.08, 1, 1]],
+  },
+  cultist: {
+    name: 'Kultysta', hp: 120, exp: 80, speed: 160, attack: 12, skill: 20, defense: 10, armor: 4,
+    blood: 'red', keepDistance: 3, sounds: ['Pan Ciemności nadchodzi!', 'Twoja krew dla mego pana!'],
+    spells: [{ type: 'missile', element: 'fire', min: 18, max: 40, range: 5, chance: 0.3, cd: 2200, missile: 'fire', effect: 'fire' }],
+    loot: [['gold', 0.9, 3, 25], ['mana_potion', 0.08, 1, 1], ['wand_embers', 0.015, 1, 1], ['mage_robe', 0.02, 1, 1]],
+  },
+  barbarian: {
+    name: 'Dzikus', hp: 160, exp: 95, speed: 180, attack: 34, skill: 45, defense: 14, armor: 8,
+    blood: 'red', runHp: 20, sounds: ['Za Krwawe Wzgórza!', 'Twoja głowa będzie moja!'],
+    loot: [['gold', 1, 5, 35], ['meat', 0.4, 1, 2], ['hand_axe', 0.06, 1, 1], ['battle_axe', 0.015, 1, 1], ['wolf_pelt', 0.1, 1, 1], ['leather_legs', 0.05, 1, 1]],
+  },
 };
 
 for (const [key, m] of Object.entries(MONSTERS)) {

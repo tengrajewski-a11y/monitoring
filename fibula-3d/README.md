@@ -127,8 +127,14 @@ location / {
 
 - **Modele 3D**: paczki KayKit (CC0) przetworzone skryptem `npm run build:assets`
   (`KAYKIT_DIR=/ścieżka/do/sklonowanych/paczek`) do kilku plików GLB w `client/assets/models`.
-  Orkowie, trolle i rozbójnicy to przemalowane w locie modele KayKit; zwierzęta, pająki,
-  szlamy i smoki są modelowane proceduralnie.
+  Rozbójnicy i szkielety to przemalowane w locie modele KayKit; zwierzęta, pająki,
+  szlamy i smoki są modelowane proceduralnie (albo zastąpione modelami z TripoSR, niżej).
+- **Orkowie i trolle**: siedem wariantów z modelu `Troll.obj` właściciela projektu
+  (`tools/troll/`: podział na części, uproszczenie, kolory, `variants.json`).
+- **Humanoidy** (zombie, ghul, mumia, kultysta, dzikus): z niskopoligonowej postaci
+  `lowpolykarakter` (`tools/human/`). Grupy ścian OBJ to kości Rigify, więc skrypt ustawia
+  postać w neutralnej pozie, maluje strefy ciała i zapisuje stawy; animacja chodu i ciosu
+  obraca kończyny w shaderze (`gait: 'rig'` w `manifest.json`).
 - **Ikony przedmiotów**: generowane kodem (32×32, czarny kontur, cieniowanie 4 tonami).
   Podgląd: <http://localhost:7172/dev/icons.html>, modele: <http://localhost:7172/dev/models.html>.
 - **Muzyka i efekty**: oryginalne utwory i dźwięki z syntezatora offline (`tools/synth.mjs`,

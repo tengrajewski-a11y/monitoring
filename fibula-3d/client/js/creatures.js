@@ -9,6 +9,11 @@ import { Geo, lin } from './geo.js';
 import { applyGait } from './gait.js';
 
 const CHAR_SCALE = 0.4;
+// rotation around X through a pivot [x, y, z] (same convention as the rig shader)
+function rotX(v, pivot, a) {
+  const dy = v.y - pivot[1], dz = v.z - pivot[2], c = Math.cos(a), s = Math.sin(a);
+  return v.set(v.x, pivot[1] + dy * c - dz * s, pivot[2] + dy * s + dz * c);
+}
 const DIR_ANGLE = [Math.PI, Math.PI / 2, 0, -Math.PI / 2, -Math.PI / 4, Math.PI / 4, -3 * Math.PI / 4, 3 * Math.PI / 4];
 
 export const MONSTER_LOOK = {
@@ -30,6 +35,11 @@ export const MONSTER_LOOK = {
   troll: { kk: 'Barbarian', recolor: 'troll', r: 'club', scale: 1.15 },
   troll_champion: { kk: 'Barbarian', recolor: 'troll', r: 'axe_2h', l: 'shield_spikes', scale: 1.35 },
   swamp_troll: { kk: 'Barbarian', recolor: 'swamp', r: 'club', scale: 1.05 },
+  // humanoids built on the low-poly human (KayKit look as a fallback)
+  zombie: { kk: 'Skeleton_Minion', recolor: 'ghoul' },
+  mummy: { kk: 'Skeleton_Warrior', recolor: 'white' },
+  cultist: { kk: 'Mage', recolor: 'red', r: 'staff' },
+  barbarian: { kk: 'Barbarian', r: 'axe_2h', scale: 1.08 },
 };
 
 const VOC_MODEL = { knight: 'Knight', paladin: 'Rogue_Hooded', sorcerer: 'Mage', druid: 'Mage' };
@@ -384,7 +394,7 @@ export class CreatureView {
         box.union(o.geometry.boundingBox);
       });
       this.gait = cfg.gait || 'none';
-      this.gaitU = applyGait(c.root, this.gait, box, cfg.rotY || 0);
+      this.gaitU = applyGait(c.root, this.gait, box, cfg.rotY || 0, cfg);
       this.gaitPhase = Math.random() * 6.3;
       this.gaitAmt = 0;
     }
@@ -426,7 +436,22 @@ export class CreatureView {
       this.gaitAmt += ((walking ? 1 : 0) - this.gaitAmt) * Math.min(1, dt * 8);
       this.gaitPhase += dt * Math.max(4, tps * 5) * this.gaitAmt;
       const a = this.gaitAmt, ph = this.gaitPhase;
-      if (this.gaitU) {
+      if (this.gaitU && this.gait === 'rig') {
+        // articulated limbs: legs alternate, arms swing against them, the
+        // right arm (weapon) rises and strikes during an attack lunge
+        const sn = Math.sin(ph), A = this.gaitU.uAng.value;
+        const strike = this.lunge > 0 ? Math.sin(this.lunge * Math.PI) : 0;
+        A[0] = -0.5 * sn * a;
+        A[1] = Math.max(0, sn) * 0.8 * a;
+        A[4] = 0.5 * sn * a;
+        A[5] = Math.max(0, -sn) * 0.8 * a;
+        A[2] = 0.4 * sn * a + Math.sin(t * 2) * 0.03;
+        A[3] = -0.15;
+        A[6] = -0.4 * sn * a - 2.0 * strike - Math.sin(t * 2) * 0.03;
+        A[7] = -0.15 - 0.5 * strike;
+        c.root.position.y = Math.abs(Math.cos(ph)) * 0.02 * a * c.height;
+        c.root.rotation.z = 0;
+      } else if (this.gaitU) {
         this.gaitU.uPhase.value = ph;
         this.gaitU.uAmt.value = a;
         this.gaitU.uTime.value = t;
@@ -442,10 +467,19 @@ export class CreatureView {
         c.root.position.y = walking ? Math.abs(Math.sin(t * 9)) * 0.06 : Math.sin(t * 2) * 0.01;
         c.root.rotation.z = walking ? Math.sin(t * 9) * 0.05 : 0;
       }
-      // held weapons swing with the arms (right arm forward when the left leg is)
+      // held weapons follow the arms
+      const J = c.cfg.joints;
       for (const m of this.customGear) {
-        const swing = Math.sin(ph) * a * (m.userData.side === 'r' ? 1 : -1);
-        m.position.z = m.userData.base.z + swing * 0.1 * c.height;
+        if (J && this.gaitU?.uAng) {
+          const r = m.userData.side === 'r', A = this.gaitU.uAng.value, h = c.height;
+          const sh = A[r ? 6 : 2], el = A[r ? 7 : 3];
+          const p = rotX(rotX(m.userData.base.clone().divideScalar(h), J[r ? 7 : 3], el), J[r ? 6 : 2], sh);
+          m.position.copy(p.multiplyScalar(h));
+          m.rotation.x = (r ? 0.45 : 0) + sh + el;
+        } else {
+          const swing = Math.sin(ph) * a * (m.userData.side === 'r' ? 1 : -1);
+          m.position.z = m.userData.base.z + swing * 0.1 * c.height;
+        }
       }
     }
     if (this.lunge > 0) {

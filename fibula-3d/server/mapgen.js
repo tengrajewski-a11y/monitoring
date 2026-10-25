@@ -368,6 +368,7 @@ class Generator {
     this.map.setGround(118, 124, -1, G.CRYPT);
     this.spawn('skeleton', 118, 115, z, 6, 4, 60);
     this.spawn('ghoul', 113, 118, z, 3, 2, 90);
+    this.spawn('zombie', 120, 112, z, 4, 3, 75);
     this.region('Stary Cmentarz', 118, 116);
   }
 
@@ -393,6 +394,7 @@ class Generator {
     this.spawn('deer', 92, 50, z, 8, 3, 60);
     this.spawn('deer', 62, 58, z, 6, 2, 60);
     this.spawn('bandit', cx, cy, z, 4, 3, 90);
+    this.spawn('cultist', cx - 1, cy + 5, z, 3, 2, 100);
     this.region('Las Strzałkowy', 80, 40);
     this.region('Ruiny Strażnicy', cx, cy);
   }
@@ -430,6 +432,7 @@ class Generator {
   }
 
   surfaceSpawns() {
+    this.spawn('barbarian', 134, 58, 0, 4, 3, 100);
     this.spawn('rat', 102, 90, 0, 5, 4, 30);
     this.spawn('rat', 104, 72, 0, 5, 3, 30);
     this.spawn('rat', 58, 93, 0, 4, 3, 30);
@@ -578,6 +581,8 @@ class Generator {
     this.spawn('skeleton', 118, 136, z, 8, 6, 60);
     this.spawn('ghoul', 100, 136, z, 3, 2, 90);
     this.spawn('ghoul', 137, 136, z, 3, 2, 90);
+    this.spawn('mummy', 106, 139, z, 2, 2, 120);
+    this.spawn('mummy', 128, 139, z, 2, 2, 120);
     this.spawn('lich', 118, 148, z, 2, 1, 1200);
     this.region('Krypta', 118, 140, -1);
   }
