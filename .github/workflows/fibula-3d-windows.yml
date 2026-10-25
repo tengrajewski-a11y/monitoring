@@ -54,16 +54,21 @@ jobs:
       - name: Start the game with its launcher and check that it answers
         run: |
           $pkg = Resolve-Path dist\Fibula3D
-          Start-Process -FilePath cmd.exe -ArgumentList '/c', '"Fibula 3D.cmd"' -WorkingDirectory $pkg
-          $status = $null
-          for ($i = 0; $i -lt 60 -and -not $status; $i++) {
+          $log = Join-Path $env:RUNNER_TEMP 'launcher.log'
+          netsh interface ipv4 show excludedportrange protocol=tcp
+          # "< nul" lets the launcher's "pause" return if the game fails to start
+          $p = Start-Process -FilePath cmd.exe -ArgumentList "/s /c `"`"Fibula 3D.cmd`" < nul > `"$log`" 2>&1`"" -WorkingDirectory $pkg -PassThru
+          $base = $null
+          for ($i = 0; $i -lt 90 -and -not $base -and -not $p.HasExited; $i++) {
             Start-Sleep -Seconds 1
-            try { $status = Invoke-RestMethod http://127.0.0.1:7172/api/status } catch { }
+            $m = Select-String -Path $log -Pattern 'http://localhost:(\d+)' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($m) { $base = "http://127.0.0.1:$($m.Matches[0].Groups[1].Value)" }
           }
-          if (-not $status) { throw 'The packaged game did not start' }
-          $status | ConvertTo-Json -Compress
+          Get-Content $log -ErrorAction SilentlyContinue
+          if (-not $base) { throw 'The packaged game did not start' }
+          Invoke-RestMethod "$base/api/status" | ConvertTo-Json -Compress
           foreach ($u in '/', '/vendor/three/three.module.js', '/vendor/three-addons/loaders/GLTFLoader.js', '/assets/models/anims.glb') {
-            $r = Invoke-WebRequest "http://127.0.0.1:7172$u" -UseBasicParsing
+            $r = Invoke-WebRequest "$base$u" -UseBasicParsing
             "$($r.StatusCode) $u"
           }
           Get-Process node -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$pkg*" } | Stop-Process -Force

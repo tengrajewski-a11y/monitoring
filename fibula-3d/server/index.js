@@ -3,6 +3,7 @@
 
 import http from 'node:http';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -146,25 +147,53 @@ function lanAddresses() {
 const isMain = process.argv[1] && (() => {
   try { return fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); } catch { return false; }
 })();
-if (isMain) {
+// First free port from `from` on (0 = let the system pick).
+async function freePort(host, from) {
+  for (let port = from; port < from + 100; port++) {
+    const ok = await new Promise((resolve) => {
+      const probe = net.createServer().once('error', () => resolve(false));
+      probe.listen(port, host, () => probe.close(() => resolve(true)));
+    });
+    if (ok) return port;
+  }
+  return 0;
+}
+
+async function main() {
   const open = process.argv.includes('--open');
-  startServer().then(({ port, config, shutdown }) => {
-    const url = `http://localhost:${port}`;
-    console.log(`${GAME_NAME} — świat "${config.worldName}" działa na ${url}`);
-    if (config.host === '0.0.0.0' || config.host === '::') {
-      for (const ip of lanAddresses()) console.log(`  dla innych komputerów w sieci: http://${ip}:${port}`);
-    }
-    console.log('  Ctrl+C lub zamknięcie okna zapisuje postacie i wyłącza serwer.');
-    process.on('SIGINT', shutdown);
-    process.on('SIGTERM', shutdown);
-    process.on('SIGHUP', shutdown); // Windows: console window closed
-    if (open) openBrowser(url);
-  }).catch((e) => {
+  const { port: wanted, host } = loadConfig();
+  let srv;
+  try {
+    srv = await startServer();
+  } catch (e) {
     if (e.code === 'EADDRINUSE') {
-      const port = loadConfig().port;
-      console.error(`Port ${port} jest zajęty – gra prawdopodobnie już działa w innym oknie.`);
-      if (open) openBrowser(`http://localhost:${port}`);
-    } else console.error('Nie udało się uruchomić serwera:', e.message);
+      console.error(`Port ${wanted} jest zajęty – gra prawdopodobnie już działa w innym oknie.`);
+      if (open) openBrowser(`http://localhost:${wanted}`);
+      process.exitCode = 1;
+      return;
+    }
+    if (e.code !== 'EACCES') throw e;
+    // Windows reserves port ranges for Hyper-V / WSL / Docker: take another port
+    const port = await freePort(host, wanted + 1);
+    console.log(`Port ${wanted} jest zablokowany przez system, używam innego.`);
+    srv = await startServer({ port });
+  }
+  const { port, config, shutdown } = srv;
+  const url = `http://localhost:${port}`;
+  console.log(`${GAME_NAME} — świat "${config.worldName}" działa na ${url}`);
+  if (config.host === '0.0.0.0' || config.host === '::') {
+    for (const ip of lanAddresses()) console.log(`  dla innych komputerów w sieci: http://${ip}:${port}`);
+  }
+  console.log('  Ctrl+C lub zamknięcie okna zapisuje postacie i wyłącza serwer.');
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+  process.on('SIGHUP', shutdown); // Windows: console window closed
+  if (open) openBrowser(url);
+}
+
+if (isMain) {
+  main().catch((e) => {
+    console.error('Nie udało się uruchomić serwera:', e.message);
     process.exitCode = 1;
   });
 }
