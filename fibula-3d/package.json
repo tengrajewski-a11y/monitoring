@@ -1,0 +1,23 @@
+{
+  "name": "fibula-3d",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fibula 3D – retro 3D MMORPG inspired by the classic 7.x era of tile-based online RPGs",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "three": "0.186.1",
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.2.1",
+    "@gltf-transform/functions": "^4.2.1"
+  }
+}

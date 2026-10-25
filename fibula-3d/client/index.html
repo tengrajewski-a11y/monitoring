@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fibula 3D</title>
+  <meta name="description" content="Fibula 3D – retro MMORPG 3D w przeglądarce.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="importmap">
+    { "imports": { "three": "/vendor/three/three.module.js", "three/addons/": "/vendor/three-addons/" } }
+  </script>
+</head>
+<body>
+  <div id="viewport">
+    <canvas id="gl"></canvas>
+    <canvas id="overlay"></canvas>
+    <div id="loading" class="center-msg">Wczytywanie świata…</div>
+  </div>
+
+  <!-- Login / character creation -->
+  <div id="login" class="screen">
+    <div class="logo">
+      <div class="logo-title">FIBULA<span>3D</span></div>
+      <div class="logo-sub">retro MMORPG</div>
+    </div>
+    <div class="panel login-panel" id="login-panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="enter">Wejdź do gry</button>
+        <button class="tab" data-tab="create">Nowa postać</button>
+      </div>
+      <form id="form-enter" class="form">
+        <label>Nazwa postaci<input name="name" autocomplete="username" maxlength="20" required></label>
+        <label>Hasło<input name="pass" type="password" autocomplete="current-password" maxlength="64" required></label>
+        <button class="btn primary" type="submit">Wejdź</button>
+      </form>
+      <form id="form-create" class="form hidden">
+        <label>Nazwa postaci<input name="name" autocomplete="username" maxlength="20" required placeholder="np. Mścisław"></label>
+        <label>Hasło<input name="pass" type="password" autocomplete="new-password" maxlength="64" minlength="4" required></label>
+        <div class="field-title">Profesja</div>
+        <div class="voc-grid" id="voc-grid"></div>
+        <div class="field-title">Wygląd</div>
+        <div class="outfit-row">
+          <canvas id="outfit-preview" width="96" height="120"></canvas>
+          <div class="outfit-pickers" id="outfit-pickers"></div>
+        </div>
+        <button class="btn primary" type="submit">Stwórz i wejdź</button>
+      </form>
+      <div id="login-error" class="error"></div>
+      <div id="server-status" class="status-line"></div>
+    </div>
+    <div class="login-foot">Poruszanie: WASD / strzałki · Kamera: Q/E, kółko myszy · Czat: Enter</div>
+  </div>
+
+  <!-- In-game HUD -->
+  <div id="hud" class="hidden">
+    <aside id="sidebar">
+      <section class="panel" id="p-map">
+        <div class="ptitle"><span id="region-name">Fibula</span><span id="floor-ind" class="muted"></span></div>
+        <canvas id="minimap" width="232" height="150"></canvas>
+        <div class="map-btns">
+          <button class="mini" data-zoom="-1" title="Oddal">−</button>
+          <button class="mini" data-zoom="1" title="Przybliż">+</button>
+          <span id="clock" class="muted"></span>
+        </div>
+      </section>
+      <section class="panel" id="p-status">
+        <div class="bar hp"><div class="fill"></div><span class="txt"></span></div>
+        <div class="bar mana"><div class="fill"></div><span class="txt"></span></div>
+        <div class="bar exp"><div class="fill"></div><span class="txt"></span></div>
+        <div id="conditions" class="conds"></div>
+      </section>
+      <section class="panel" id="p-equip">
+        <div class="ptitle"><span>Ekwipunek</span><span class="muted" id="armor-val"></span></div>
+        <div class="equip-grid" id="equip-grid"></div>
+      </section>
+      <section class="panel" id="p-bag">
+        <div class="ptitle"><span>Plecak</span><span id="gold" class="gold"></span></div>
+        <div class="bag-grid" id="bag-grid"></div>
+      </section>
+      <section class="panel" id="p-combat">
+        <div class="combat-btns">
+          <button class="cbtn" data-fight="1" title="Ofensywa (więcej obrażeń)">⚔</button>
+          <button class="cbtn" data-fight="2" title="Zbalansowany">⚖</button>
+          <button class="cbtn" data-fight="3" title="Defensywa (lepsza obrona)">⛨</button>
+          <button class="cbtn" id="chase-btn" title="Goń cel">➹</button>
+          <button class="cbtn" id="stop-btn" title="Przestań atakować (Esc)">✕</button>
+        </div>
+        <div class="menu-btns">
+          <button class="btn small" id="btn-skills">Umiejętności</button>
+          <button class="btn small" id="btn-settings">Opcje</button>
+          <button class="btn small" id="btn-logout">Wyloguj</button>
+        </div>
+      </section>
+    </aside>
+
+    <div id="bottom">
+      <div id="hotbar"></div>
+      <div id="chat" class="panel">
+        <div class="chat-tabs" id="chat-tabs"></div>
+        <div class="chat-log" id="chat-log"></div>
+        <form id="chat-form" autocomplete="off">
+          <span id="chat-ch" class="chat-ch">Lokalny</span>
+          <input id="chat-input" maxlength="255" placeholder="Enter – pisz. Słowa zaklęć wpisuj tutaj.">
+        </form>
+      </div>
+    </div>
+
+    <button id="sidebar-toggle" class="btn small">☰</button>
+    <div id="status-msg"></div>
+    <div id="windows"></div>
+    <div id="ctxmenu" class="ctxmenu hidden"></div>
+    <div id="tooltip" class="tooltip hidden"></div>
+  </div>
+
+  <noscript>Fibula 3D wymaga JavaScript i WebGL.</noscript>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

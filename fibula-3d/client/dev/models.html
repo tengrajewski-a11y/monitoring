@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fibula 3D – modele</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #1b1612; color: #e9dcc3; font: 14px system-ui, sans-serif; overflow: hidden; }
+    #bar { position: fixed; top: 8px; left: 8px; z-index: 2; display: flex; gap: 6px; }
+    #bar a { color: #f0c35a; background: #2a2119; padding: 4px 8px; text-decoration: none; border: 1px solid #6e5a42; }
+    .lbl { position: absolute; transform: translate(-50%, 0); font-size: 11px; color: #fff; text-shadow: 1px 1px 0 #000; pointer-events: none; white-space: nowrap; }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "/vendor/three/three.module.js", "three/addons/": "/vendor/three-addons/" } }
+  </script>
+</head>
+<body>
+  <div id="bar"><a href="?set=props">Rekwizyty</a><a href="?set=gear">Broń</a><a href="?set=chars">Postacie</a></div>
+  <div id="labels"></div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const set = new URLSearchParams(location.search).get('set') || 'props';
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x3a4a5a);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 2.2));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(5, 10, 7); scene.add(sun);
+    const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 500);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    const loader = new GLTFLoader();
+    const items = [];
+
+    async function load() {
+      if (set === 'chars') {
+        const names = ['Knight', 'Barbarian', 'Mage', 'Rogue', 'Rogue_Hooded', 'Skeleton_Minion', 'Skeleton_Warrior', 'Skeleton_Mage', 'Skeleton_Rogue'];
+        const anims = await loader.loadAsync('/assets/models/anims.glb');
+        console.log('clips', anims.animations.map((a) => a.name).join(','));
+        for (const n of names) {
+          const g = await loader.loadAsync(`/assets/models/chars/${n}.glb`);
+          const mixer = new THREE.AnimationMixer(g.scene);
+          const clip = anims.animations.find((a) => a.name === 'Idle');
+          if (clip) mixer.clipAction(clip).play();
+          g.scene.userData.mixer = mixer;
+          items.push([n, g.scene]);
+        }
+      } else {
+        const g = await loader.loadAsync(`/assets/models/${set}.glb`);
+        for (const child of [...g.scene.children]) items.push([child.name, child]);
+      }
+      const cols = Math.ceil(Math.sqrt(items.length));
+      const spacing = set === 'props' ? 3.2 : set === 'gear' ? 1.6 : 2.6;
+      const report = [];
+      items.forEach(([name, obj], i) => {
+        obj.position.set((i % cols) * spacing, 0, Math.floor(i / cols) * spacing);
+        scene.add(obj);
+        const box = new THREE.Box3().setFromObject(obj);
+        const s = box.getSize(new THREE.Vector3());
+        report.push(`${name}:${s.x.toFixed(2)}x${s.y.toFixed(2)}x${s.z.toFixed(2)}@y${box.min.y.toFixed(2)}`);
+        obj.userData.label = name;
+      });
+      console.log('sizes', report.join(' | '));
+      const w = (cols - 1) * spacing;
+      controls.target.set(w / 2, 0, w / 2);
+      camera.position.set(w / 2, w * 0.75 + 2, w * 1.25 + 3);
+      controls.update();
+      window.__ready = true;
+    }
+
+    const labels = document.getElementById('labels');
+    const clock = new THREE.Clock();
+    function frame() {
+      requestAnimationFrame(frame);
+      const dt = clock.getDelta();
+      for (const [, o] of items) o.userData.mixer?.update(dt);
+      renderer.render(scene, camera);
+      let html = '';
+      const v = new THREE.Vector3();
+      for (const [name, o] of items) {
+        v.copy(o.position).project(camera);
+        if (v.z > 1) continue;
+        html += `<div class="lbl" style="left:${(v.x * 0.5 + 0.5) * innerWidth}px;top:${(-v.y * 0.5 + 0.5) * innerHeight + 4}px">${name}</div>`;
+      }
+      labels.innerHTML = html;
+    }
+    addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+    load().then(frame).catch((e) => { console.error(e); document.body.append(String(e)); });
+  </script>
+</body>
+</html>
