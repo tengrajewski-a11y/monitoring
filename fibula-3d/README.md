@@ -127,6 +127,25 @@ location / {
   na własnym GPU, licencja MIT) albo `tools/meshy_generate.py` (Meshy AI, płatne API). Wygenerowany
   GLB trafia do `client/assets/models/custom/` i automatycznie zastępuje wybrany typ potwora.
 
+### TripoSR krok po kroku
+
+Wymaga Pythona 3.10+, ok. 6 GB VRAM (karta NVIDIA) albo cierpliwości na CPU (kilka minut
+na model). Przy pierwszym uruchomieniu pobierane są wagi (~1,7 GB) z Hugging Face.
+
+```bash
+git clone https://github.com/VAST-AI-Research/TripoSR ~/TripoSR
+python -m venv ~/tsr-venv && source ~/tsr-venv/bin/activate   # Windows: ~\tsr-venv\Scripts\activate
+pip install torch            # z kartą NVIDIA: polecenie z CUDA ze strony pytorch.org
+pip install omegaconf einops transformers trimesh huggingface-hub "rembg[cpu]" PyMCubes fast-simplification
+python tools/local_generate.py wolf obrazki/wilk.png --repo ~/TripoSR --height 0.8
+```
+
+Pierwszy argument to typ potwora z `server/data/monsters.js` (`rat`, `wolf`, `orc`, `dragon`…).
+Najlepiej działa czysty obrazek jednego stwora na jednolitym tle, w widoku z przodu lub 3/4.
+`--faces` ustawia liczbę trójkątów (domyślnie 8000, mniej = bardziej retro), `--rot` obraca
+model, jeśli patrzy w złą stronę. Odśwież grę, żeby zobaczyć nowy model. Kompilacja
+`torchmcubes` z `requirements.txt` TripoSR nie jest potrzebna – skrypt używa wtedy PyMCubes.
+
 Szczegóły licencji: [CREDITS.md](CREDITS.md).
 
 ## Struktura

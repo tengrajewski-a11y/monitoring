@@ -7,13 +7,21 @@ Backends (both MIT licensed):
   trellis2 - microsoft/TRELLIS.2 (4B). Linux + NVIDIA GPU with >= 24 GB VRAM.
              Textured mesh with high-quality geometry.
 
-Setup (once): clone the backend repository and install it as described in its
-README, then run this script with that environment's Python, pointing --repo at
-the clone:
+Setup (once): clone the backend repository and install its dependencies, then
+run this script with that environment's Python, pointing --repo at the clone.
+
+TripoSR (Windows, Linux or macOS; without a CUDA GPU it runs on the CPU, slowly):
 
     git clone https://github.com/VAST-AI-Research/TripoSR ~/TripoSR
-    pip install -r ~/TripoSR/requirements.txt
+    pip install torch            # with an NVIDIA GPU use the CUDA command from pytorch.org
+    pip install omegaconf einops transformers trimesh huggingface-hub "rembg[cpu]" PyMCubes fast-simplification
     python tools/local_generate.py wolf concept/wolf.png --backend triposr --repo ~/TripoSR --height 0.8
+
+TripoSR's own requirements.txt builds torchmcubes from source (on Windows that
+needs MSVC and the CUDA toolkit). This script uses torchmcubes when it is
+installed and PyMCubes otherwise, so that step can be skipped.
+
+TRELLIS.2 (Linux, NVIDIA GPU with >= 24 GB VRAM):
 
     git clone -b main https://github.com/microsoft/TRELLIS.2 --recursive ~/TRELLIS.2
     (cd ~/TRELLIS.2 && . ./setup.sh --new-env --basic --flash-attn --nvdiffrast --nvdiffrec --cumesh --o-voxel --flexgemm)
@@ -37,16 +45,73 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "client" / "assets" / "models" / "custom"
 
 
+def install_mcubes_fallback():
+    """TripoSR imports torchmcubes. If it is not installed, provide the same
+    function on top of PyMCubes (same vertex order and winding)."""
+    try:
+        import torchmcubes  # noqa: F401
+        return
+    except ImportError:
+        pass
+    import types
+    import mcubes
+    import numpy as np
+    import torch
+
+    def marching_cubes(volume, threshold):
+        verts, faces = mcubes.marching_cubes(volume.detach().cpu().numpy(), threshold)
+        # torchmcubes returns (x, y, z) = (last, middle, first) array axis
+        verts = torch.from_numpy(np.ascontiguousarray(verts[:, ::-1], dtype=np.float32))
+        return verts, torch.from_numpy(faces.astype(np.int64))
+
+    sys.modules["torchmcubes"] = types.SimpleNamespace(marching_cubes=marching_cubes)
+    print("  torchmcubes not installed, using PyMCubes")
+
+
+def srgb_to_linear(rgb):
+    """TripoSR predicts sRGB colours; glTF vertex colours (COLOR_0) are linear."""
+    import numpy as np
+
+    c = np.clip(rgb, 0.0, 1.0)
+    lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    return np.round(lin * 255).astype(np.uint8)
+
+
+def keep_main_parts(mesh, min_share=0.02):
+    """Drop the small floating blobs marching cubes leaves around the model."""
+    import trimesh
+
+    parts = mesh.split(only_watertight=False)
+    if len(parts) <= 1:
+        return mesh
+    total = sum(len(p.faces) for p in parts)
+    return trimesh.util.concatenate([p for p in parts if len(p.faces) >= total * min_share])
+
+
+def to_gltf_orientation(mesh):
+    """TripoSR works Z-up with the input picture seen from +X. glTF (and the
+    game) is Y-up with the front facing +Z: (x, y, z) -> (y, z, x). TripoSR's
+    own to_gradio_3d_orientation turns the front to -Z for Gradio's viewer."""
+    import numpy as np
+
+    mesh.apply_transform(np.array([[0, 1, 0, 0], [0, 0, 1, 0], [1, 0, 0, 0], [0, 0, 0, 1]], dtype=float))
+    return mesh
+
+
 def run_triposr(image_path, out, args):
+    install_mcubes_fallback()
     import numpy as np
     import rembg
     import torch
+    import trimesh
     from PIL import Image
     from tsr.system import TSR
-    from tsr.utils import remove_background, resize_foreground, to_gradio_3d_orientation
+    from tsr.utils import remove_background, resize_foreground
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    model = TSR.from_pretrained("stabilityai/TripoSR", config_name="config.yaml", weight_name="model.ckpt")
+    if device == "cpu":
+        print("  no CUDA GPU found, running on the CPU (a few minutes per model)")
+    model = TSR.from_pretrained(args.model or "stabilityai/TripoSR", config_name="config.yaml", weight_name="model.ckpt")
     model.renderer.set_chunk_size(8192)
     model.to(device)
     # same preprocessing as TripoSR's run.py
@@ -57,13 +122,19 @@ def run_triposr(image_path, out, args):
     image = Image.fromarray((image * 255.0).astype(np.uint8))
     with torch.no_grad():
         scene_codes = model([image], device=device)
-    mesh = model.extract_mesh(scene_codes, True, resolution=args.resolution)[0]
-    mesh = to_gradio_3d_orientation(mesh)  # Y-up like glTF
+    mesh = keep_main_parts(model.extract_mesh(scene_codes, False, resolution=args.resolution)[0])
     if args.faces and len(mesh.faces) > args.faces:
         try:
             mesh = mesh.simplify_quadric_decimation(face_count=args.faces)
         except Exception as e:  # trimesh needs fast-simplification for this
             print(f"  (skipping decimation: {e})")
+    # colour the final (decimated) vertices straight from the model's colour field
+    with torch.no_grad():
+        verts = torch.tensor(mesh.vertices, dtype=torch.float32, device=device)
+        color = model.renderer.query_triplane(model.decoder, verts, scene_codes[0])["color"]
+    mesh.visual = trimesh.visual.ColorVisuals(mesh, vertex_colors=srgb_to_linear(color.cpu().numpy()))
+    mesh = to_gltf_orientation(mesh)
+    print(f"  {len(mesh.faces)} faces")
     mesh.export(out)
 
 
@@ -92,6 +163,7 @@ def main():
     ap.add_argument("image", help="input picture (PNG/JPG)")
     ap.add_argument("--backend", choices=["triposr", "trellis2"], default="triposr")
     ap.add_argument("--repo", help="path to the cloned backend repository (added to sys.path)")
+    ap.add_argument("--model", help="TripoSR weights: Hugging Face repo or a local folder with config.yaml and model.ckpt")
     ap.add_argument("--height", type=float, default=1.0, help="height of the model in tiles")
     ap.add_argument("--rot", type=float, default=0.0, help="extra rotation around Y in degrees")
     ap.add_argument("--rot-x", type=float, default=0.0, help="extra rotation around X in degrees (fix lying models)")
