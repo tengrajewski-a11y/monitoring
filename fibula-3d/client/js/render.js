@@ -1,5 +1,6 @@
 // Renderer, camera rig, day/night lighting and the retro post-process
-// (low internal resolution, depth outlines, ordered dithering, posterize).
+// (low internal resolution, ambient occlusion from depth, HDR bloom, colour
+// grading, depth outlines, ordered dithering, posterize).
 
 import * as THREE from 'three';
 
@@ -19,6 +20,15 @@ uniform float uOutline;
 uniform float uVignette;
 uniform float uSat;
 uniform vec3 uFlash;
+uniform sampler2D tAO;
+uniform vec2 uAORes;
+uniform float uAO;
+uniform sampler2D tBloom;
+uniform float uBloom;
+uniform vec3 uShadowTint;
+uniform vec3 uHighTint;
+uniform float uContrast;
+uniform float uDebug;
 varying vec2 vUv;
 
 float linDepth(vec2 uv) {
@@ -38,16 +48,35 @@ vec3 toSRGB(vec3 c) {
   c = max(c, 0.0);
   return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c));
 }
+// 4x4 depth aware blur of the ambient occlusion (removes its 4x4 noise pattern)
+float aoBlur(float d) {
+  vec2 px = 1.0 / uAORes;
+  float sum = 0.0, wsum = 0.0;
+  for (int j = -2; j < 2; j++) for (int i = -2; i < 2; i++) {
+    vec2 o = (vec2(float(i), float(j)) + 0.5) * px;
+    float w = 1.0 / (0.02 + abs(linDepth(vUv + o) - d) / d * 40.0);
+    sum += texture2D(tAO, vUv + o).r * w;
+    wsum += w;
+  }
+  return sum / wsum;
+}
 void main() {
   vec2 px = 1.0 / uRes;
   vec3 col = texture2D(tColor, vUv).rgb;
   float d = linDepth(vUv);
+  if (uDebug > 0.5) { gl_FragColor = vec4(vec3(aoBlur(d)), 1.0); return; }
+  if (uAO > 0.0 && d < uFar * 0.98) col *= mix(1.0, aoBlur(d), uAO);
+  if (uBloom > 0.0) col += texture2D(tBloom, vUv).rgb * uBloom;
   float dn = max(max(linDepth(vUv + vec2(px.x, 0.0)), linDepth(vUv - vec2(px.x, 0.0))),
                  max(linDepth(vUv + vec2(0.0, px.y)), linDepth(vUv - vec2(0.0, px.y))));
   float edge = smoothstep(0.035 * d, 0.11 * d, dn - d) * step(d, uFar * 0.98);
   col *= 1.0 - uOutline * edge;
   col = toSRGB(col);
   float l = dot(col, vec3(0.299, 0.587, 0.114));
+  // split toning: tint shadows and highlights separately, then contrast
+  col *= mix(uShadowTint, uHighTint, smoothstep(0.15, 0.75, l));
+  col = (col - 0.5) * uContrast + 0.5;
+  l = dot(col, vec3(0.299, 0.587, 0.114));
   col = mix(vec3(l), col, uSat);
   col += uFlash;
   vec2 cell = floor(vUv * uRes);
@@ -57,6 +86,91 @@ void main() {
   col *= 1.0 - uVignette * dot(q, q) * 1.6;
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
+
+// Ambient occlusion from the depth buffer: view space position and normal are
+// rebuilt from depth, then a hemisphere of samples is tested against it.
+const AO_FRAG = `
+uniform sampler2D tDepth;
+uniform vec2 uRes;
+uniform mat4 uProj;
+uniform mat4 uProjInv;
+uniform float uRadius;
+uniform vec3 uKernel[AO_SAMPLES];
+varying vec2 vUv;
+vec3 viewPos(vec2 uv) {
+  vec4 v = uProjInv * vec4(uv * 2.0 - 1.0, texture2D(tDepth, uv).x * 2.0 - 1.0, 1.0);
+  return v.xyz / v.w;
+}
+void main() {
+  if (texture2D(tDepth, vUv).x >= 1.0) { gl_FragColor = vec4(1.0); return; }
+  vec2 px = 1.0 / uRes;
+  vec3 p = viewPos(vUv);
+  vec3 pr = viewPos(vUv + vec2(px.x, 0.0)), pl = viewPos(vUv - vec2(px.x, 0.0));
+  vec3 pu = viewPos(vUv + vec2(0.0, px.y)), pd = viewPos(vUv - vec2(0.0, px.y));
+  vec3 dx = abs(pr.z - p.z) < abs(pl.z - p.z) ? pr - p : p - pl;
+  vec3 dy = abs(pu.z - p.z) < abs(pd.z - p.z) ? pu - p : p - pd;
+  vec3 n = normalize(cross(dx, dy));
+  vec2 cell = mod(floor(vUv * uRes), 4.0);
+  float ang = (cell.x * 4.0 + cell.y) * 0.3927 + cell.x * 1.7;
+  vec3 rnd = vec3(cos(ang), sin(ang), 0.0);
+  vec3 t = normalize(rnd - n * dot(rnd, n));
+  mat3 tbn = mat3(t, cross(n, t), n);
+  float occ = 0.0;
+  for (int i = 0; i < AO_SAMPLES; i++) {
+    vec3 sp = p + tbn * uKernel[i] * uRadius;
+    vec4 q = uProj * vec4(sp, 1.0);
+    vec2 suv = q.xy / q.w * 0.5 + 0.5;
+    float sz = viewPos(suv).z;
+    float range = smoothstep(0.0, 1.0, uRadius / max(1e-3, abs(p.z - sz)));
+    occ += (sz >= sp.z + 0.03 ? 1.0 : 0.0) * range;
+  }
+  float ao = 1.0 - occ / float(AO_SAMPLES);
+  gl_FragColor = vec4(vec3(ao * ao), 1.0);
+}`;
+
+// Bloom: keep what is brighter than the threshold (max channel, HDR), downsampled.
+const BRIGHT_FRAG = `
+uniform sampler2D tColor;
+uniform vec2 uSrcPx;
+uniform float uThreshold;
+varying vec2 vUv;
+void main() {
+  vec3 c = (texture2D(tColor, vUv + vec2(-1.0, -1.0) * uSrcPx).rgb + texture2D(tColor, vUv + vec2(1.0, -1.0) * uSrcPx).rgb
+          + texture2D(tColor, vUv + vec2(-1.0, 1.0) * uSrcPx).rgb + texture2D(tColor, vUv + vec2(1.0, 1.0) * uSrcPx).rgb) * 0.25;
+  float m = max(c.r, max(c.g, c.b));
+  gl_FragColor = vec4(c * smoothstep(uThreshold, uThreshold * 1.6, m), 1.0);
+}`;
+
+const BLUR_FRAG = `
+uniform sampler2D tSrc;
+uniform vec2 uDir;
+varying vec2 vUv;
+void main() {
+  vec3 c = texture2D(tSrc, vUv).rgb * 0.227;
+  c += (texture2D(tSrc, vUv + uDir * 1.385).rgb + texture2D(tSrc, vUv - uDir * 1.385).rgb) * 0.316;
+  c += (texture2D(tSrc, vUv + uDir * 3.231).rgb + texture2D(tSrc, vUv - uDir * 3.231).rgb) * 0.070;
+  gl_FragColor = vec4(c, 1.0);
+}`;
+
+// Quality presets: ambient occlusion samples (0 = off), bloom passes, shadow softness.
+const QUALITY = {
+  low: { ao: 0, bloom: 0, shadowRadius: 1, shadowMap: 1024 },
+  medium: { ao: 8, bloom: 1, shadowRadius: 2, shadowMap: 2048 },
+  high: { ao: 14, bloom: 2, shadowRadius: 3, shadowMap: 2048 },
+};
+
+function aoKernel(n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    // deterministic, denser near the centre, hemisphere around +z
+    const a = i * 2.39996, r = Math.sqrt((i + 0.5) / n);
+    const z = 0.15 + 0.85 * ((i * 0.618) % 1);
+    const v = new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r, z).normalize();
+    const s = 0.2 + 0.8 * ((i + 1) / n) ** 2;
+    out.push(v.multiplyScalar(s));
+  }
+  return out;
+}
 
 function mixColor(out, a, b, t) { return out.copy(a).lerp(b, Math.max(0, Math.min(1, t))); }
 const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
@@ -102,6 +216,7 @@ export class Renderer {
     this.sun.shadow.mapSize.set(2048, 2048);
     this.sun.shadow.bias = -0.0006;
     this.sun.shadow.normalBias = 0.02;
+    this.sun.shadow.radius = 3;
     this.scene.add(this.sun, this.sun.target);
     this.pool = [];
     for (let i = 0; i < 7; i++) {
@@ -114,23 +229,49 @@ export class Renderer {
     this.flashLight = new THREE.PointLight(0xff8040, 0, 7, 1.5);
     this.scene.add(this.flashLight);
     this.flashT = 0;
-    // post processing
+    // post processing: the scene renders to a small HDR target when the GPU can
     this.pixelScale = 3;
-    this.rt = new THREE.WebGLRenderTarget(4, 4, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true });
+    const ext = r.extensions;
+    this.hdr = ext.has('EXT_color_buffer_float') || ext.has('EXT_color_buffer_half_float');
+    const colorType = this.hdr ? THREE.HalfFloatType : THREE.UnsignedByteType;
+    this.rt = new THREE.WebGLRenderTarget(4, 4, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true, type: colorType });
     this.rt.depthTexture = new THREE.DepthTexture(4, 4);
+    this.aoRT = new THREE.WebGLRenderTarget(4, 4, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false });
+    this.bloomA = new THREE.WebGLRenderTarget(4, 4, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false, type: colorType });
+    this.bloomB = this.bloomA.clone();
     this.post = new THREE.ShaderMaterial({
       vertexShader: POST_VERT, fragmentShader: POST_FRAG, depthTest: false, depthWrite: false,
       uniforms: {
         tColor: { value: this.rt.texture }, tDepth: { value: this.rt.depthTexture }, uRes: { value: new THREE.Vector2(4, 4) },
         uNear: { value: this.camera.near }, uFar: { value: this.camera.far }, uLevels: { value: 28 }, uDither: { value: 0.9 },
         uOutline: { value: 0.45 }, uVignette: { value: 0.55 }, uSat: { value: 1.08 }, uFlash: { value: new THREE.Vector3() },
+        tAO: { value: this.aoRT.texture }, uAORes: { value: new THREE.Vector2(4, 4) }, uAO: { value: 0 },
+        tBloom: { value: this.bloomA.texture }, uBloom: { value: 0 },
+        uShadowTint: { value: new THREE.Vector3(1, 1, 1) }, uHighTint: { value: new THREE.Vector3(1, 1, 1) }, uContrast: { value: 1.06 },
+        uDebug: { value: 0 }, // 1 = show the ambient occlusion buffer
       },
+    });
+    this.aoMat = new THREE.ShaderMaterial({
+      vertexShader: POST_VERT, fragmentShader: AO_FRAG, depthTest: false, depthWrite: false, defines: { AO_SAMPLES: 8 },
+      uniforms: {
+        tDepth: { value: this.rt.depthTexture }, uRes: { value: new THREE.Vector2(4, 4) }, uProj: { value: new THREE.Matrix4() },
+        uProjInv: { value: new THREE.Matrix4() }, uRadius: { value: 0.55 }, uKernel: { value: aoKernel(8) },
+      },
+    });
+    this.brightMat = new THREE.ShaderMaterial({
+      vertexShader: POST_VERT, fragmentShader: BRIGHT_FRAG, depthTest: false, depthWrite: false,
+      uniforms: { tColor: { value: this.rt.texture }, uSrcPx: { value: new THREE.Vector2() }, uThreshold: { value: this.hdr ? 1.15 : 0.85 } },
+    });
+    this.blurMat = new THREE.ShaderMaterial({
+      vertexShader: POST_VERT, fragmentShader: BLUR_FRAG, depthTest: false, depthWrite: false,
+      uniforms: { tSrc: { value: null }, uDir: { value: new THREE.Vector2() } },
     });
     this.postScene = new THREE.Scene();
     this.postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.post);
-    quad.frustumCulled = false;
-    this.postScene.add(quad);
+    this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.post);
+    this.quad.frustumCulled = false;
+    this.postScene.add(this.quad);
+    this.setQuality('high');
     this.underground = false;
     this.nightFactor = 0;
     this.flashColor = new THREE.Vector3();
@@ -187,6 +328,26 @@ export class Renderer {
   get viewRight() { return { x: Math.cos(this.lookYaw), y: -Math.sin(this.lookYaw) }; }
 
   setPixelScale(s) { this.pixelScale = s; this.resize(); }
+
+  // 'low' | 'medium' | 'high': ambient occlusion, bloom and shadow softness
+  setQuality(level) {
+    const q = QUALITY[level] || QUALITY.high;
+    this.quality = q;
+    if (q.ao) {
+      this.aoMat.defines.AO_SAMPLES = q.ao;
+      this.aoMat.uniforms.uKernel.value = aoKernel(q.ao);
+      this.aoMat.needsUpdate = true;
+    }
+    this.post.uniforms.uAO.value = q.ao ? 0.75 : 0;
+    this.post.uniforms.uBloom.value = q.bloom ? 0.9 : 0;
+    this.sun.shadow.radius = q.shadowRadius;
+    if (this.sun.shadow.mapSize.x !== q.shadowMap) {
+      this.sun.shadow.mapSize.set(q.shadowMap, q.shadowMap);
+      this.sun.shadow.map?.dispose();
+      this.sun.shadow.map = null;
+    }
+    this.resize();
+  }
   setRetro(level) {
     this.retro = level;
     const u = this.post.uniforms;
@@ -202,6 +363,16 @@ export class Renderer {
     const lw = Math.max(64, Math.round(w / this.pixelScale)), lh = Math.max(48, Math.round(h / this.pixelScale));
     this.rt.setSize(lw, lh);
     this.post.uniforms.uRes.value.set(lw, lh);
+    // occlusion at most ~640 px wide, bloom at a quarter of the scene target
+    const aoF = Math.min(1, 640 / lw);
+    const aw = Math.max(32, Math.round(lw * aoF)), ah = Math.max(24, Math.round(lh * aoF));
+    this.aoRT.setSize(aw, ah);
+    this.aoMat.uniforms.uRes.value.set(aw, ah);
+    this.post.uniforms.uAORes.value.set(aw, ah);
+    const bw = Math.max(16, Math.round(lw / 4)), bh = Math.max(12, Math.round(lh / 4));
+    this.bloomA.setSize(bw, bh);
+    this.bloomB.setSize(bw, bh);
+    this.brightMat.uniforms.uSrcPx.value.set(1 / lw, 1 / lh);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     this.width = w; this.height = h;
@@ -251,6 +422,15 @@ export class Renderer {
     this.nightFactor = night;
     const bg = this.scene.background, fog = this.scene.fog.color;
     this.sky.visible = this.fpp && !underground;
+    // colour grading: cool shadows and warm light by day, golden dusk, blue night,
+    // warm torch light under ground
+    const pu = this.post.uniforms;
+    if (underground) { pu.uShadowTint.value.set(0.9, 0.93, 1.08); pu.uHighTint.value.set(1.1, 1.0, 0.86); }
+    else {
+      const sh = pu.uShadowTint.value.set(0.95, 0.98, 1.06), hi = pu.uHighTint.value.set(1.05, 1.0, 0.93);
+      sh.lerp(new THREE.Vector3(0.95, 0.9, 1.05), dusk * 0.7).lerp(new THREE.Vector3(0.84, 0.92, 1.18), night);
+      hi.lerp(new THREE.Vector3(1.14, 0.98, 0.84), dusk * 0.8).lerp(new THREE.Vector3(0.94, 0.98, 1.1), night);
+    }
     if (underground) {
       bg.copy(SKY.cave); fog.copy(SKY.cave);
       this.hemi.color.setHex(0x6a6a80); this.hemi.groundColor.setHex(0x2a2018); this.hemi.intensity = 0.55;
@@ -324,12 +504,35 @@ export class Renderer {
     this.flashT = 1;
   }
 
+  pass(material, target) {
+    this.quad.material = material;
+    this.renderer.setRenderTarget(target);
+    this.renderer.render(this.postScene, this.postCam);
+  }
+
   render() {
     const r = this.renderer;
     r.setRenderTarget(this.rt);
     r.render(this.scene, this.camera);
-    r.setRenderTarget(null);
-    r.render(this.postScene, this.postCam);
+    const q = this.quality;
+    if (q.ao) {
+      const u = this.aoMat.uniforms;
+      u.uProj.value.copy(this.camera.projectionMatrix);
+      u.uProjInv.value.copy(this.camera.projectionMatrixInverse);
+      this.pass(this.aoMat, this.aoRT);
+    }
+    if (q.bloom) {
+      this.pass(this.brightMat, this.bloomA);
+      const b = this.blurMat.uniforms;
+      for (let i = 0; i < q.bloom; i++) {
+        const k = 1 + i;
+        b.tSrc.value = this.bloomA.texture; b.uDir.value.set(k / this.bloomA.width, 0);
+        this.pass(this.blurMat, this.bloomB);
+        b.tSrc.value = this.bloomB.texture; b.uDir.value.set(0, k / this.bloomA.height);
+        this.pass(this.blurMat, this.bloomA);
+      }
+    }
+    this.pass(this.post, null);
   }
 
   // Ray from screen point to the ground plane (y = 0). Returns {x, z} or null.

@@ -16,7 +16,7 @@ import { AudioEngine } from './audio.js';
 import { iconCanvas } from './icons.js';
 
 const SETTINGS_KEY = 'fibula.settings';
-const DEFAULTS = { pixelScale: 3, retro: 'normal', showLevels: '1', music: 0.55, sfx: 0.8, ambience: 0.6, view: 'top', sens: 0.5 };
+const DEFAULTS = { pixelScale: 3, retro: 'normal', gfx: 'high', showLevels: '1', music: 0.55, sfx: 0.8, ambience: 0.6, view: 'top', sens: 0.5 };
 const FPP_MOVE = { KeyW: [1, 0], ArrowUp: [1, 0], Numpad8: [1, 0], KeyS: [-1, 0], ArrowDown: [-1, 0], Numpad2: [-1, 0], KeyA: [0, -1], Numpad4: [0, -1], KeyD: [0, 1], Numpad6: [0, 1] };
 const FPP_TURN = { ArrowLeft: 1, KeyQ: 1, ArrowRight: -1, KeyE: -1 };
 const KEY_DIRS = {
@@ -48,6 +48,7 @@ class Game {
     this.renderer = new Renderer(document.getElementById('gl'));
     this.renderer.setPixelScale(Number(this.settings.pixelScale));
     this.renderer.setRetro(this.settings.retro);
+    this.renderer.setQuality(this.settings.gfx);
     this.overlay = new Overlay(document.getElementById('overlay'));
     this.audio = new AudioEngine();
     for (const k of ['music', 'sfx', 'ambience']) this.audio.setVolume(k, Number(this.settings[k]));
@@ -227,6 +228,7 @@ class Game {
     try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings)); } catch { /* ignore */ }
     if (key === 'pixelScale') { this.renderer.setPixelScale(Number(value)); }
     if (key === 'retro') this.renderer.setRetro(value);
+    if (key === 'gfx') this.renderer.setQuality(value);
     if (['music', 'sfx', 'ambience'].includes(key)) this.audio.setVolume(key, Number(value));
     if (key === 'view') this.setView(value === 'fpp');
   }

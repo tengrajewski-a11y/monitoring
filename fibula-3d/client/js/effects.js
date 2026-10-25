@@ -51,7 +51,7 @@ export class Effects {
     this.renderer = renderer;
     const geo = new THREE.BoxGeometry(1, 1, 1);
     this.lit = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial(), MAX);
-    this.glow = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ toneMapped: false }), MAX);
+    this.glow = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ toneMapped: false, color: new THREE.Color(2.2, 2.2, 2.2) }), MAX);
     for (const m of [this.lit, this.glow]) {
       m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       m.setColorAt(0, new THREE.Color());
@@ -101,7 +101,7 @@ export class Effects {
     if (!mesh) {
       const len = m.long || m.size;
       mesh = new THREE.Mesh(new THREE.BoxGeometry(m.size, m.size, len),
-        m.glow ? new THREE.MeshBasicMaterial({ color: m.color, toneMapped: false }) : new THREE.MeshLambertMaterial({ color: m.color }));
+        m.glow ? new THREE.MeshBasicMaterial({ color: new THREE.Color(m.color).multiplyScalar(2.4), toneMapped: false }) : new THREE.MeshLambertMaterial({ color: m.color }));
     }
     this.scene.add(mesh);
     this.missiles.push({

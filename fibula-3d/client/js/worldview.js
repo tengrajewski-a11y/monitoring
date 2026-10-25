@@ -53,14 +53,15 @@ export class WorldView {
     this.current = null;
     this.hiddenRoof = 0;
     this.solidMat = patchMaterial(new THREE.MeshLambertMaterial({ vertexColors: true }), this.uniforms, { sway: true });
-    this.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+    // glowing parts are brighter than white so the HDR bloom picks them up
+    this.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, color: new THREE.Color(2.6, 2.6, 2.6) });
     this.waterMat = this.makeLiquidMaterial(false);
     this.lavaMat = this.makeLiquidMaterial(true);
     this.lights = new Map();
   }
 
   makeLiquidMaterial(lava) {
-    const m = lava ? new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false })
+    const m = lava ? new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, color: new THREE.Color(1.15, 1.15, 1.15) })
       : new THREE.MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: 0.84 });
     const u = this.uniforms;
     m.onBeforeCompile = (sh) => {
