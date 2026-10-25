@@ -26,5 +26,12 @@
     "rotY": 0.0,
     "rotX": 0.0,
     "source": "triposr"
+  },
+  "giant_spider": {
+    "file": "giant_spider.glb",
+    "height": 0.8,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr"
   }
 }
