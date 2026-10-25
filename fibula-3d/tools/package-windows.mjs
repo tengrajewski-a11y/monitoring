@@ -49,12 +49,15 @@ if (fs.existsSync(path.join(nodeDir, 'LICENSE'))) fs.copyFileSync(path.join(node
 
 // Windows text files: CRLF; the launchers stay ASCII, the readme gets a UTF-8 BOM for Notepad
 const crlf = (s) => s.replace(/\r?\n/g, '\r\n');
+// %~dp0 is read once: when the script is started by a quoted relative name,
+// cmd resolves later %~dp0 expansions against the new current directory
 const launcher = (title, host, note = '') => crlf(`@echo off
 title ${title}
-cd /d "%~dp0app"
+set "ROOT=%~dp0"
+cd /d "%ROOT%app"
 set "HOST=${host}"
-set "DATA_DIR=%~dp0dane"
-${note}"%~dp0node\\node.exe" server\\index.js --open
+set "DATA_DIR=%ROOT%dane"
+${note}"%ROOT%node\\node.exe" server\\index.js --open
 if errorlevel 1 pause
 `);
 fs.writeFileSync(path.join(out, 'Fibula 3D.cmd'), launcher('Fibula 3D', '127.0.0.1'));
