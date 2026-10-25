@@ -98,6 +98,46 @@ def to_gltf_orientation(mesh):
     return mesh
 
 
+# transformers 5 renamed the ViT layers; TripoSR's checkpoint has the 4.x names
+VIT_RENAMES = [
+    (".encoder.layer.", ".layers."),
+    (".attention.attention.query.", ".attention.q_proj."),
+    (".attention.attention.key.", ".attention.k_proj."),
+    (".attention.attention.value.", ".attention.v_proj."),
+    (".attention.output.dense.", ".attention.o_proj."),
+    (".intermediate.dense.", ".mlp.fc1."),
+    (".output.dense.", ".mlp.fc2."),
+]
+
+
+def load_triposr(name):
+    """TSR.from_pretrained that also works with transformers 5."""
+    import torch
+    from huggingface_hub import hf_hub_download
+    from omegaconf import OmegaConf
+    from tsr.system import TSR
+
+    if os.path.isdir(name):
+        cfg_path, ckpt_path = os.path.join(name, "config.yaml"), os.path.join(name, "model.ckpt")
+    else:
+        cfg_path = hf_hub_download(repo_id=name, filename="config.yaml")
+        ckpt_path = hf_hub_download(repo_id=name, filename="model.ckpt")
+    cfg = OmegaConf.load(cfg_path)
+    OmegaConf.resolve(cfg)
+    model = TSR(cfg)
+    state = torch.load(ckpt_path, map_location="cpu")
+    if not set(state) <= set(model.state_dict()):
+        renamed = {}
+        for k, v in state.items():
+            if k.startswith("image_tokenizer.model.encoder.layer."):
+                for old, new in VIT_RENAMES:
+                    k = k.replace(old, new)
+            renamed[k] = v
+        state = renamed
+    model.load_state_dict(state)
+    return model
+
+
 def run_triposr(image_path, out, args):
     install_mcubes_fallback()
     import numpy as np
@@ -105,13 +145,12 @@ def run_triposr(image_path, out, args):
     import torch
     import trimesh
     from PIL import Image
-    from tsr.system import TSR
     from tsr.utils import remove_background, resize_foreground
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     if device == "cpu":
         print("  no CUDA GPU found, running on the CPU (a few minutes per model)")
-    model = TSR.from_pretrained(args.model or "stabilityai/TripoSR", config_name="config.yaml", weight_name="model.ckpt")
+    model = load_triposr(args.model or "stabilityai/TripoSR")
     model.renderer.set_chunk_size(8192)
     model.to(device)
     # same preprocessing as TripoSR's run.py; u2net (170 MB, Apache-2.0) because newer

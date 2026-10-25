@@ -1,1 +1,9 @@
-{}
+{
+  "wolf": {
+    "file": "wolf.glb",
+    "height": 0.75,
+    "rotY": 60.0,
+    "rotX": 0.0,
+    "source": "triposr"
+  }
+}

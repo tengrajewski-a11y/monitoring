@@ -34,6 +34,13 @@ Original compositions and sounds for Fibula 3D, rendered from code by `tools/syn
 
 Pixelify Sans and VT323 – SIL Open Font License 1.1 – loaded from Google Fonts.
 
+## AI-generated creature models
+
+The creature models in `client/assets/models/custom/` were made for Fibula 3D: concept pictures
+(`concept/`) generated with LCM Dreamshaper v7 (MIT, <https://huggingface.co/SimianLuo/LCM_Dreamshaper_v7>),
+turned into meshes with TripoSR (MIT) by `tools/local_generate.py`. Prompts and settings are listed
+in `concept/README.md`.
+
 ## Optional AI model generators (not bundled)
 
 - TripoSR – MIT – Tripo AI & Stability AI – <https://github.com/VAST-AI-Research/TripoSR>

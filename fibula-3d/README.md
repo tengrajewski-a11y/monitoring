@@ -140,22 +140,30 @@ location / {
 
 ### TripoSR krok po kroku
 
-Wymaga Pythona 3.10+, ok. 6 GB VRAM (karta NVIDIA) albo cierpliwości na CPU (kilka minut
-na model). Przy pierwszym uruchomieniu pobierane są wagi (~1,7 GB) z Hugging Face.
+Wymaga Pythona 3.10+, ok. 6 GB VRAM (karta NVIDIA) albo cierpliwości na CPU (ok. minuty na
+model na 4 rdzeniach). Przy pierwszym uruchomieniu pobierane są wagi (~1,7 GB) z Hugging Face.
 
 ```bash
 git clone https://github.com/VAST-AI-Research/TripoSR ~/TripoSR
 python -m venv ~/tsr-venv && source ~/tsr-venv/bin/activate   # Windows: ~\tsr-venv\Scripts\activate
 pip install torch            # z kartą NVIDIA: polecenie z CUDA ze strony pytorch.org
-pip install omegaconf einops transformers trimesh huggingface-hub "rembg[cpu]" PyMCubes fast-simplification
-python tools/local_generate.py wolf obrazki/wilk.png --repo ~/TripoSR --height 0.8
+pip install omegaconf einops transformers trimesh huggingface-hub "rembg[cpu]" PyMCubes fast-simplification diffusers accelerate
+
+# 1. obrazki koncepcyjne (opcjonalnie, można użyć własnych): concept/wolf-0.jpg … wolf-3.jpg
+python tools/concept_generate.py wolf "a grey wolf with a pale belly, standing on all four legs"
+# 2. model 3D z wybranego obrazka
+python tools/local_generate.py wolf concept/wolf-2.jpg --repo ~/TripoSR --height 0.75 --faces 3000
 ```
 
-Pierwszy argument to typ potwora z `server/data/monsters.js` (`rat`, `wolf`, `orc`, `dragon`…).
-Najlepiej działa czysty obrazek jednego stwora na jednolitym tle, w widoku z przodu lub 3/4.
-`--faces` ustawia liczbę trójkątów (domyślnie 8000, mniej = bardziej retro), `--rot` obraca
-model, jeśli patrzy w złą stronę. Odśwież grę, żeby zobaczyć nowy model. Kompilacja
-`torchmcubes` z `requirements.txt` TripoSR nie jest potrzebna – skrypt używa wtedy PyMCubes.
+Pierwszy argument to typ potwora z `server/data/monsters.js` (`rat`, `wolf`, `dragon`…).
+Najlepiej działa czysty obrazek jednego stwora na jednolitym tle, w widoku 3/4.
+`--faces` ustawia liczbę trójkątów (mniej = bardziej retro). Odśwież grę, żeby zobaczyć model.
+
+**Kierunek patrzenia:** w widoku 3/4 głowa stwora nie patrzy w aparat, więc model trzeba obrócić.
+Otwórz <http://localhost:7172/dev/custom.html?top> – czerwona strzałka to „przód”. Jeśli głowa
+odchyla się od niej o d stopni, zmień `rotY` w `client/assets/models/custom/manifest.json`
+(albo `--rot` przy generowaniu) o −d; dodatnie wartości obracają przeciwnie do ruchu wskazówek
+zegara, patrząc z góry. Obrazki źródłowe modeli z gry są w `concept/` (opis w `concept/README.md`).
 
 Szczegóły licencji: [CREDITS.md](CREDITS.md).
 
