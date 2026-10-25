@@ -12,5 +12,12 @@
     "rotY": 0.0,
     "rotX": 0.0,
     "source": "triposr"
+  },
+  "deer": {
+    "file": "deer.glb",
+    "height": 1.1,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr"
   }
 }
