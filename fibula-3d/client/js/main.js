@@ -65,6 +65,7 @@ class Game {
     this.lastStepSent = 0;
     this.timeSync = { start: Date.now(), len: 40 * 60000, offset: 0 };
     this.clock = new THREE.Clock();
+    this.sunDir = new THREE.Vector3();
     this.cursor = this.makeCursor(0xffffff, 0.5);
     this.targetMark = this.makeCursor(0xff3030, 0.9);
     this.mouse = { x: 0, y: 0, over: false };
@@ -730,6 +731,8 @@ class Game {
     const phase = this.inGame ? this.dayPhase() : 0.31;
     const lights = this.world.floorLights(this.z);
     this.renderer.updateLighting(phase, this.z < 0, focus, lights, this.self?.light || 0, dt);
+    const sun = this.renderer.sun;
+    this.world.setSun(this.sunDir.copy(sun.position).sub(sun.target.position).normalize(), this.z < 0 ? 0 : Math.min(1, sun.intensity / 2));
     // cursors
     if (this.inGame && (this.mouse.over || this.fpp)) {
       const a = this.fpp ? { x: innerWidth / 2, y: innerHeight / 2 } : this.mouse;

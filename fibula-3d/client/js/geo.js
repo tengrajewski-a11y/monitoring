@@ -1,6 +1,7 @@
 // Small mesh builder for the procedural, flat shaded parts of the world.
 // Produces non-indexed geometry with per-face normals and vertex colours,
-// plus an optional "sway" attribute used by the wind shader.
+// plus an optional "sway" attribute used by the wind shader and a "tex"
+// attribute (ground type for the pixel-art detail shader, set via geo.tex).
 
 import * as THREE from 'three';
 
@@ -13,25 +14,33 @@ export function lin(hex, f = 1) {
 }
 
 export class Geo {
-  constructor() { this.p = []; this.n = []; this.c = []; this.s = []; }
+  constructor() { this.p = []; this.n = []; this.c = []; this.s = []; this.t = []; this.tex = 0; }
 
   get count() { return this.p.length / 3; }
 
+  // col: one [r, g, b] colour, or one colour per vertex ([ca, cb, cc])
   tri(a, b, c, col, sway = 0) {
     const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
     const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
     let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
     const l = Math.hypot(nx, ny, nz) || 1;
     nx /= l; ny /= l; nz /= l;
-    for (const v of [a, b, c]) {
+    const per = Array.isArray(col[0]);
+    [a, b, c].forEach((v, i) => {
+      const k = per ? col[i] : col;
       this.p.push(v[0], v[1], v[2]);
       this.n.push(nx, ny, nz);
-      this.c.push(col[0], col[1], col[2]);
+      this.c.push(k[0], k[1], k[2]);
       this.s.push(typeof sway === 'number' ? sway : sway(v));
-    }
+      this.t.push(this.tex);
+    });
   }
 
-  quad(a, b, c, d, col, sway = 0) { this.tri(a, b, c, col, sway); this.tri(a, c, d, col, sway); }
+  // col: one colour, or four (one per corner a, b, c, d)
+  quad(a, b, c, d, col, sway = 0) {
+    if (Array.isArray(col[0])) { this.tri(a, b, c, [col[0], col[1], col[2]], sway); this.tri(a, c, d, [col[0], col[2], col[3]], sway); return; }
+    this.tri(a, b, c, col, sway); this.tri(a, c, d, col, sway);
+  }
 
   // Axis aligned box. opts: top (colour), side (factor), bottom (bool), skip {px,nx,pz,nz}
   box(x0, y0, z0, x1, y1, z1, col, opts = {}) {
@@ -104,6 +113,7 @@ export class Geo {
     g.setAttribute('normal', new THREE.Float32BufferAttribute(this.n, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(this.c, 3));
     g.setAttribute('sway', new THREE.Float32BufferAttribute(this.s, 1));
+    g.setAttribute('tex', new THREE.Float32BufferAttribute(this.t, 1));
     g.computeBoundingSphere();
     return g;
   }

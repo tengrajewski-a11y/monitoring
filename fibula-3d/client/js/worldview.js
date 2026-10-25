@@ -21,26 +21,74 @@ const GCOL = {
 };
 
 const WALLISH = new Set([O.WALL_STONE, O.WALL_WOOD, O.WALL_CRYPT, O.WALL_TORCH, O.DOOR]);
+// natural ground: detail texture code, colours blend across tile corners
+const TEX = { [G.GRASS]: 1, [G.FOREST]: 2, [G.DIRT]: 3, [G.SAND]: 4, [G.CAVE]: 5, [G.ROCK]: 5, [G.SWAMP]: 6 };
+// objects that may stand on gently raised ground
+const NATURE = new Set([O.NONE, O.PINE, O.OAK, O.BIRCH, O.DEAD_TREE, O.BUSH, O.BOULDER, O.ROCK_SMALL, O.PEBBLES,
+  O.FLOWERS, O.TALL_GRASS, O.MUSHROOMS, O.STALAGMITE, O.BONES, O.CRYSTAL]);
 
 function seeded(x, y, z, k) { return tileHash(x * 7 + k * 131, y * 13 + k * 17, z); }
 
+// Pixel-art detail for the ground, 8 texels per tile, from the world position.
+// tex: 1 grass, 2 forest floor, 3 dirt, 4 sand, 5 cave / rock, 6 swamp.
+const GROUND_DETAIL = `
+float gh(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float gvn(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(gh(i), gh(i + vec2(1.0, 0.0)), f.x), mix(gh(i + vec2(0.0, 1.0)), gh(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+vec3 groundDetail(vec3 col, float tex, vec3 gp) {
+  vec2 tp = floor(gp.xz * 8.0);
+  // per texel noise (n, m) and smooth large patches (c), sampled per texel to stay pixel-art
+  float n = gh(tp), m = gh(tp + 31.0), c = gvn((tp + 0.5) / 8.0 * 0.7 + 17.0);
+  int t = int(tex + 0.5);
+  float k = 1.0;
+  if (t <= 2) {
+    k = 0.94 + 0.08 * n;
+    if (n > 0.88) k = 0.8;
+    if (m > 0.93) k = 1.12;
+    if (t == 2 && m < 0.05) return mix(col, vec3(0.45, 0.25, 0.06), 0.55);
+    k *= 0.95 + 0.1 * c;
+  } else if (t == 3) {
+    k = 0.9 + 0.14 * n;
+    if (m > 0.92) k = 0.72;
+    k *= 0.94 + 0.1 * c;
+  } else if (t == 4) {
+    float r = sin(gp.x * 7.0 + gp.z * 2.3 + c * 3.0);
+    k = 0.96 + 0.06 * n + 0.05 * step(0.65, r) - 0.03 * step(r, -0.8);
+  } else if (t == 5) {
+    k = 0.88 + 0.16 * n;
+    if (gh(floor(gp.xz * 4.0) + 3.0) > 0.9 && m > 0.4) k = 0.72;
+  } else {
+    k = (0.9 + 0.12 * n) * mix(0.78, 1.04, smoothstep(0.3, 0.6, c));
+  }
+  return col * k;
+}`;
+
 // Shader patch: wind sway (geometry attribute or instanced height based),
-// and a per-material "cut" height used to peek inside buildings.
-function patchMaterial(mat, uniforms, { sway = false, instSway = false, cut = null } = {}) {
+// a per-material "cut" height used to peek inside buildings and the ground detail.
+function patchMaterial(mat, uniforms, { sway = false, instSway = false, cut = null, tex = false } = {}) {
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uTime = uniforms.uTime;
     if (cut) sh.uniforms.uCut = cut;
     let decl = 'uniform float uTime;\n';
     if (sway) decl += 'attribute float sway;\n';
     if (cut) decl += 'uniform float uCut;\n';
+    if (tex) {
+      decl += 'attribute float tex;\nvarying float vTex;\nvarying vec3 vGP;\n';
+      sh.fragmentShader = 'varying float vTex;\nvarying vec3 vGP;\n' + GROUND_DETAIL + '\n' + sh.fragmentShader.replace('#include <color_fragment>',
+        '#include <color_fragment>\nif (vTex > 0.5) diffuseColor.rgb = groundDetail(diffuseColor.rgb, vTex, vGP);');
+    }
     sh.vertexShader = decl + sh.vertexShader;
     let body = '#include <begin_vertex>\n';
+    if (tex) body += 'vTex = tex;\nvGP = position;\n';
     if (sway) body += 'transformed.x += sin(uTime * 1.7 + position.x * 0.7 + position.z * 0.5) * sway * 0.045;\ntransformed.z += cos(uTime * 1.3 + position.x * 0.4 + position.z * 0.8) * sway * 0.03;\n';
     if (instSway) body += '#ifdef USE_INSTANCING\n float hh = max(position.y, 0.0);\n transformed.x += sin(uTime * 1.6 + instanceMatrix[3].x * 0.8 + instanceMatrix[3].z * 0.6) * hh * 0.035;\n transformed.z += cos(uTime * 1.2 + instanceMatrix[3].z * 0.7) * hh * 0.025;\n#endif\n';
     if (cut) body += 'if (transformed.y > uCut) transformed.y = uCut;\n';
     sh.vertexShader = sh.vertexShader.replace('#include <begin_vertex>', body);
   };
-  mat.customProgramCacheKey = () => `${sway ? 's' : ''}${instSway ? 'i' : ''}${cut ? 'c' : ''}`;
+  mat.customProgramCacheKey = () => `${sway ? 's' : ''}${instSway ? 'i' : ''}${cut ? 'c' : ''}${tex ? 't' : ''}`;
   return mat;
 }
 
@@ -49,10 +97,10 @@ export class WorldView {
     this.scene = scene;
     this.map = map;
     this.floors = new Map();
-    this.uniforms = { uTime: { value: 0 } };
+    this.uniforms = { uTime: { value: 0 }, uSunDir: { value: new THREE.Vector3(0, 1, 0) }, uSunStr: { value: 1 } };
     this.current = null;
     this.hiddenRoof = 0;
-    this.solidMat = patchMaterial(new THREE.MeshLambertMaterial({ vertexColors: true }), this.uniforms, { sway: true });
+    this.solidMat = patchMaterial(new THREE.MeshLambertMaterial({ vertexColors: true }), this.uniforms, { sway: true, tex: true });
     // glowing parts are brighter than white so the HDR bloom picks them up
     this.glowMat = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, color: new THREE.Color(2.6, 2.6, 2.6) });
     this.waterMat = this.makeLiquidMaterial(false);
@@ -66,13 +114,24 @@ export class WorldView {
     const u = this.uniforms;
     m.onBeforeCompile = (sh) => {
       sh.uniforms.uTime = u.uTime;
-      sh.vertexShader = 'uniform float uTime;\nvarying vec3 vWP;\n' + sh.vertexShader.replace('#include <begin_vertex>',
-        '#include <begin_vertex>\ntransformed.y += sin(uTime * 1.4 + position.x * 1.3) * 0.025 + cos(uTime * 1.1 + position.z * 1.7) * 0.025;\nvWP = position;');
-      sh.fragmentShader = 'uniform float uTime;\nvarying vec3 vWP;\n' + sh.fragmentShader.replace('#include <color_fragment>',
+      sh.uniforms.uSunDir = u.uSunDir;
+      sh.uniforms.uSunStr = u.uSunStr;
+      sh.vertexShader = 'uniform float uTime;\nattribute float sway;\nvarying float vFoam;\nvarying vec3 vWP;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+        '#include <begin_vertex>\ntransformed.y += sin(uTime * 1.4 + position.x * 1.3) * 0.025 + cos(uTime * 1.1 + position.z * 1.7) * 0.025;\nvWP = position;\nvFoam = sway;');
+      sh.fragmentShader = 'uniform float uTime;\nuniform vec3 uSunDir;\nuniform float uSunStr;\nvarying float vFoam;\nvarying vec3 vWP;\n' + sh.fragmentShader.replace('#include <color_fragment>',
         `#include <color_fragment>
         float w = sin(vWP.x * 2.1 + uTime * 1.3) * cos(vWP.z * 1.7 - uTime * 0.9) + sin((vWP.x + vWP.z) * 3.3 + uTime * 2.0) * 0.5;
+        float wSpec = 0.0;
         ${lava ? 'diffuseColor.rgb *= 0.85 + 0.35 * w; diffuseColor.rgb += vec3(0.25, 0.08, 0.0) * smoothstep(0.6, 1.2, w);'
-    : 'diffuseColor.rgb += vec3(0.10, 0.14, 0.16) * smoothstep(0.75, 1.3, w);'}`);
+    : `diffuseColor.rgb += vec3(0.10, 0.14, 0.16) * smoothstep(0.75, 1.3, w);
+        // foam along the shore, breathing with the waves
+        float fo = smoothstep(0.7, 0.97, vFoam * (0.8 + 0.2 * sin(uTime * 2.2 + vWP.x * 5.0 + vWP.z * 4.0)));
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.88, 0.94, 1.0), fo * 0.5);
+        diffuseColor.a = mix(diffuseColor.a, 0.92, fo * 0.6);
+        // sun glints on the waves (bright enough to bloom)
+        vec3 wn = normalize(vec3(sin(vWP.x * 3.1 + uTime * 1.7) * 0.16 + w * 0.05, 1.0, cos(vWP.z * 2.7 - uTime * 1.3) * 0.16));
+        wSpec = pow(max(dot(wn, normalize(normalize(cameraPosition - vWP) + uSunDir)), 0.0), 90.0) * uSunStr;`}`)
+        .replace('#include <opaque_fragment>', 'outgoingLight += vec3(1.0, 0.92, 0.75) * wSpec * 2.5;\n#include <opaque_fragment>');
     };
     m.customProgramCacheKey = () => (lava ? 'lava' : 'water');
     return m;
@@ -233,24 +292,54 @@ export class WorldView {
         break;
       }
       default: {
-        top(base);
-        // tufts / pebbles for texture
-        if ((g === G.GRASS || g === G.FOREST) && h > 0.55) {
-          const c = lin(g === G.FOREST ? 0x4c8a32 : 0x6fa83c);
-          for (let i = 0; i < 3; i++) {
-            const px = x0 + 0.15 + seeded(x, y, z, i) * 0.7, pz = z0 + 0.15 + seeded(x, y, z, i + 5) * 0.7;
-            geo.tri([px - 0.05, 0, pz], [px + 0.01, 0.14, pz], [px + 0.05, 0, pz + 0.01], c, (v) => (v[1] > 0.05 ? 0.5 : 0));
+        let hAt = () => 0;
+        if (TEX[g]) {
+          // colours averaged over the tiles sharing each corner, gentle relief
+          const cs = [this.cornerColor(x0, z0, z), this.cornerColor(x0, z1, z), this.cornerColor(x1, z1, z), this.cornerColor(x1, z0, z)];
+          const hs = [this.cornerHeight(x0, z0, z), this.cornerHeight(x0, z1, z), this.cornerHeight(x1, z1, z), this.cornerHeight(x1, z0, z)];
+          geo.tex = TEX[g];
+          geo.quad([x0, hs[0], z0], [x0, hs[1], z1], [x1, hs[2], z1], [x1, hs[3], z0], cs);
+          geo.tex = 0;
+          hAt = (px, pz) => {
+            const u = px - x0, w = pz - z0;
+            return (hs[0] * (1 - w) + hs[1] * w) * (1 - u) + (hs[3] * (1 - w) + hs[2] * w) * u;
+          };
+        } else top(base);
+        // tufts, leaves, pebbles
+        if ((g === G.GRASS || g === G.FOREST) && h > 0.35) {
+          const c = lin(g === G.FOREST ? 0x4c8a32 : 0x6fa83c), c2 = lin(g === G.FOREST ? 0x5a9a3a : 0x86bd4a);
+          const n = 2 + Math.floor(seeded(x, y, z, 11) * 4);
+          for (let i = 0; i < n; i++) {
+            const px = x0 + 0.12 + seeded(x, y, z, i) * 0.76, pz = z0 + 0.12 + seeded(x, y, z, i + 5) * 0.76, hh = 0.1 + seeded(x, y, z, i + 13) * 0.08;
+            const b = hAt(px, pz);
+            geo.tri([px - 0.05, b, pz], [px + 0.01, b + hh, pz], [px + 0.05, b, pz + 0.01], i % 2 ? c : c2, (v) => (v[1] > b + 0.05 ? 0.5 : 0));
           }
-        } else if ((g === G.DIRT || g === G.CAVE || g === G.ROCK) && h > 0.7) {
+          if (g === G.GRASS && h > 0.94) {
+            const fc = lin([0xf2e44a, 0xffffff, 0xe86aa0][Math.floor(seeded(x, y, z, 21) * 3)]);
+            for (let i = 0; i < 2; i++) {
+              const px = x0 + 0.2 + seeded(x, y, z, i + 22) * 0.6, pz = z0 + 0.2 + seeded(x, y, z, i + 24) * 0.6, b = hAt(px, pz);
+              geo.box(px - 0.02, b + 0.06, pz - 0.02, px + 0.02, b + 0.09, pz + 0.02, fc, { sway: 0.4 });
+            }
+          }
+        } else if (g === G.FOREST && h > 0.2) {
+          const lc = lin([0xb8742a, 0x8a5a2a, 0xc8a040][Math.floor(seeded(x, y, z, 7) * 3)]);
+          const px = x0 + 0.2 + seeded(x, y, z, 8) * 0.6, pz = z0 + 0.2 + seeded(x, y, z, 9) * 0.6, a = seeded(x, y, z, 10) * 6, b = hAt(px, pz) + 0.006;
+          geo.quad([px + Math.cos(a) * 0.08, b, pz + Math.sin(a) * 0.08], [px + Math.cos(a + 1.6) * 0.04, b, pz + Math.sin(a + 1.6) * 0.04],
+            [px - Math.cos(a) * 0.08, b, pz - Math.sin(a) * 0.08], [px - Math.cos(a + 1.6) * 0.04, b, pz - Math.sin(a + 1.6) * 0.04], lc);
+        }
+        if ((g === G.DIRT || g === G.CAVE || g === G.ROCK) && h > 0.55) {
           const c = lin(g === G.DIRT ? 0x8a6a48 : 0x5e554a);
-          const px = x0 + 0.2 + h * 0.5, pz = z0 + 0.3 + seeded(x, y, z, 2) * 0.4;
-          geo.box(px, 0, pz, px + 0.1, 0.05, pz + 0.08, c);
-        } else if (g === G.SAND && h > 0.8) {
-          geo.quad([x0 + 0.1, 0.005, z0 + 0.4], [x0 + 0.1, 0.005, z0 + 0.46], [x1 - 0.1, 0.005, z0 + 0.46], [x1 - 0.1, 0.005, z0 + 0.4], lin(0xd8c084));
+          for (let i = 0; i < (h > 0.85 ? 2 : 1); i++) {
+            const px = x0 + 0.15 + seeded(x, y, z, i + 2) * 0.65, pz = z0 + 0.2 + seeded(x, y, z, i + 4) * 0.6, s2 = 0.06 + seeded(x, y, z, i + 6) * 0.06;
+            geo.blob(px, hAt(px, pz) + s2 * 0.3, pz, s2, c, { sy: 0.6 });
+          }
+        } else if (g === G.SAND && h > 0.9) {
+          const px = x0 + 0.3 + seeded(x, y, z, 2) * 0.4, pz = z0 + 0.3 + seeded(x, y, z, 3) * 0.4;
+          geo.prism(px, hAt(px, pz), pz, 0.06, 0.03, 5, lin(h > 0.95 ? 0xf0d8d0 : 0xe8c8a0), { r1: 0.02 });
         } else if (g === G.SWAMP && h > 0.86) {
           const pc = lin(0x56663a);
-          geo.quad([x0 + 0.2, 0.005, z0 + 0.35], [x0 + 0.35, 0.005, z0 + 0.72], [x0 + 0.62, 0.005, z0 + 0.66], [x0 + 0.5, 0.005, z0 + 0.3], pc);
-          geo.tri([x0 + 0.5, 0.005, z0 + 0.3], [x0 + 0.62, 0.005, z0 + 0.66], [x0 + 0.78, 0.005, z0 + 0.42], pc);
+          geo.quad([x0 + 0.2, 0.012, z0 + 0.35], [x0 + 0.35, 0.012, z0 + 0.72], [x0 + 0.62, 0.012, z0 + 0.66], [x0 + 0.5, 0.012, z0 + 0.3], pc);
+          geo.tri([x0 + 0.5, 0.012, z0 + 0.3], [x0 + 0.62, 0.012, z0 + 0.66], [x0 + 0.78, 0.012, z0 + 0.42], pc);
         }
       }
     }
@@ -264,12 +353,43 @@ export class WorldView {
 
   isWaterish(x, y, z) { const g = GROUND[this.map.ground(x, y, z)]; return !!(g && g.liquid); }
 
+  tileBase(x, y, z) {
+    const h = tileHash(x, y, z);
+    const pal = GCOL[this.map.ground(x, y, z)] || [0x888888, 0x808080];
+    return lin(pal[h < 0.5 ? 0 : 1], 0.94 + h * 0.12);
+  }
+
+  // average colour of the natural ground tiles around a tile corner
+  cornerColor(cx, cy, z) {
+    let r = 0, g = 0, b = 0, n = 0;
+    for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
+      if (!TEX[this.map.ground(x, y, z)]) continue;
+      const c = this.tileBase(x, y, z);
+      r += c[0]; g += c[1]; b += c[2]; n++;
+    }
+    return n ? [r / n, g / n, b / n] : [0.5, 0.5, 0.5];
+  }
+
+  // raised a little where only natural ground and vegetation meet (never at shores or buildings)
+  cornerHeight(cx, cy, z) {
+    for (const [x, y] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) {
+      if (!TEX[this.map.ground(x, y, z)] || !NATURE.has(this.map.obj(x, y, z))) return 0;
+    }
+    return tileHash(cx * 3 + 1, cy * 5 + 2, z) * 0.045;
+  }
+
   liquidTile(geo, x, y, z, g) {
     const pal = GCOL[g];
     const h = tileHash(x, y, z);
     const depth = g === G.SHALLOW ? -0.08 : g === G.LAVA ? -0.06 : g === G.DEEPWATER ? -0.18 : -0.13;
     const c = lin(pal[h < 0.5 ? 0 : 1], 0.97 + h * 0.06);
-    geo.quad([x, depth, y], [x, depth, y + 1], [x + 1, depth, y + 1], [x + 1, depth, y], c);
+    // the sway channel carries shore foam: 1 at corners touching land
+    const foam = (v) => {
+      const cx = Math.round(v[0]), cy = Math.round(v[2]);
+      for (const [tx, ty] of [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]]) if (!this.isWaterish(tx, ty, z)) return 1;
+      return 0;
+    };
+    geo.quad([x, depth, y], [x, depth, y + 1], [x + 1, depth, y + 1], [x + 1, depth, y], c, g === G.LAVA ? 0 : foam);
   }
 
   // ------------------------------------------------------------------------
@@ -760,6 +880,12 @@ export class WorldView {
   }
 
   floorLights(z) { return this.floors.get(z)?.lights || []; }
+
+  // sun direction (towards the sun) and strength for the water glints
+  setSun(dir, strength) {
+    this.uniforms.uSunDir.value.copy(dir);
+    this.uniforms.uSunStr.value = strength;
+  }
 
   update(dt, px, py, pz, fpp = false) {
     this.uniforms.uTime.value += dt;
