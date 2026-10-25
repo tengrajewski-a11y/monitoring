@@ -20,6 +20,7 @@ export const assets = {
   chars: new Map(),   // name -> Object3D template
   clips: new Map(),   // name -> AnimationClip
   custom: new Map(),  // creature type -> { scene, animations, cfg } (e.g. Meshy AI models)
+                      // entries marked "prop" also become props named "prop:<key>" (statues, wells...)
   failed: false,
 };
 
@@ -125,8 +126,28 @@ async function loadCustom(loader) {
       fixNormals(g.scene);
       prepare(g.scene);
       assets.custom.set(key, { scene: g.scene, animations: g.animations, cfg });
+      if (cfg.prop) assets.props.set(`prop:${key}`, propParts(g.scene, cfg));
     } catch (e) { console.warn('Nie udało się wczytać modelu', key, e); }
   }));
+}
+
+// world object from a custom model: turned by rotX/rotY, scaled to its height
+// in tiles, centred and standing on y = 0, like the KayKit props
+function propParts(scene, cfg) {
+  const inner = scene.clone();
+  inner.rotation.x = ((cfg.rotX || 0) * Math.PI) / 180;
+  const mid = new THREE.Group();
+  mid.rotation.y = ((cfg.rotY || 0) * Math.PI) / 180;
+  mid.add(inner);
+  const wrap = new THREE.Group();
+  wrap.add(mid);
+  wrap.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(mid);
+  const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+  const s = (cfg.height || 1) / Math.max(0.001, size.y);
+  mid.scale.setScalar(s);
+  mid.position.set(-center.x * s, -box.min.y * s, -center.z * s);
+  return extractParts(wrap);
 }
 
 export function cloneCustom(key) {

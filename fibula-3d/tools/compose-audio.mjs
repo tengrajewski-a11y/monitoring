@@ -14,11 +14,14 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { SR, Mix, INSTR, freq, midi, srand, rnd, noise, Biquad, reverb } from './synth.mjs';
+import { sfxr, PRESETS, mutate } from './sfxr.mjs';
+import { applyExtra } from './sound-import.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'client', 'assets', 'audio');
 const KENNEY = process.env.KENNEY_DIR || path.join(ROOT, '..', '..', 'kenney');
-const ONLY = process.argv[2] || null;
+// optional comma separated list of names to rebuild ("voices" = every creature voice)
+const ONLY = process.argv[2] ? new Set(process.argv[2].split(',')) : null;
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'fibula-audio-'));
 
 function encode(name, data, channels, quality) {
@@ -352,6 +355,33 @@ const AMB = {
       t += 1.2 + rnd() * 2.5;
     }
   }),
+  rain: () => loopBuffer(40, (mix, s) => {
+    srand(9);
+    // steady hiss, a little different on each side
+    for (const [pan, sd] of [[-0.6, 1], [0.6, 2]]) {
+      const len = Math.ceil((s + 4) * SR), b = new Float32Array(len);
+      const hp = new Biquad(), lp = new Biquad();
+      hp.set('hp', 900, 0.7); lp.set('lp', 6500, 0.7);
+      for (let i = 0; i < len; i++) b[i] = lp.run(hp.run(noise())) * (0.8 + 0.2 * Math.sin((i / SR) * 0.3 * sd + sd)) * 0.9;
+      mix.add(b, 0, 1, pan, 0.15);
+    }
+    // single drops on leaves and puddles
+    let t = 0;
+    while (t < s) {
+      const len = Math.ceil(0.03 * SR), b = new Float32Array(len), bp = new Biquad();
+      bp.set('bp', 1800 + rnd() * 3500, 6);
+      for (let i = 0; i < len; i++) b[i] = bp.run(noise()) * Math.exp(-i / (len * 0.18));
+      mix.add(b, t, 0.35 + rnd() * 0.3, rnd() * 1.8 - 0.9, 0.2);
+      t += 0.01 + rnd() * 0.05;
+    }
+    // distant thunder
+    for (const at of [12, 31]) {
+      const len = Math.ceil(4 * SR), b = new Float32Array(len), lp = new Biquad();
+      lp.set('lp', 90, 0.8);
+      for (let i = 0; i < len; i++) { const u = i / len; b[i] = lp.run(noise()) * 9 * Math.min(1, u * 12) * (1 - u) ** 2 * (0.6 + 0.4 * Math.sin(u * 40)); }
+      mix.add(b, at, 0.6, at < 20 ? -0.3 : 0.4, 0.8);
+    }
+  }),
 };
 
 // ---------------------------------------------------------------- sound effects
@@ -370,13 +400,35 @@ function withVerb(b, wet = 0.3) {
   return out;
 }
 
+// an sfxr take (tools/sfxr.mjs) from a preset, seeded so the build is repeatable
+function retro(preset, seed, amount = 0.08, volume = 0.5) {
+  srand(seed);
+  const p = mutate(PRESETS[preset](rnd), rnd, amount);
+  p.volume = volume;
+  return sfxr(p, rnd);
+}
+// keeps layered sounds below clipping
+function safe(b) {
+  let mx = 0;
+  for (const x of b) mx = Math.max(mx, Math.abs(x));
+  if (mx > 0.95) for (let i = 0; i < b.length; i++) b[i] *= 0.95 / mx;
+  return b;
+}
+// mixes [buffer, gain] pairs, as long as the longest one
+function layer(...parts) {
+  const out = new Float32Array(Math.max(...parts.map(([b]) => b.length)));
+  for (const [b, g] of parts) for (let i = 0; i < b.length; i++) out[i] += b[i] * g;
+  return out;
+}
+
 const SFX = {
-  swing: () => sfxBuf(0.28, (b, n) => { const bp = new Biquad(); for (let i = 0; i < n; i++) { const t = i / n; if (i % 32 === 0) bp.set('bp', 500 + 2400 * Math.sin(Math.PI * t), 1.2); b[i] = bp.run(noise()) * Math.sin(Math.PI * t) ** 1.5; } }),
-  hit: () => sfxBuf(0.25, (b, n) => { const lp = new Biquad(); lp.set('lp', 1800, 0.7); let p = 0; for (let i = 0; i < n; i++) { const t = i / SR; p += (60 + 80 * Math.exp(-t * 40)) / SR; b[i] = Math.sin(2 * Math.PI * p) * Math.exp(-t * 18) + lp.run(noise()) * Math.exp(-t * 45) * 0.8; } }),
-  hit_bone: () => sfxBuf(0.18, (b, n) => { const bp = new Biquad(); bp.set('bp', 1600, 4); for (let i = 0; i < n; i++) { const t = i / SR; b[i] = bp.run(noise()) * Math.exp(-t * 35) * 2 + Math.sin(2 * Math.PI * 620 * t) * Math.exp(-t * 40) * 0.5; } }),
-  block: () => withVerb(sfxBuf(0.5, (b, n) => { for (let i = 0; i < n; i++) { const t = i / SR; let x = 0; for (const [f, d] of [[2300, 9], [3170, 11], [4410, 14], [5830, 18]]) x += Math.sin(2 * Math.PI * f * t) * Math.exp(-t * d); b[i] = x * 0.4 + noise() * Math.exp(-t * 80) * 0.6; } }), 0.2),
+  // v = variant number: frequent sounds come in a few takes so they do not repeat exactly
+  swing: (v) => { srand(40 + v); const f0 = 420 + rnd() * 260, f1 = 2000 + rnd() * 1000, d = 0.24 + rnd() * 0.08; return sfxBuf(d, (b, n) => { const bp = new Biquad(); for (let i = 0; i < n; i++) { const t = i / n; if (i % 32 === 0) bp.set('bp', f0 + f1 * Math.sin(Math.PI * t), 1.2); b[i] = bp.run(noise()) * Math.sin(Math.PI * t) ** 1.5; } }); },
+  hit: (v) => { srand(50 + v); const f = 50 + rnd() * 25, lpf = 1500 + rnd() * 800; return layer([sfxBuf(0.25, (b, n) => { const lp = new Biquad(); lp.set('lp', lpf, 0.7); let p = 0; for (let i = 0; i < n; i++) { const t = i / SR; p += (f + 80 * Math.exp(-t * 40)) / SR; b[i] = Math.sin(2 * Math.PI * p) * Math.exp(-t * 18) + lp.run(noise()) * Math.exp(-t * 45) * 0.8; } }), 1], [retro('hit', 60 + v), 0.35]); },
+  hit_bone: (v) => { srand(70 + v); const f = 1300 + rnd() * 600; return sfxBuf(0.18, (b, n) => { const bp = new Biquad(); bp.set('bp', f, 4); for (let i = 0; i < n; i++) { const t = i / SR; b[i] = bp.run(noise()) * Math.exp(-t * 35) * 2 + Math.sin(2 * Math.PI * f * 0.39 * t) * Math.exp(-t * 40) * 0.5; } }); },
+  block: (v) => { srand(80 + v); const k = 0.94 + rnd() * 0.12; return withVerb(sfxBuf(0.5, (b, n) => { for (let i = 0; i < n; i++) { const t = i / SR; let x = 0; for (const [f, d] of [[2300, 9], [3170, 11], [4410, 14], [5830, 18]]) x += Math.sin(2 * Math.PI * f * k * t) * Math.exp(-t * d); b[i] = x * 0.4 + noise() * Math.exp(-t * 80) * 0.6; } }), 0.2); },
   crossbow: () => sfxBuf(0.35, (b) => { const p = INSTR.pluck(170, 0.1, 0.9, { bright: 0.9, fb: 0.985, ring: 0.3 }); for (let i = 0; i < b.length; i++) b[i] = (p[i] || 0) + noise() * Math.exp(-(i / SR) * 60) * 0.5; }),
-  wand: () => withVerb(sfxBuf(0.4, (b, n) => { let p = 0; for (let i = 0; i < n; i++) { const t = i / n; p += (800 + 2200 * t * t) / SR; b[i] = Math.sin(2 * Math.PI * p) * (1 - t) * 0.6 + Math.sin(2 * Math.PI * p * 2.01) * (1 - t) * 0.3; } }), 0.4),
+  wand: (v) => { const body = sfxBuf(0.4, (b, n) => { let p = 0; for (let i = 0; i < n; i++) { const t = i / n; p += (800 + 2200 * t * t) / SR; b[i] = Math.sin(2 * Math.PI * p) * (1 - t) * 0.6 + Math.sin(2 * Math.PI * p * 2.01) * (1 - t) * 0.3; } }); return withVerb(layer([body, 1], [retro('laser', 90 + v, 0.06), 0.3]), 0.4); },
   fire: () => sfxBuf(0.8, (b, n) => { const lp = new Biquad(); lp.set('lp', 1100, 0.7); for (let i = 0; i < n; i++) { const t = i / n; const crack = rnd() < 0.002 ? 3 : 1; b[i] = lp.run(noise()) * Math.sin(Math.PI * Math.min(1, t * 3)) * (1 - t) * crack + Math.sin(2 * Math.PI * 70 * i / SR) * (1 - t) * 0.4; } }),
   energy: () => sfxBuf(0.45, (b, n) => { let p = 0; for (let i = 0; i < n; i++) { const t = i / n; p += (120 + 60 * Math.sin(t * 40)) / SR; const saw = 2 * (p % 1) - 1; b[i] = saw * Math.sin(2 * Math.PI * 1300 * i / SR * (1 + t)) * (1 - t) + noise() * 0.2 * (1 - t); } }),
   ice: () => withVerb(sfxBuf(0.7, (b, n) => { for (const [f, at] of [[2100, 0], [2650, 0.04], [3300, 0.09], [3950, 0.13]]) { const s = Math.floor(at * SR); for (let i = s; i < n; i++) { const t = (i - s) / SR; b[i] += Math.sin(2 * Math.PI * f * t + 2 * Math.sin(2 * Math.PI * f * 1.4 * t) * Math.exp(-t * 8)) * Math.exp(-t * 7); } } }), 0.5),
@@ -392,9 +444,102 @@ const SFX = {
   shield: () => withVerb(sfxBuf(0.8, (b, n) => { for (let i = 0; i < n; i++) { const t = i / SR; const e = Math.min(1, t * 8) * Math.exp(-t * 3); b[i] = (Math.sin(2 * Math.PI * 220 * t) + Math.sin(2 * Math.PI * 330 * t) * 0.7 + Math.sin(2 * Math.PI * 440 * t) * 0.5) * e * (0.8 + 0.2 * Math.sin(t * 40)); } }), 0.4),
   poff: () => sfxBuf(0.25, (b, n) => { const lp = new Biquad(); lp.set('lp', 700, 0.7); for (let i = 0; i < n; i++) { const t = i / n; b[i] = lp.run(noise()) * Math.sin(Math.PI * t) ** 2; } }),
   skillup: () => withVerb(sfxBuf(0.9, (b, n) => { [['E6', 0], ['A6', 0.12]].forEach(([nn, at]) => { const f = freq(nn), s = Math.floor(at * SR); for (let i = s; i < n; i++) { const t = (i - s) / SR; b[i] += Math.sin(2 * Math.PI * f * t) * Math.exp(-t * 5); } }); }), 0.5),
-  npc: () => sfxBuf(0.1, (b, n) => { let p = 0; for (let i = 0; i < n; i++) { const t = i / n; p += (520 + 180 * t) / SR; b[i] = (p % 1 < 0.5 ? 1 : -1) * 0.3 * Math.sin(Math.PI * t); } }),
+  npc: (v) => { srand(100 + v); const p = mutate(PRESETS.blip(rnd), rnd, 0.05); p.sustain = 0.08; p.decay = 0.12; p.volume = 0.22; return sfxr(p, rnd); },
   pm: () => withVerb(sfxBuf(0.5, (b, n) => { [['G5', 0], ['C6', 0.1]].forEach(([nn, at]) => { const p = INSTR.pluck(freq(nn), 0.1, 0.8, { bright: 0.7, ring: 0.4 }); const s = Math.floor(at * SR); for (let i = 0; i < p.length && s + i < n; i++) b[s + i] += p[i]; }); }), 0.3),
   open: () => sfxBuf(0.4, (b, n) => { const bp = new Biquad(); bp.set('bp', 700, 3); let p = 0; for (let i = 0; i < n; i++) { const t = i / n; p += (90 + 30 * Math.sin(t * 30)) / SR; b[i] = bp.run(2 * (p % 1) - 1) * Math.sin(Math.PI * t) + (i < 600 ? noise() * 0.5 : 0); } }),
+};
+
+// sounds generated in several takes (picked at random when played)
+const VARIANTS = { swing: 3, hit: 3, hit_bone: 2, block: 2, wand: 3, npc: 3 };
+
+// ---------------------------------------------------------------- creature voices
+// formants (Hz) of the vowels the voices slide between
+const VOWEL = { a: [750, 1150, 2500], o: [500, 850, 2400], u: [350, 700, 2300], e: [450, 1800, 2550], i: [300, 2200, 2900] };
+
+// A throat: a buzzing source (pitch f0 -> f1 with jitter and vibrato) through
+// three vowel formants, plus breath noise; "rough" adds a growling sub-tone and
+// distortion, "shift" scales the formants (below 1 = a bigger throat).
+function throat({ dur, f0, f1 = f0, v0 = 'a', v1 = v0, rough = 0, breath = 0.2, vib = 0, vibRate = 6, shift = 1, attack = 0.03, release = 0.2, jitter = 0.03 }) {
+  const n = Math.ceil(dur * SR), b = new Float32Array(n);
+  const bp = [new Biquad(), new Biquad(), new Biquad()], gain = [1, 0.55, 0.25];
+  let ph = 0, sub = 0, jit = 0;
+  for (let i = 0; i < n; i++) {
+    const t = i / n;
+    if (i % 64 === 0) {
+      jit = (rnd() - 0.5) * jitter;
+      for (let k = 0; k < 3; k++) bp[k].set('bp', (VOWEL[v0][k] + (VOWEL[v1][k] - VOWEL[v0][k]) * t) * shift, 5 + k * 3);
+    }
+    const f = (f0 + (f1 - f0) * t) * (1 + vib * Math.sin(2 * Math.PI * vibRate * i / SR) + jit);
+    ph += f / SR;
+    sub += f / 2 / SR;
+    const src = (2 * (ph % 1) - 1) + rough * (sub % 1 < 0.5 ? 0.6 : -0.6);
+    const ex = src * (1 - breath) + noise() * breath * 2;
+    let y = 0;
+    for (let k = 0; k < 3; k++) y += bp[k].run(ex) * gain[k];
+    const env = Math.min(1, (t * dur) / attack, ((1 - t) * dur) / release);
+    b[i] = Math.tanh(y * (1.5 + rough * 4)) * env;
+  }
+  return b;
+}
+
+function squeaks(count, fLo, fHi, gap) {
+  return sfxBuf(count * gap + 0.12, (b, n) => {
+    for (let k = 0; k < count; k++) {
+      const s = Math.floor((k * gap + rnd() * 0.03) * SR), len = Math.floor((0.05 + rnd() * 0.05) * SR);
+      const f0 = fLo + rnd() * (fHi - fLo), f1 = f0 * (1.1 + rnd() * 0.4);
+      let ph = 0;
+      for (let i = 0; i < len && s + i < n; i++) { const t = i / len; ph += (f0 + (f1 - f0) * Math.sin(Math.PI * t)) / SR; b[s + i] += Math.sin(2 * Math.PI * ph) * Math.sin(Math.PI * t); }
+    }
+  });
+}
+
+function hiss(dur, lo, tremolo) {
+  return sfxBuf(dur, (b, n) => {
+    const hp = new Biquad(), lp = new Biquad();
+    hp.set('hp', lo, 0.7); lp.set('lp', 9000, 0.7);
+    for (let i = 0; i < n; i++) { const t = i / n; b[i] = lp.run(hp.run(noise())) * Math.sin(Math.PI * Math.min(1, t * 1.3)) * (tremolo ? 0.6 + 0.4 * Math.sin(i / SR * tremolo * 2 * Math.PI) : 1); }
+  });
+}
+
+function clicks(count, f, spread) {
+  return sfxBuf(0.06 * count + 0.1, (b, n) => {
+    const bp = new Biquad();
+    for (let k = 0; k < count; k++) {
+      bp.set('bp', f * (1 - spread / 2 + rnd() * spread), 6);
+      const s = Math.floor((k * 0.06 + rnd() * 0.03) * SR);
+      for (let i = 0; i < 0.025 * SR && s + i < n; i++) b[s + i] += bp.run(noise()) * Math.exp(-i / (0.004 * SR)) * 3;
+    }
+  });
+}
+
+const VOICES = {
+  voice_growl: (v) => { srand(200 + v); return withVerb(sfxBuf(0.75, (b) => b.set(throat({ dur: 0.7, f0: 95 + rnd() * 20, f1: 75, v0: 'o', v1: 'u', rough: 0.6, breath: 0.35, jitter: 0.2, release: 0.3 })))); },
+  voice_roar: (v) => { srand(210 + v); return withVerb(sfxBuf(1.05, (b) => b.set(throat({ dur: 1.0, f0: 75 + rnd() * 15, f1: 52, v0: 'a', v1: 'o', rough: 0.85, breath: 0.4, jitter: 0.25, shift: 0.75, attack: 0.08, release: 0.45 }))), 0.35); },
+  voice_dragon: (v) => {
+    srand(220 + v);
+    const roar = throat({ dur: 1.6, f0: 58 + rnd() * 10, f1: 38, v0: 'a', v1: 'o', rough: 1, breath: 0.5, jitter: 0.3, shift: 0.6, attack: 0.15, release: 0.7 });
+    return withVerb(sfxBuf(1.7, (b) => { const lp = new Biquad(); lp.set('lp', 120, 0.7); for (let i = 0; i < roar.length; i++) b[i] = roar[i] + lp.run(noise()) * 4 * Math.sin(Math.PI * i / roar.length); }), 0.6);
+  },
+  voice_squeak: (v) => { srand(230 + v); return squeaks(2 + v, 2600, 4200, 0.11); },
+  voice_bleat: (v) => { srand(240 + v); return sfxBuf(0.6, (b) => b.set(throat({ dur: 0.55, f0: 300 + rnd() * 60, f1: 250, v0: 'e', v1: 'a', breath: 0.15, vib: 0.06, vibRate: 11, release: 0.25 }))); },
+  voice_hiss: (v) => { srand(250 + v); return hiss(0.7 + v * 0.15, 3800, 0); },
+  voice_spider: (v) => { srand(260 + v); return layer([hiss(0.5, 2500, 24), 0.7], [clicks(5 + v, 3200, 0.6), 0.6]); },
+  voice_slime: (v) => {
+    srand(270 + v);
+    return sfxBuf(0.55, (b, n) => {
+      const lp = new Biquad(); lp.set('lp', 900, 1.5);
+      for (let k = 0; k < 3; k++) {
+        const s = Math.floor((k * 0.14 + rnd() * 0.05) * SR), len = Math.floor(0.12 * SR), f0 = 120 + rnd() * 120;
+        let ph = 0;
+        for (let i = 0; i < len && s + i < n; i++) { const t = i / len; ph += f0 * (0.6 + 1.2 * t * t) / SR; b[s + i] += Math.sin(2 * Math.PI * ph) * Math.sin(Math.PI * t) + lp.run(noise()) * 0.4 * Math.sin(Math.PI * t); }
+      }
+    });
+  },
+  voice_orc: (v) => { srand(280 + v); return sfxBuf(0.42, (b) => b.set(throat({ dur: 0.38, f0: 120 + rnd() * 25, f1: 92, v0: 'u', v1: 'a', rough: 0.5, breath: 0.25, jitter: 0.12, attack: 0.015, release: 0.15 }))); },
+  voice_troll: (v) => { srand(290 + v); return withVerb(sfxBuf(0.6, (b) => b.set(throat({ dur: 0.55, f0: 85 + rnd() * 15, f1: 66, v0: 'o', v1: 'a', rough: 0.7, breath: 0.3, jitter: 0.15, shift: 0.8, attack: 0.02, release: 0.2 }))), 0.2); },
+  voice_human: (v) => { srand(300 + v); return sfxBuf(0.32, (b) => b.set(throat({ dur: 0.3, f0: 165 + rnd() * 35, f1: 125, v0: v % 2 ? 'e' : 'a', v1: 'a', rough: 0.15, breath: 0.3, jitter: 0.05, attack: 0.01, release: 0.12 }))); },
+  voice_moan: (v) => { srand(310 + v); return withVerb(sfxBuf(1.35, (b) => b.set(throat({ dur: 1.3, f0: 125 + rnd() * 25, f1: 100, v0: 'u', v1: 'o', breath: 0.55, vib: 0.03, vibRate: 4, shift: 0.9, attack: 0.25, release: 0.5 }))), 0.6); },
+  voice_bones: (v) => { srand(320 + v); return withVerb(clicks(6 + v * 2, 1800, 0.8), 0.25); },
 };
 
 // ---------------------------------------------------------------- Kenney CC0 sounds
@@ -447,25 +592,32 @@ function main() {
   console.log('Music');
   for (const [k, fn] of Object.entries(music)) {
     const file = `music/${k}.ogg`;
-    if (!ONLY || ONLY === k) encode(file, fn(), 2, 2);
+    if (!ONLY || ONLY.has(k)) encode(file, fn(), 2, 2);
     manifest.music[k] = file;
   }
   console.log('Ambience');
   for (const [k, fn] of Object.entries(AMB)) {
     const file = `amb/${k}.ogg`;
-    if (!ONLY || ONLY === k) encode(file, fn(), 2, 1);
+    if (!ONLY || ONLY.has(k)) encode(file, fn(), 2, 1);
     manifest.ambience[k] = file;
   }
   console.log('Sound effects');
-  for (const [k, fn] of Object.entries(SFX)) {
-    const file = `sfx/${k}.ogg`;
-    if (!ONLY || ONLY === k) encode(file, fn(), 1, 4);
-    manifest.sfx[k] = [file];
+  for (const [k, fn] of Object.entries({ ...SFX, ...VOICES })) {
+    const n = VARIANTS[k] || (k.startsWith('voice_') ? 3 : 1);
+    manifest.sfx[k] = [];
+    for (let v = 0; v < n; v++) {
+      const file = n > 1 ? `sfx/${k}-${v + 1}.ogg` : `sfx/${k}.ogg`;
+      if (!ONLY || ONLY.has(k) || (ONLY.has('voices') && k.startsWith('voice_'))) encode(file, safe(fn(v)), 1, 4);
+      manifest.sfx[k].push(file);
+    }
   }
   manifest.sfx.levelup = ['music/levelup.ogg'];
   manifest.sfx.death_jingle = ['music/death.ogg'];
   kenneySounds(manifest);
   manifest.music.swamp = manifest.music.wild;
+  // sounds brought in with tools/sound-import.mjs
+  const extra = path.join(OUT, 'extra.json');
+  if (fs.existsSync(extra)) applyExtra(manifest, JSON.parse(fs.readFileSync(extra, 'utf8')));
   fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
   fs.rmSync(TMP, { recursive: true, force: true });
   console.log('manifest.json written');

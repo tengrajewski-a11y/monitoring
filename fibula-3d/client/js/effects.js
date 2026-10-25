@@ -1,4 +1,5 @@
-// Voxel particle effects and projectiles.
+// Voxel particle effects and projectiles. Particles are see-through and fade
+// in and out (per-instance alpha); glowing ones add light instead of covering.
 
 import * as THREE from 'three';
 import { cloneGear } from './assets.js';
@@ -10,26 +11,26 @@ const FX = {
   green_blood: { n: 14, c: [0x5ac83a, 0x3a9a2a, 0x8ae05a], sp: 1.8, up: 2.2, g: 9, s: 0.07, life: 0.6, y: 0.4 },
   bone: { n: 10, c: [0xf0e8d0, 0xd8d0b8], sp: 1.6, up: 2.2, g: 9, s: 0.06, life: 0.6, y: 0.6 },
   slime: { n: 14, c: [0x6ae05a, 0x3ab83a], sp: 1.4, up: 2.0, g: 8, s: 0.09, life: 0.7, y: 0.3 },
-  poff: { n: 9, c: [0xe8e8e8, 0xc8c8c8, 0xffffff], sp: 0.5, up: 0.7, g: -0.6, s: 0.14, grow: 1.6, life: 0.7, y: 0.4 },
+  poff: { n: 9, c: [0xe8e8e8, 0xc8c8c8, 0xffffff], sp: 0.5, up: 0.7, g: -0.6, s: 0.14, grow: 1.6, life: 0.7, y: 0.4, a: 0.35 },
   block: { n: 10, c: [0xffffa0, 0xffffff, 0xffd040], sp: 2.6, up: 1.5, g: 6, s: 0.045, life: 0.35, y: 0.6, glow: true },
   fire: { n: 22, c: [0xff7a1a, 0xffc030, 0xff3a0a], sp: 0.9, up: 1.8, g: -1.5, s: 0.1, life: 0.7, y: 0.2, glow: true, flash: 0xff7020 },
   energy: { n: 22, c: [0x9a60ff, 0x60e0ff, 0xffffff], sp: 2.4, up: 1.4, g: 0, s: 0.07, life: 0.5, y: 0.5, glow: true, flash: 0x8060ff },
   earth: { n: 16, c: [0x6ac83a, 0x8a6a3a, 0x4a8a2a], sp: 1.8, up: 2.6, g: 9, s: 0.09, life: 0.7, y: 0.3 },
   ice: { n: 18, c: [0xbfeaff, 0x7ac8ff, 0xffffff], sp: 2.0, up: 2.0, g: 7, s: 0.08, life: 0.7, y: 0.4, glow: true, flash: 0x80c0ff },
   poison: { n: 14, c: [0x7ae04a, 0x4ab82a, 0xb0ff70], sp: 0.5, up: 1.0, g: -1.2, s: 0.08, life: 0.9, y: 0.3, glow: true },
-  death: { n: 18, c: [0x3a1a4a, 0x6a2a8a, 0x1a0a1a], sp: 0.8, up: 1.2, g: -1, s: 0.12, grow: 1.4, life: 0.9, y: 0.4, flash: 0x6a2a8a },
+  death: { n: 18, c: [0x3a1a4a, 0x6a2a8a, 0x1a0a1a], sp: 0.8, up: 1.2, g: -1, s: 0.12, grow: 1.4, life: 0.9, y: 0.4, flash: 0x6a2a8a, a: 0.5, wave: 0.8 },
   holy: { n: 18, c: [0xfff0a0, 0xffd040, 0xffffff], sp: 0.8, up: 2.0, g: -1, s: 0.07, life: 0.8, y: 0.3, glow: true, flash: 0xffe080 },
   drain: { n: 16, c: [0xc01020, 0xff3040], sp: 0.6, up: 1.4, g: -1.5, s: 0.07, life: 0.8, y: 0.3, glow: true, spiral: true },
-  heal: { n: 20, c: [0x80ff80, 0xffffff, 0x40e060], sp: 0.4, up: 1.6, g: -1.2, s: 0.06, life: 1.0, y: 0.1, glow: true, ring: 0.45 },
-  mana: { n: 18, c: [0x6080ff, 0xa0c0ff, 0xffffff], sp: 0.4, up: 1.6, g: -1.2, s: 0.06, life: 1.0, y: 0.1, glow: true, ring: 0.45 },
-  levelup: { n: 70, c: [0xffe060, 0xffffff, 0xffb020], sp: 0.3, up: 3.2, g: -0.5, s: 0.07, life: 1.6, y: 0.0, glow: true, ring: 0.55, flash: 0xffe060 },
-  teleport: { n: 36, c: [0xa0e0ff, 0xffffff, 0x6080ff], sp: 0.3, up: 2.4, g: -0.5, s: 0.06, life: 1.0, y: 0.0, glow: true, ring: 0.4, spiral: true },
-  explosion: { n: 40, c: [0xff7a1a, 0xffd040, 0xff3a0a, 0x6a6a6a], sp: 3.2, up: 2.8, g: 4, s: 0.12, life: 0.8, y: 0.3, glow: true, flash: 0xff6010 },
+  heal: { n: 20, c: [0x80ff80, 0xffffff, 0x40e060], sp: 0.4, up: 1.6, g: -1.2, s: 0.06, life: 1.0, y: 0.1, glow: true, ring: 0.45, wave: 0.7 },
+  mana: { n: 18, c: [0x6080ff, 0xa0c0ff, 0xffffff], sp: 0.4, up: 1.6, g: -1.2, s: 0.06, life: 1.0, y: 0.1, glow: true, ring: 0.45, wave: 0.7 },
+  levelup: { n: 70, c: [0xffe060, 0xffffff, 0xffb020], sp: 0.3, up: 3.2, g: -0.5, s: 0.07, life: 1.6, y: 0.0, glow: true, ring: 0.55, flash: 0xffe060, wave: 1.4 },
+  teleport: { n: 36, c: [0xa0e0ff, 0xffffff, 0x6080ff], sp: 0.3, up: 2.4, g: -0.5, s: 0.06, life: 1.0, y: 0.0, glow: true, ring: 0.4, spiral: true, wave: 0.8 },
+  explosion: { n: 40, c: [0xff7a1a, 0xffd040, 0xff3a0a, 0x6a6a6a], sp: 3.2, up: 2.8, g: 4, s: 0.12, life: 0.8, y: 0.3, glow: true, flash: 0xff6010, wave: 1.3 },
   sparkle: { n: 16, c: [0xffffff, 0xfff0a0], sp: 0.8, up: 1.2, g: -0.4, s: 0.05, life: 0.9, y: 0.5, glow: true },
-  haste: { n: 20, c: [0x60f0ff, 0xffffff], sp: 1.2, up: 0.6, g: 0, s: 0.05, life: 0.6, y: 0.2, glow: true, ring: 0.5 },
-  shield: { n: 30, c: [0x6080ff, 0xa0c0ff], sp: 0.1, up: 0.8, g: -0.2, s: 0.06, life: 1.0, y: 0.2, glow: true, ring: 0.55 },
+  haste: { n: 20, c: [0x60f0ff, 0xffffff], sp: 1.2, up: 0.6, g: 0, s: 0.05, life: 0.6, y: 0.2, glow: true, ring: 0.5, wave: 0.7 },
+  shield: { n: 30, c: [0x6080ff, 0xa0c0ff], sp: 0.1, up: 0.8, g: -0.2, s: 0.06, life: 1.0, y: 0.2, glow: true, ring: 0.55, wave: 0.8 },
   slash: { n: 16, c: [0xffffff, 0xdde4ff], sp: 0.2, up: 0.2, g: 0, s: 0.05, life: 0.3, y: 0.6, glow: true, arc: true },
-  death_puff: { n: 20, c: [0xc8c0b8, 0x9a9088], sp: 0.8, up: 0.8, g: -0.4, s: 0.13, grow: 1.5, life: 1.0, y: 0.4 },
+  death_puff: { n: 20, c: [0xc8c0b8, 0x9a9088], sp: 0.8, up: 0.8, g: -0.4, s: 0.13, grow: 1.5, life: 1.0, y: 0.4, a: 0.35 },
 };
 
 const MISSILE = {
@@ -45,20 +46,47 @@ const MISSILE = {
   physical: { color: 0xc8c8c8, size: 0.08, arc: 0.5 },
 };
 
+// opacity of the hit and spell particles (glowing ones are added on top, so they read lighter)
+const ALPHA_LIT = 0.75, ALPHA_GLOW = 0.7;
+
+// Per-instance opacity for an instanced mesh: the "aAlpha" attribute scales the
+// material's alpha. Returns the attribute (one float per instance).
+export function instanceAlpha(mesh, count) {
+  const attr = new THREE.InstancedBufferAttribute(new Float32Array(count).fill(1), 1);
+  attr.setUsage(THREE.DynamicDrawUsage);
+  mesh.geometry.setAttribute('aAlpha', attr);
+  mesh.material.onBeforeCompile = (sh) => {
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float aAlpha;\nvarying float vAlpha;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvAlpha = aAlpha;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vAlpha;')
+      .replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.a *= vAlpha;');
+  };
+  return attr;
+}
+
 export class Effects {
   constructor(scene, renderer) {
     this.scene = scene;
     this.renderer = renderer;
-    const geo = new THREE.BoxGeometry(1, 1, 1);
-    this.lit = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial(), MAX);
-    this.glow = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ toneMapped: false, color: new THREE.Color(2.2, 2.2, 2.2) }), MAX);
+    this.lit = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshLambertMaterial({ transparent: true, depthWrite: false }), MAX);
+    this.glow = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({
+      toneMapped: false, color: new THREE.Color(1.8, 1.8, 1.8), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    }), MAX);
     for (const m of [this.lit, this.glow]) {
       m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       m.setColorAt(0, new THREE.Color());
+      m.userData.alpha = instanceAlpha(m, MAX);
       m.count = 0;
       m.frustumCulled = false;
+      m.renderOrder = 2;
       scene.add(m);
     }
+    // expanding rings on the ground for spells and explosions
+    this.waveGeo = new THREE.RingGeometry(0.82, 1, 40).rotateX(-Math.PI / 2);
+    this.waves = [];
     this.parts = [];
     this.missiles = [];
     this.tmp = new THREE.Matrix4();
@@ -79,6 +107,7 @@ export class Effects {
         vx: Math.cos(a) * sp * (f.ring ? 0.2 : 1), vy: f.up * (0.5 + Math.random() * 0.7), vz: Math.sin(a) * sp * (f.ring ? 0.2 : 1),
         life: f.life * (0.7 + Math.random() * 0.5), s: f.s * (0.7 + Math.random() * 0.7), g: f.g, grow: f.grow || 0,
         c: f.c[(Math.random() * f.c.length) | 0], glow: !!f.glow, spiral: f.spiral ? a : null, cx: x, cz: y,
+        a: f.a ?? (f.glow ? ALPHA_GLOW : ALPHA_LIT),
       };
       if (f.arc) {
         const t = (i / f.n - 0.5) * 2.4;
@@ -88,6 +117,19 @@ export class Effects {
       this.parts.push(p);
     }
     if (f.flash) this.renderer.flash(x, y, f.flash);
+    if (f.wave) this.wave(x, y, z0, f.wave, f.c[0], f.life * 0.8);
+  }
+
+  wave(x, y, z0, radius, color, life) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(color).multiplyScalar(1.6), toneMapped: false, transparent: true,
+      depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(this.waveGeo, mat);
+    mesh.position.set(x, z0 + 0.05, y);
+    mesh.renderOrder = 2;
+    this.scene.add(mesh);
+    this.waves.push({ mesh, radius, life, max: life });
   }
 
   missile(type, fx, fy, tx, ty, onHit) {
@@ -100,8 +142,9 @@ export class Effects {
     }
     if (!mesh) {
       const len = m.long || m.size;
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(m.size, m.size, len),
-        m.glow ? new THREE.MeshBasicMaterial({ color: new THREE.Color(m.color).multiplyScalar(2.4), toneMapped: false }) : new THREE.MeshLambertMaterial({ color: m.color }));
+      mesh = new THREE.Mesh(new THREE.BoxGeometry(m.size, m.size, len), m.glow
+        ? new THREE.MeshBasicMaterial({ color: new THREE.Color(m.color).multiplyScalar(2.4), toneMapped: false, transparent: true, opacity: 0.85, depthWrite: false, blending: THREE.AdditiveBlending })
+        : new THREE.MeshLambertMaterial({ color: m.color }));
     }
     this.scene.add(mesh);
     this.missiles.push({
@@ -131,13 +174,27 @@ export class Effects {
       if (s.m.trail && now - s.lastTrail > 30) {
         s.lastTrail = now;
         const f = FX[s.m.trail];
-        this.parts.push({ x, y, z, vx: 0, vy: 0.2, vz: 0, life: 0.35, max: 0.35, s: f.s * 0.9, g: 0, grow: 0, c: f.c[0], glow: true });
+        this.parts.push({ x, y, z, vx: 0, vy: 0.2, vz: 0, life: 0.35, max: 0.35, s: f.s * 0.9, g: 0, grow: 0, c: f.c[0], glow: true, a: 0.5 });
       }
       if (t >= 1) {
         this.scene.remove(s.mesh);
         this.missiles.splice(i, 1);
         s.onHit?.();
       }
+    }
+    // ground rings
+    for (let i = this.waves.length - 1; i >= 0; i--) {
+      const w = this.waves[i];
+      w.life -= dt;
+      if (w.life <= 0) {
+        this.scene.remove(w.mesh);
+        w.mesh.material.dispose();
+        this.waves.splice(i, 1);
+        continue;
+      }
+      const k = 1 - w.life / w.max;
+      w.mesh.scale.setScalar(0.15 + (1 - (1 - k) ** 2) * w.radius);
+      w.mesh.material.opacity = 0.6 * (1 - k);
     }
     // particles
     let nl = 0, ng = 0;
@@ -162,12 +219,15 @@ export class Effects {
       if (idx >= MAX) continue;
       target.setMatrixAt(idx, this.tmp);
       target.setColorAt(idx, this.col);
+      // quick fade in, then fade out over the second half of the life
+      target.userData.alpha.array[idx] = (p.a ?? ALPHA_LIT) * Math.min(1, (1 - k) * 8) * Math.min(1, k * 2);
     }
     this.lit.count = Math.min(MAX, nl);
     this.glow.count = Math.min(MAX, ng);
     for (const m of [this.lit, this.glow]) {
       m.instanceMatrix.needsUpdate = true;
       if (m.instanceColor) m.instanceColor.needsUpdate = true;
+      m.userData.alpha.needsUpdate = true;
     }
   }
 }

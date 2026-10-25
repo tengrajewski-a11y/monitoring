@@ -93,6 +93,7 @@ export class World {
     this.peak = 0;
     this.dayLen = config.dayLengthMin * 60000;
     this.dayStart = this.now - Math.floor(this.dayLen * 0.3);
+    this.weatherForce = null; // GM override of the rain (0..1), null = follow the clock
     for (const def of NPCS) {
       const spot = gen.npcSpots[def.key];
       if (spot) this.addCreature(new NPC(this, def, spot));
@@ -429,7 +430,7 @@ export class World {
     p.knownChunks.clear();
     p.send({
       t: 'welcome', id: p.id, proto: PROTOCOL_VERSION, game: GAME_NAME, world: this.config.worldName,
-      motd: this.config.motd, time: { start: this.dayStart, len: this.dayLen, now: Date.now() },
+      motd: this.config.motd, time: { start: this.dayStart, len: this.dayLen, now: Date.now() }, weather: this.weatherForce,
       spells: spellsFor(p.voc), gm: p.gm, temple: this.temple,
     });
     p.dirtyStats = true;
@@ -770,12 +771,20 @@ export class World {
     const c = cmd.toLowerCase();
     if (c === 'pomoc' || c === 'help') {
       p.message('Komendy: /online, /w <imię>, <tekst> (prywatna wiadomość), /czas, /wyloguj. Zaklęcia: wpisz słowa zaklęcia (np. "sana"). Rozmowa z NPC: "witaj".', 'info');
-      if (p.gm) p.message('GM: /tp x y z, /czas <godzina>, /idz <imię>, /m <potwór> [n], /i <przedmiot> [n], /lvl <n>, /lecz, /ogloszenie <tekst>, /kick <imię>, /god', 'info');
+      if (p.gm) p.message('GM: /tp x y z, /czas <godzina>, /idz <imię>, /m <potwór> [n], /i <przedmiot> [n], /lvl <n>, /lecz, /ogloszenie <tekst>, /kick <imię>, /god, /deszcz [0-1|auto]', 'info');
       return;
     }
     if (c === 'online' || c === 'kto') {
       const list = [...this.players.values()].map((o) => `${o.name} (${o.level})`).join(', ');
       p.message(`Graczy online: ${this.players.size}. ${list}`, 'info');
+      return;
+    }
+    if (c === 'deszcz' && p.gm) {
+      // no argument toggles a downpour; "auto" hands the weather back to the clock
+      const v = arg === 'auto' ? null : arg ? Math.max(0, Math.min(1, Number(arg) || 0)) : this.weatherForce === null ? 1 : null;
+      this.weatherForce = v;
+      for (const o of this.players.values()) o.send({ t: 'weather', force: v });
+      p.message(v === null ? 'Pogoda zależy od zegara.' : `Deszcz: ${Math.round(v * 100)}%.`, 'info');
       return;
     }
     if (c === 'czas' && p.gm && arg) {

@@ -207,6 +207,8 @@ export class Renderer {
     this.dist = 19; this.distTarget = 19;
     this.target = new THREE.Vector3(80, 0, 80);
     this.shake = 0;
+    this.rain = 0;           // 0..1, set from the weather each frame
+    this.rainSky = new THREE.Color();
     // lights
     this.hemi = new THREE.HemisphereLight(0xbfe0ff, 0x7a6a48, 1.2);
     this.scene.add(this.hemi);
@@ -393,8 +395,8 @@ export class Renderer {
       c.position.set(focus.x, focus.y + 0.86 + this.bob, focus.z);
       c.rotation.set(this.lookPitch, this.lookYaw, 0, 'YXZ');
       if (this.shake > 0) { c.rotation.z = (Math.random() - 0.5) * this.shake * 0.05; this.shake = Math.max(0, this.shake - dt * 3); }
-      this.scene.fog.near = 9;
-      this.scene.fog.far = 30;
+      this.scene.fog.near = 9 - this.rain * 3;
+      this.scene.fog.far = 30 - this.rain * 10;
       this.sky.position.copy(c.position);
       return;
     }
@@ -410,8 +412,8 @@ export class Renderer {
       this.shake = Math.max(0, this.shake - dt * 3);
     }
     c.lookAt(this.target.x, this.target.y + 0.4, this.target.z);
-    this.scene.fog.near = this.dist + 8;
-    this.scene.fog.far = this.dist + 30;
+    this.scene.fog.near = this.dist + 8 - this.rain * 5;
+    this.scene.fog.far = this.dist + 30 - this.rain * 12;
   }
 
   // phase: 0 = midnight, 0.5 = noon
@@ -441,10 +443,13 @@ export class Renderer {
     } else {
       mixColor(bg, SKY.night, SKY.day, day);
       bg.lerp(SKY.dawn, dusk * 0.55);
+      // overcast while it rains
+      bg.lerp(this.rainSky.setHex(0x6e7680).multiplyScalar(0.3 + 0.7 * day), 0.65 * this.rain);
       fog.copy(bg);
       this.skyMat.uniforms.uBottom.value.copy(bg);
-      this.skyMat.uniforms.uTop.value.copy(SKY.night).lerp(new THREE.Color(0x3f78d8), day).lerp(new THREE.Color(0x6a4a8a), dusk * 0.3);
-      this.stars.material.opacity = Math.max(0, night - 0.35) * 1.4;
+      this.skyMat.uniforms.uTop.value.copy(SKY.night).lerp(new THREE.Color(0x3f78d8), day).lerp(new THREE.Color(0x6a4a8a), dusk * 0.3)
+        .lerp(this.rainSky, 0.7 * this.rain);
+      this.stars.material.opacity = Math.max(0, night - 0.35) * 1.4 * (1 - this.rain);
       this.hemi.color.copy(SKY.night).lerp(new THREE.Color(0xd8ecff), day);
       this.hemi.groundColor.setHex(0x5a4a32).lerp(new THREE.Color(0x8a7a50), day);
       this.hemi.intensity = 0.55 + day * 0.85;
@@ -464,6 +469,8 @@ export class Renderer {
         this.sun.color.setHex(0x8a9cff);
         this.sun.intensity = 0.45;
       }
+      this.sun.intensity *= 1 - 0.65 * this.rain;
+      this.hemi.intensity *= 1 - 0.3 * this.rain;
     }
     // point light pool: nearest light sources
     const lampF = underground ? 1 : 0.25 + night * 0.9;

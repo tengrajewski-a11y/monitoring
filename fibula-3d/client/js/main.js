@@ -10,13 +10,14 @@ import { WorldView } from './worldview.js';
 import { assets, loadAssets, cloneGear } from './assets.js';
 import { CreatureView, makeCorpse } from './creatures.js';
 import { Effects } from './effects.js';
+import { Weather } from './weather.js';
 import { Overlay } from './overlay.js';
 import { UI } from './ui.js';
 import { AudioEngine } from './audio.js';
-import { iconCanvas } from './icons.js';
+import { iconCanvas, loadIconAtlas } from './icons.js';
 
 const SETTINGS_KEY = 'fibula.settings';
-const DEFAULTS = { pixelScale: 3, retro: 'normal', gfx: 'high', showLevels: '1', music: 0.55, sfx: 0.8, ambience: 0.6, view: 'top', sens: 0.5 };
+const DEFAULTS = { pixelScale: 3, retro: 'normal', gfx: 'high', weather: '1', showLevels: '1', music: 0.55, sfx: 0.8, ambience: 0.6, view: 'top', sens: 0.5 };
 const FPP_MOVE = { KeyW: [1, 0], ArrowUp: [1, 0], Numpad8: [1, 0], KeyS: [-1, 0], ArrowDown: [-1, 0], Numpad2: [-1, 0], KeyA: [0, -1], Numpad4: [0, -1], KeyD: [0, 1], Numpad6: [0, 1] };
 const FPP_TURN = { ArrowLeft: 1, KeyQ: 1, ArrowRight: -1, KeyE: -1 };
 const KEY_DIRS = {
@@ -34,6 +35,15 @@ const ITEM_GEAR = {
   wand_sparks: 'wand', wand_embers: 'wand', rod_moss: 'staff', rod_frost: 'staff', wooden_shield: 'shield_round',
   steel_shield: 'shield_square', knight_shield: 'shield_badge', bone_shield: 'skel_shield', spellbook: 'spellbook', arrow: 'arrow_bundle',
 };
+// creature voices (sound sets "voice_<name>") and their pitch
+const VOICE = {
+  rat: 'squeak', rabbit: 'squeak', bat: 'squeak', deer: 'bleat', wolf: 'growl', bear: 'roar', snake: 'hiss',
+  poison_spider: 'spider', giant_spider: 'spider', slime: 'slime', orc: 'orc', orc_warrior: 'orc', orc_spearman: 'orc',
+  orc_shaman: 'orc', troll: 'troll', troll_champion: 'troll', swamp_troll: 'troll', bandit: 'human', barbarian: 'human',
+  cultist: 'human', skeleton: 'bones', ghoul: 'moan', zombie: 'moan', mummy: 'moan', lich: 'moan',
+  dragon_hatchling: 'roar', dragon: 'dragon',
+};
+const VOICE_RATE = { rabbit: 1.25, bat: 1.4, dragon_hatchling: 1.5, giant_spider: 0.8, troll_champion: 0.9, orc_shaman: 1.1, lich: 0.8 };
 const FX_SOUND = {
   blood: 'hit', green_blood: 'hit', bone: 'hit_bone', slime: 'hit', block: 'block', poff: 'poff', fire: 'fire', energy: 'energy',
   earth: 'earth', ice: 'ice', poison: 'poison', death: 'dark', holy: 'holy', drain: 'dark', heal: 'heal', mana: 'heal',
@@ -167,6 +177,7 @@ class Game {
       fetch('/api/map').then((r) => { if (!r.ok) throw new Error('map'); return r.arrayBuffer(); }),
       loadAssets((p) => { loading.textContent = `Wczytywanie świata… ${Math.round(p * 100)}%`; }),
       this.audio.init(),
+      loadIconAtlas(),
     ]);
     this.map = GameMap.decode(new Uint8Array(buf));
     loading.textContent = 'Budowanie świata…';
@@ -175,6 +186,8 @@ class Game {
     this.world.build();
     this.world.setFloor(0);
     this.effects = new Effects(this.renderer.scene, this.renderer);
+    this.weather = new Weather(this.renderer.scene, this.map);
+    this.weather.enabled = this.settings.weather !== '0';
     this.renderer.scene.add(this.cursor, this.targetMark);
     this.ui.buildMinimap(this.map);
     loading.remove();
@@ -230,6 +243,7 @@ class Game {
     if (key === 'pixelScale') { this.renderer.setPixelScale(Number(value)); }
     if (key === 'retro') this.renderer.setRetro(value);
     if (key === 'gfx') this.renderer.setQuality(value);
+    if (key === 'weather' && this.weather) this.weather.enabled = value !== '0';
     if (['music', 'sfx', 'ambience'].includes(key)) this.audio.setVolume(key, Number(value));
     if (key === 'view') this.setView(value === 'fpp');
   }
@@ -270,6 +284,7 @@ class Game {
     this.renderer.yawTarget = Math.round(this.renderer.yaw / (Math.PI / 2)) * (Math.PI / 2);
     this.inGame = true;
     this.timeSync = { start: m.time.start, len: m.time.len, offset: m.time.now - Date.now() };
+    this.weatherForce = m.weather ?? null;
     this.ui.setSpells(m.spells);
     this.ui.showLogin(false);
     this.ui.setChannel('local');
@@ -281,6 +296,7 @@ class Game {
   }
 
   on_time(m) { this.timeSync = { start: m.start, len: m.len, offset: m.now - Date.now() }; }
+  on_weather(m) { this.weatherForce = m.force ?? null; }
 
   on_self(m) {
     const prev = this.self;
@@ -357,6 +373,17 @@ class Game {
     a.attack(kind, t);
     if (m.id === this.selfId && this.fpp) this.vmSwing = 1;
     this.audio.sfx(m.w === 'bow' ? 'crossbow' : m.w === 'wand' ? 'wand' : 'swing', { x: a.pos.x, y: a.pos.z }, { volume: 0.7 });
+    this.voice(a, 0.3);
+  }
+
+  // a creature's growl, hiss or shout, not more often than every 2.5 s
+  voice(v, chance = 1) {
+    const key = v && VOICE[v.data.type];
+    if (!key || Math.random() > chance) return;
+    const now = performance.now();
+    if (now - (v.lastVoice || 0) < 2500) return;
+    v.lastVoice = now;
+    this.audio.sfx(`voice_${key}`, { x: v.pos.x, y: v.pos.z }, { volume: 0.55, gap: 150, rate: VOICE_RATE[v.data.type] ?? 1 });
   }
 
   on_fx(m) {
@@ -390,6 +417,7 @@ class Game {
       if (m.mode === 'monster' || m.mode === 'emote' || m.mode === 'spell') this.ui.addLine('local', kind, m.text, m.name);
       else this.ui.addLine('local', kind, m.text, name);
       if (m.mode === 'npc') this.audio.sfx('npc', { x: m.x + 0.5, y: m.y + 0.5 }, { volume: 0.5, gap: 300 });
+      if (m.mode === 'monster') this.voice(this.views.get(m.id));
     } else {
       this.ui.addLine(chat, chat, m.text, name);
       if (chat === 'pm') this.audio.sfx('pm');
@@ -699,6 +727,12 @@ class Game {
       else if (town) amb = { day: 0.8, birds: 0.35 };
       else amb = { birds: 0.9, wind: 0.5 };
       if (region === 'Bagna Kulszowe') { amb.swamp = 1; amb.birds = 0.3; }
+      // rain drowns out the birds and crickets
+      const rain = this.weather.level;
+      if (rain > 0.05) {
+        amb.rain = 0.25 + 0.45 * rain;
+        for (const k of ['birds', 'night', 'day']) if (amb[k]) amb[k] *= 1 - 0.7 * rain;
+      }
     }
     if (this.audio.manifest.music?.[music]) this.audio.playMusic(music);
     else if (this.audio.manifest.music?.wild) this.audio.playMusic(this.z < 0 ? 'cave' : 'wild');
@@ -730,6 +764,13 @@ class Game {
     this.renderer.updateCamera(focus, dt);
     const phase = this.inGame ? this.dayPhase() : 0.31;
     const lights = this.world.floorLights(this.z);
+    this.weather.update(dt, {
+      focus, z: this.z, now: Date.now() + this.timeSync.offset, force: this.weatherForce ?? null,
+      night: this.renderer.nightFactor ?? 0, dawn: Math.max(0, 1 - Math.abs(phase - 0.27) / 0.06),
+      indoors: !!this.map.roof(Math.floor(focus.x), Math.floor(focus.z), this.z), fpp: this.fpp,
+    });
+    this.renderer.rain = this.weather.level;
+    this.world.setRain(this.weather.level);
     this.renderer.updateLighting(phase, this.z < 0, focus, lights, this.self?.light || 0, dt);
     const sun = this.renderer.sun;
     this.world.setSun(this.sunDir.copy(sun.position).sub(sun.target.position).normalize(), this.z < 0 ? 0 : Math.min(1, sun.intensity / 2));

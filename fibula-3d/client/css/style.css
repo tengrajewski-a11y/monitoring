@@ -127,7 +127,7 @@ input {
   display: flex; align-items: center; justify-content: center;
 }
 .slot:hover { background: #2a1f14; }
-.slot canvas { width: 32px; height: 32px; image-rendering: pixelated; pointer-events: none; }
+.slot canvas { width: 34px; height: 34px; image-rendering: pixelated; pointer-events: none; }
 .slot .n { position: absolute; right: 2px; bottom: 0; font-size: 12px; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000; pointer-events: none; }
 .slot .ph { color: #4a3a28; font-size: 10px; text-align: center; line-height: 1; pointer-events: none; }
 .slot.empty-cell { visibility: hidden; }
@@ -183,7 +183,7 @@ input {
 .trade-row { display: flex; align-items: center; gap: 6px; padding: 2px; border: 1px solid transparent; font-size: 14px; }
 .trade-row:hover { border-color: #4a3a28; background: #1a130d; }
 .trade-row .slot { width: 38px; height: 38px; flex: none; }
-.trade-row .slot canvas { width: 32px; height: 32px; }
+.trade-row .slot canvas { width: 34px; height: 34px; }
 .trade-row .nm { flex: 1; min-width: 0; }
 .trade-row .pr { color: var(--gold); white-space: nowrap; }
 .trade-row input { width: 46px; padding: 2px 4px; font-size: 14px; }

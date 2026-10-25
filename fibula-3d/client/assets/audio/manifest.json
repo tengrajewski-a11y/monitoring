@@ -17,28 +17,37 @@
     "night": "amb/night.ogg",
     "cave": "amb/cave.ogg",
     "swamp": "amb/swamp.ogg",
+    "rain": "amb/rain.ogg",
     "day": "amb/town.ogg"
   },
   "sfx": {
     "swing": [
-      "sfx/swing.ogg"
+      "sfx/swing-1.ogg",
+      "sfx/swing-2.ogg",
+      "sfx/swing-3.ogg"
     ],
     "hit": [
-      "sfx/hit.ogg",
+      "sfx/hit-1.ogg",
+      "sfx/hit-2.ogg",
+      "sfx/hit-3.ogg",
       "sfx/impact.ogg"
     ],
     "hit_bone": [
-      "sfx/hit_bone.ogg",
+      "sfx/hit_bone-1.ogg",
+      "sfx/hit_bone-2.ogg",
       "sfx/break.ogg"
     ],
     "block": [
-      "sfx/block.ogg"
+      "sfx/block-1.ogg",
+      "sfx/block-2.ogg"
     ],
     "crossbow": [
       "sfx/crossbow.ogg"
     ],
     "wand": [
-      "sfx/wand.ogg"
+      "sfx/wand-1.ogg",
+      "sfx/wand-2.ogg",
+      "sfx/wand-3.ogg"
     ],
     "fire": [
       "sfx/fire.ogg"
@@ -86,13 +95,80 @@
       "sfx/skillup.ogg"
     ],
     "npc": [
-      "sfx/npc.ogg"
+      "sfx/npc-1.ogg",
+      "sfx/npc-2.ogg",
+      "sfx/npc-3.ogg"
     ],
     "pm": [
       "sfx/pm.ogg"
     ],
     "open": [
       "sfx/open.ogg"
+    ],
+    "voice_growl": [
+      "sfx/voice_growl-1.ogg",
+      "sfx/voice_growl-2.ogg",
+      "sfx/voice_growl-3.ogg"
+    ],
+    "voice_roar": [
+      "sfx/voice_roar-1.ogg",
+      "sfx/voice_roar-2.ogg",
+      "sfx/voice_roar-3.ogg"
+    ],
+    "voice_dragon": [
+      "sfx/voice_dragon-1.ogg",
+      "sfx/voice_dragon-2.ogg",
+      "sfx/voice_dragon-3.ogg"
+    ],
+    "voice_squeak": [
+      "sfx/voice_squeak-1.ogg",
+      "sfx/voice_squeak-2.ogg",
+      "sfx/voice_squeak-3.ogg"
+    ],
+    "voice_bleat": [
+      "sfx/voice_bleat-1.ogg",
+      "sfx/voice_bleat-2.ogg",
+      "sfx/voice_bleat-3.ogg"
+    ],
+    "voice_hiss": [
+      "sfx/voice_hiss-1.ogg",
+      "sfx/voice_hiss-2.ogg",
+      "sfx/voice_hiss-3.ogg"
+    ],
+    "voice_spider": [
+      "sfx/voice_spider-1.ogg",
+      "sfx/voice_spider-2.ogg",
+      "sfx/voice_spider-3.ogg"
+    ],
+    "voice_slime": [
+      "sfx/voice_slime-1.ogg",
+      "sfx/voice_slime-2.ogg",
+      "sfx/voice_slime-3.ogg"
+    ],
+    "voice_orc": [
+      "sfx/voice_orc-1.ogg",
+      "sfx/voice_orc-2.ogg",
+      "sfx/voice_orc-3.ogg"
+    ],
+    "voice_troll": [
+      "sfx/voice_troll-1.ogg",
+      "sfx/voice_troll-2.ogg",
+      "sfx/voice_troll-3.ogg"
+    ],
+    "voice_human": [
+      "sfx/voice_human-1.ogg",
+      "sfx/voice_human-2.ogg",
+      "sfx/voice_human-3.ogg"
+    ],
+    "voice_moan": [
+      "sfx/voice_moan-1.ogg",
+      "sfx/voice_moan-2.ogg",
+      "sfx/voice_moan-3.ogg"
+    ],
+    "voice_bones": [
+      "sfx/voice_bones-1.ogg",
+      "sfx/voice_bones-2.ogg",
+      "sfx/voice_bones-3.ogg"
     ],
     "levelup": [
       "music/levelup.ogg"

@@ -135,11 +135,21 @@ location / {
   `lowpolykarakter` (`tools/human/`). Grupy ścian OBJ to kości Rigify, więc skrypt ustawia
   postać w neutralnej pozie, maluje strefy ciała i zapisuje stawy; animacja chodu i ciosu
   obraca kończyny w shaderze (`gait: 'rig'` w `manifest.json`).
-- **Ikony przedmiotów**: generowane kodem (32×32, czarny kontur, cieniowanie 4 tonami).
-  Podgląd: <http://localhost:7172/dev/icons.html>, modele: <http://localhost:7172/dev/models.html>.
+- **Ikony przedmiotów** (34×34): większość z dwóch darmowych paczek CC0 z OpenGameArt
+  (7Soul, Idylwild), złożonych w atlas przez `python tools/build-icons.py` (pobiera paczki sam);
+  pozostałe rysuje `client/js/icons.js` (gładkie kształty, zaokrąglone cieniowanie, materiały).
+  Podgląd: <http://localhost:7172/dev/icons.html> (`?drawn` – same rysowane),
+  modele: <http://localhost:7172/dev/models.html>.
 - **Muzyka i efekty**: oryginalne utwory i dźwięki z syntezatora offline (`tools/synth.mjs`,
-  `npm run build:audio`, wymaga ffmpeg) + dźwięki CC0 z zestawów Kenney. Pliki można podmienić,
-  edytując `client/assets/audio/manifest.json`.
+  `npm run build:audio`, wymaga ffmpeg; `node tools/compose-audio.mjs hit,voices` przebudowuje
+  wybrane) + dźwięki CC0 z zestawów Kenney. Częste efekty mają po kilka wersji, potwory mają
+  głosy (warczenie, ryk, syk, jęk...), retro warstwy robi `tools/sfxr.mjs` (w stylu sfxr/bfxr).
+- **Własne dźwięki**: `tools/sound-import.mjs` dodaje dźwięki z Freesound (`FREESOUND_KEY`, sprawdza
+  licencję), z ElevenLabs (`ELEVENLABS_KEY`, z opisu tekstem) albo z dowolnego pliku (np. paczki
+  z MotionElements, eksport z bfxr): konwertuje do OGG, wpisuje do gry i do
+  `client/assets/audio/extra/CREDITS.txt`, a `npm run build:audio` ich nie nadpisuje.
+- **Pogoda**: przelotne deszcze (wspólne dla wszystkich, według zegara serwera), świetliki nocą,
+  mgła nad bagnami i poranna rosa; GM: `/deszcz [0-1|auto]`. Można wyłączyć w opcjach.
 - **Własne modele stworzeń z AI**: `tools/local_generate.py` (TripoSR lub TRELLIS.2, lokalnie
   na własnym GPU, licencja MIT) albo `tools/meshy_generate.py` (Meshy AI, płatne API). Wygenerowany
   GLB trafia do `client/assets/models/custom/` i automatycznie zastępuje wybrany typ potwora.

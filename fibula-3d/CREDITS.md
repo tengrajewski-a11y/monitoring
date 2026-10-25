@@ -22,7 +22,23 @@ Starter-Kit-3D-Platformer (coin, break), Starter-Kit-FPS (footsteps), Starter-Ki
 ## Music, ambience and the remaining sound effects
 
 Original compositions and sounds for Fibula 3D, rendered from code by `tools/synth.mjs` and
-`tools/compose-audio.mjs` (no samples).
+`tools/compose-audio.mjs` (no samples): music, ambience loops (including rain with thunder),
+several takes of the frequent effects and the creature voices (a small formant "throat" synth).
+Retro layers come from `tools/sfxr.mjs`, a new implementation of the parameter model of
+DrPetter's sfxr. Sounds added later with `tools/sound-import.mjs` (Freesound, ElevenLabs or your
+own files) list their authors and licences in `client/assets/audio/extra/CREDITS.txt`.
+
+## Item icons (CC0 1.0)
+
+Most item icons come from two public-domain packs on OpenGameArt, put together (and partly
+recoloured) by `tools/build-icons.py` into `client/assets/icons/`:
+
+- "496 pixel art icons for medieval/fantasy RPG" by **Henrique Lazarini (7Soul1)**, packed by
+  gnola14 – <https://opengameart.org/node/39455>
+- "Idylwild's Inventory" by **Idylwild** – <https://opengameart.org/node/171013>
+
+The remaining icons (crossbows, bolts, leg armour, rings, monster parts...) are drawn by
+`client/js/icons.js`.
 
 ## Code libraries
 

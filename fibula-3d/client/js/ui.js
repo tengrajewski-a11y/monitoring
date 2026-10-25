@@ -546,6 +546,7 @@ export class UI {
       sel('Pikseloza', 'pixelScale', [[1, 'brak'], [2, 'lekka (2×)'], [3, 'retro (3×)'], [4, 'mocna (4×)']]);
       sel('Paleta', 'retro', [['off', 'pełna'], ['normal', 'retro'], ['strong', 'mocne retro']]);
       sel('Jakość grafiki', 'gfx', [['low', 'niska (szybka)'], ['medium', 'średnia'], ['high', 'wysoka']]);
+      sel('Pogoda (deszcz, mgła, świetliki)', 'weather', [['1', 'włączona'], ['0', 'wyłączona']]);
       sel('Poziomy nad graczami', 'showLevels', [['1', 'pokaż'], ['0', 'ukryj']]);
       range('Czułość myszy (FPP)', 'sens');
       range('Muzyka', 'music');

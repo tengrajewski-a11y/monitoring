@@ -7,6 +7,8 @@ import { tileHash } from '/shared/map.js';
 import { Geo, lin } from './geo.js';
 import { assets } from './assets.js';
 
+const RAIN_CLOUD = new THREE.Color(0x70767e);
+
 const CHUNK = 16;
 const WALL_T = 0.44;
 
@@ -880,6 +882,18 @@ export class WorldView {
   }
 
   floorLights(z) { return this.floors.get(z)?.lights || []; }
+
+  // rain greys the clouds (they are only seen in first person)
+  setRain(r) {
+    if (Math.abs(r - (this.cloudRain ?? -1)) < 0.01) return;
+    this.cloudRain = r;
+    if (!this.cloudMats) {
+      this.cloudMats = new Set();
+      this.clouds.traverse((o) => { if (o.isMesh) this.cloudMats.add(o.material); });
+      for (const m of this.cloudMats) m.userData.base = m.color.clone();
+    }
+    for (const m of this.cloudMats) m.color.copy(m.userData.base).lerp(RAIN_CLOUD, r * 0.65);
+  }
 
   // sun direction (towards the sun) and strength for the water glints
   setSun(dir, strength) {

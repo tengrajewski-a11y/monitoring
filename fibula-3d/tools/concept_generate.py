@@ -20,6 +20,10 @@ ROOT = Path(__file__).resolve().parent.parent
 STYLE = ("single creature, full body, three-quarter view from slightly above, stylized low poly 3d game figurine, "
          "chunky simple shapes, bold flat colors, soft even studio lighting, centered, whole body visible, "
          "plain white background")
+# world objects (statues, wells...) for models marked "prop" in the manifest
+STYLE_PROP = ("single object, three-quarter view from slightly above, stylized low poly 3d game asset, "
+              "chunky simple shapes, bold flat colors, soft even studio lighting, centered, whole object visible, "
+              "plain white background")
 
 
 def main():
@@ -29,6 +33,7 @@ def main():
     ap.add_argument("--variants", type=int, default=4)
     ap.add_argument("--seed", type=int, default=7720, help="seed of the first variant; the next ones count up")
     ap.add_argument("--out", default=str(ROOT / "concept"))
+    ap.add_argument("--style", choices=["creature", "prop"], default="creature")
     args = ap.parse_args()
     if not args.key.replace("_", "").isalnum():
         sys.exit("Creature key may only contain letters, digits and underscores.")
@@ -42,7 +47,7 @@ def main():
     pipe.set_progress_bar_config(disable=True)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    prompt = f"{args.description}, {STYLE}"
+    prompt = f"{args.description}, {STYLE_PROP if args.style == 'prop' else STYLE}"
     for i in range(args.variants):
         seed = args.seed + i
         image = pipe(prompt, num_inference_steps=6, guidance_scale=8.0, width=512, height=512,
