@@ -3,8 +3,11 @@
 
 import http from 'node:http';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import zlib from 'node:zlib';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { WebSocketServer } from 'ws';
 import { loadConfig, ROOT } from './config.js';
 import { World } from './world.js';
@@ -118,19 +121,50 @@ export function startServer(overrides = {}) {
     setTimeout(() => process.exit(0), 1000).unref();
   };
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    const failed = (e) => { clearInterval(timer); reject(e); };
+    server.once('error', failed);
     server.listen(config.port, config.host, () => {
+      server.off('error', failed);
       const addr = server.address();
       resolve({ server, wss, world, config, port: addr.port, stop: () => new Promise((r) => { clearInterval(timer); world.shutdown(); for (const c of wss.clients) c.terminate(); wss.close(); server.close(() => r()); }), shutdown });
     });
   });
 }
 
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+function openBrowser(url) {
+  const [cmd, args] = process.platform === 'win32' ? ['explorer.exe', [url]]
+    : process.platform === 'darwin' ? ['open', [url]] : ['xdg-open', [url]];
+  try { spawn(cmd, args, { stdio: 'ignore', detached: true }).on('error', () => {}).unref(); } catch { /* no browser */ }
+}
+
+function lanAddresses() {
+  return Object.values(os.networkInterfaces()).flat().filter((a) => a && a.family === 'IPv4' && !a.internal).map((a) => a.address);
+}
+
+// fileURLToPath + realpath: works on Windows (C:\...) and in folders with spaces
+const isMain = process.argv[1] && (() => {
+  try { return fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); } catch { return false; }
+})();
 if (isMain) {
+  const open = process.argv.includes('--open');
   startServer().then(({ port, config, shutdown }) => {
-    console.log(`${GAME_NAME} — świat "${config.worldName}" działa na http://localhost:${port}`);
+    const url = `http://localhost:${port}`;
+    console.log(`${GAME_NAME} — świat "${config.worldName}" działa na ${url}`);
+    if (config.host === '0.0.0.0' || config.host === '::') {
+      for (const ip of lanAddresses()) console.log(`  dla innych komputerów w sieci: http://${ip}:${port}`);
+    }
+    console.log('  Ctrl+C lub zamknięcie okna zapisuje postacie i wyłącza serwer.');
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
+    process.on('SIGHUP', shutdown); // Windows: console window closed
+    if (open) openBrowser(url);
+  }).catch((e) => {
+    if (e.code === 'EADDRINUSE') {
+      const port = loadConfig().port;
+      console.error(`Port ${port} jest zajęty – gra prawdopodobnie już działa w innym oknie.`);
+      if (open) openBrowser(`http://localhost:${port}`);
+    } else console.error('Nie udało się uruchomić serwera:', e.message);
+    process.exitCode = 1;
   });
 }

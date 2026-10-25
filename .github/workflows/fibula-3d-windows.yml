@@ -1,0 +1,89 @@
+# Builds the portable Windows package of Fibula 3D (fibula-3d/), tests it on
+# Windows and publishes it as the "fibula-3d-windows" release:
+# https://github.com/<owner>/<repo>/releases/download/fibula-3d-windows/Fibula3D-Windows.zip
+name: Fibula 3D - Windows package
+
+on:
+  push:
+    branches: [main, claude/affectionate-pasteur-ijm8yp]
+    paths: ['fibula-3d/**', '.github/workflows/fibula-3d-windows.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fibula-3d-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: fibula-3d
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Download the official Node.js build for the package
+        run: |
+          $v = node -p "process.version"
+          $name = "node-$v-win-x64"
+          $base = "https://nodejs.org/dist/$v"
+          Invoke-WebRequest "$base/$name.zip" -OutFile "$env:RUNNER_TEMP\node.zip"
+          Invoke-WebRequest "$base/SHASUMS256.txt" -OutFile "$env:RUNNER_TEMP\SHASUMS256.txt"
+          $want = (Select-String -Path "$env:RUNNER_TEMP\SHASUMS256.txt" -Pattern " $name.zip$").Line.Split(' ')[0]
+          $got = (Get-FileHash "$env:RUNNER_TEMP\node.zip" -Algorithm SHA256).Hash.ToLower()
+          if ($got -ne $want) { throw "Node.js checksum mismatch: $got vs $want" }
+          Expand-Archive "$env:RUNNER_TEMP\node.zip" -DestinationPath $env:RUNNER_TEMP
+          "NODE_DIR=$env:RUNNER_TEMP\$name" >> $env:GITHUB_ENV
+
+      - name: Build the package
+        run: node tools/package-windows.mjs --node "$env:NODE_DIR" --out dist\Fibula3D
+
+      - name: Start the game with its launcher and check that it answers
+        run: |
+          $pkg = Resolve-Path dist\Fibula3D
+          Start-Process -FilePath cmd.exe -ArgumentList '/c', '"Fibula 3D.cmd"' -WorkingDirectory $pkg
+          $status = $null
+          for ($i = 0; $i -lt 60 -and -not $status; $i++) {
+            Start-Sleep -Seconds 1
+            try { $status = Invoke-RestMethod http://127.0.0.1:7172/api/status } catch { }
+          }
+          if (-not $status) { throw 'The packaged game did not start' }
+          $status | ConvertTo-Json -Compress
+          foreach ($u in '/', '/vendor/three/three.module.js', '/vendor/three-addons/loaders/GLTFLoader.js', '/assets/models/anims.glb') {
+            $r = Invoke-WebRequest "http://127.0.0.1:7172$u" -UseBasicParsing
+            "$($r.StatusCode) $u"
+          }
+          Get-Process node -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$pkg*" } | Stop-Process -Force
+          Start-Sleep -Seconds 1
+          Remove-Item -Recurse -Force (Join-Path $pkg 'dane') -ErrorAction SilentlyContinue
+
+      - name: Zip
+        run: Compress-Archive -Path dist\Fibula3D -DestinationPath dist\Fibula3D-Windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Fibula3D-Windows
+          path: fibula-3d/dist/Fibula3D-Windows.zip
+          retention-days: 30
+
+      - name: Publish the download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $repo = '${{ github.repository }}'
+          gh release delete fibula-3d-windows --repo $repo --yes --cleanup-tag 2>$null
+          $notes = "Pobierz Fibula3D-Windows.zip, rozpakuj i kliknij dwukrotnie 'Fibula 3D.cmd'. Instrukcja w pliku CZYTAJ.txt. Zbudowano z commita $env:GITHUB_SHA."
+          gh release create fibula-3d-windows dist\Fibula3D-Windows.zip --repo $repo --target $env:GITHUB_SHA --title 'Fibula 3D - Windows' --notes $notes

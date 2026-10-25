@@ -14,7 +14,18 @@ widok z góry lub z perspektywy pierwszej osoby.
 | **Las Strzałkowy** | **Smocze Leże** |
 | ![Las](docs/forest.jpg) | ![Leże smoka](docs/dragon-lair.jpg) |
 
-## Szybki start
+## Windows: gotowa paczka
+
+Pobierz **[Fibula3D-Windows.zip](https://github.com/tengrajewski-a11y/monitoring/releases/download/fibula-3d-windows/Fibula3D-Windows.zip)**,
+rozpakuj (prawy przycisk → „Wyodrębnij wszystkie…”) i kliknij dwukrotnie **`Fibula 3D.cmd`**.
+Otworzy się okno serwera i przeglądarka z grą. Node.js jest w paczce, nic nie trzeba instalować.
+`Fibula 3D - serwer LAN.cmd` uruchamia grę dla znajomych w tej samej sieci. Szczegóły w `CZYTAJ.txt`
+w paczce.
+
+Paczkę buduje i testuje na Windows workflow `.github/workflows/fibula-3d-windows.yml`
+(`tools/package-windows.mjs` + oficjalny Node.js ze sprawdzeniem sumy SHA-256).
+
+## Szybki start (ze źródeł)
 
 Wymagany Node.js 20+.
 
