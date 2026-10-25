@@ -1,10 +1,14 @@
-// Procedural 16x16 pixel-art item icons. Shapes are plotted with a few
-// primitives, then an automatic outline and bevel give them a classic
-// sprite look. Results are cached per item id.
+// Procedural 32x32 pixel-art item icons in the style of classic 2D MMO item
+// sprites: shapes are plotted with a few primitives (authored on a 16 unit
+// grid, rasterised at 32 px), then a lighting pass adds a 4-tone ramp lit from
+// the top-left, metallic glints and a pure black 1 px outline. All art is
+// generated here; results are cached per item id.
 
 import { ITEMS } from '/shared/items.js';
 
-const S = 16;
+const U = 16;      // authoring grid
+const S = 32;      // output resolution
+const K = S / U;
 const cache = new Map();
 
 function hex(c) { return [(c >> 16) & 255, (c >> 8) & 255, c & 255]; }
@@ -15,32 +19,35 @@ function shade([r, g, b], f) {
 
 class Pix {
   constructor() { this.p = new Array(S * S).fill(null); }
-  set(x, y, c) { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < S && y < S) this.p[y * S + x] = c; }
+  px(x, y, c) { if (x >= 0 && y >= 0 && x < S && y < S) this.p[y * S + x] = c; }
+  // single authoring-grid pixel -> 2x2 block
+  set(x, y, c) { x = Math.round(x) * K; y = Math.round(y) * K; for (let j = 0; j < K; j++) for (let i = 0; i < K; i++) this.px(x + i, y + j, c); }
   get(x, y) { return x < 0 || y < 0 || x >= S || y >= S ? null : this.p[y * S + x]; }
   line(x0, y0, x1, y1, c, w = 1) {
-    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 2 || 1;
+    const n = Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) * K * 2) || 1;
+    const r = (w * K) / 2;
     for (let i = 0; i <= n; i++) {
-      const x = x0 + ((x1 - x0) * i) / n, y = y0 + ((y1 - y0) * i) / n;
-      for (let a = 0; a < w; a++) for (let b = 0; b < w; b++) this.set(x + a - (w > 1 ? 0.5 : 0), y + b - (w > 1 ? 0.5 : 0), c);
+      const x = (x0 + ((x1 - x0) * i) / n) * K + K / 2, y = (y0 + ((y1 - y0) * i) / n) * K + K / 2;
+      for (let yy = Math.floor(y - r); yy < y + r; yy++) for (let xx = Math.floor(x - r); xx < x + r; xx++) this.px(xx, yy, c);
     }
   }
-  rect(x, y, w, h, c) { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) this.set(x + i, y + j, c); }
+  rect(x, y, w, h, c) { for (let j = 0; j < h * K; j++) for (let i = 0; i < w * K; i++) this.px(Math.round(x * K) + i, Math.round(y * K) + j, c); }
   ell(cx, cy, rx, ry, c) {
     for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
-      const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry;
-      if (dx * dx + dy * dy <= 1) this.set(x, y, c);
+      const dx = ((x + 0.5) / K - cx) / rx, dy = ((y + 0.5) / K - cy) / ry;
+      if (dx * dx + dy * dy <= 1) this.px(x, y, c);
     }
   }
   disc(cx, cy, r, c) { this.ell(cx, cy, r, r, c); }
   poly(pts, c) {
     for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
-      const px = x + 0.5, py = y + 0.5;
+      const px = (x + 0.5) / K, py = (y + 0.5) / K;
       let inside = false;
       for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
         const [xi, yi] = pts[i], [xj, yj] = pts[j];
         if ((yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
       }
-      if (inside) this.set(x, y, c);
+      if (inside) this.px(x, y, c);
     }
   }
 }
@@ -99,26 +106,41 @@ const DRAW = {
   gold: (p, a, b, c) => { for (const [x, y] of [[5, 11], [11, 11], [8, 7]]) { p.ell(x, y, 3.5, 2.2, b); p.ell(x, y - 0.6, 3, 1.6, a); p.set(x - 1, y - 1, c); } },
 };
 
+function isMetal([r, g, b]) {
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  return mx > 110 && mx - mn < 45;
+}
+
 function render(def) {
   const p = new Pix();
   const [a, b, c] = def.col.map(hex);
   (DRAW[def.icon] || DRAW.gem)(p, a, b, c);
-  // outline + bevel
-  const out = new Pix();
+  const filled = (x, y) => !!p.get(x, y);
+  const out = new Array(S * S).fill(null);
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
     const v = p.get(x, y);
-    if (v) {
-      let col = v;
-      if (!p.get(x - 1, y) || !p.get(x, y - 1)) col = shade(v, 1.25);
-      else if (!p.get(x + 1, y) || !p.get(x, y + 1)) col = shade(v, 0.72);
-      out.set(x, y, col);
-    } else if (p.get(x - 1, y) || p.get(x + 1, y) || p.get(x, y - 1) || p.get(x, y + 1)) out.set(x, y, [24, 17, 11]);
+    if (!v) {
+      if (filled(x - 1, y) || filled(x + 1, y) || filled(x, y - 1) || filled(x, y + 1)) out[y * S + x] = [0, 0, 0];
+      continue;
+    }
+    // light from the top-left: compare openness towards the light and away from it
+    const tl1 = !filled(x - 1, y) || !filled(x, y - 1), tl2 = !filled(x - 2, y) || !filled(x, y - 2) || !filled(x - 1, y - 1);
+    const br1 = !filled(x + 1, y) || !filled(x, y + 1), br2 = !filled(x + 2, y) || !filled(x, y + 2) || !filled(x + 1, y + 1);
+    let f = 1;
+    if (tl1) f = 1.32; else if (tl2) f = 1.13;
+    else if (br1) f = 0.62; else if (br2) f = 0.8;
+    // a different colour next to this pixel reads as an inner edge: darken a bit
+    const left = p.get(x - 1, y), up = p.get(x, y - 1);
+    if (!tl1 && ((left && left !== v) || (up && up !== v))) f *= 0.86;
+    let col = shade(v, f);
+    if (tl1 && isMetal(v) && (x * 3 + y * 5) % 7 === 0) col = [250, 250, 250];
+    out[y * S + x] = col;
   }
   const cv = document.createElement('canvas');
   cv.width = S; cv.height = S;
   const ctx = cv.getContext('2d');
   const img = ctx.createImageData(S, S);
-  out.p.forEach((v, i) => {
+  out.forEach((v, i) => {
     if (!v) return;
     img.data[i * 4] = v[0]; img.data[i * 4 + 1] = v[1]; img.data[i * 4 + 2] = v[2]; img.data[i * 4 + 3] = 255;
   });

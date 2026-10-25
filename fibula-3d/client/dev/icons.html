@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fibula 3D – ikony</title>
+  <style>
+    body { margin: 0; padding: 12px; background: #2a2119; color: #e9dcc3; font: 12px system-ui, sans-serif; }
+    #grid { display: grid; grid-template-columns: repeat(auto-fill, 120px); gap: 8px; }
+    .it { background: #15100b; border: 1px solid #4a3a28; padding: 6px; text-align: center; }
+    canvas { width: 64px; height: 64px; image-rendering: pixelated; display: block; margin: 0 auto 4px; }
+  </style>
+</head>
+<body>
+  <div id="grid"></div>
+  <script type="module">
+    import { ITEMS } from '/shared/items.js';
+    import { iconElement } from '/js/icons.js';
+    const grid = document.getElementById('grid');
+    for (const it of ITEMS) {
+      if (!it) continue;
+      const d = document.createElement('div');
+      d.className = 'it';
+      d.append(iconElement(it.id), document.createTextNode(it.name));
+      grid.append(d);
+    }
+    window.__ready = true;
+  </script>
+</body>
+</html>

@@ -16,7 +16,9 @@ import { AudioEngine } from './audio.js';
 import { iconCanvas } from './icons.js';
 
 const SETTINGS_KEY = 'fibula.settings';
-const DEFAULTS = { pixelScale: 3, retro: 'normal', showLevels: '1', music: 0.55, sfx: 0.8, ambience: 0.6 };
+const DEFAULTS = { pixelScale: 3, retro: 'normal', showLevels: '1', music: 0.55, sfx: 0.8, ambience: 0.6, view: 'top', sens: 0.5 };
+const FPP_MOVE = { KeyW: [1, 0], ArrowUp: [1, 0], Numpad8: [1, 0], KeyS: [-1, 0], ArrowDown: [-1, 0], Numpad2: [-1, 0], KeyA: [0, -1], Numpad4: [0, -1], KeyD: [0, 1], Numpad6: [0, 1] };
+const FPP_TURN = { ArrowLeft: 1, KeyQ: 1, ArrowRight: -1, KeyE: -1 };
 const KEY_DIRS = {
   ArrowUp: 0, KeyW: 0, ArrowRight: 1, KeyD: 1, ArrowDown: 2, KeyS: 2, ArrowLeft: 3, KeyA: 3,
   Numpad8: 0, Numpad6: 1, Numpad2: 2, Numpad4: 3, Numpad7: 6, Numpad9: 7, Numpad1: 4, Numpad3: 5,
@@ -66,6 +68,95 @@ class Game {
     this.targetMark = this.makeCursor(0xff3030, 0.9);
     this.mouse = { x: 0, y: 0, over: false };
     this.spriteTex = new Map();
+    this.fpp = false;
+    this.viewmodel = null;
+    this.vmSwing = 0;
+    this.lastTurnSent = 0;
+  }
+
+  // ---------------------------------------------------------------- first person
+  setView(fpp) {
+    this.fpp = fpp && this.inGame;
+    this.renderer.setView(this.fpp);
+    const me = this.views.get(this.selfId);
+    if (me) me.root.visible = !this.fpp;
+    if (this.fpp && me) {
+      const d = me.data.d ?? 2;
+      this.renderer.lookYaw = Math.atan2(-DIR_DX[d], -DIR_DY[d]);
+      this.renderer.lookPitch = -0.12;
+    }
+    if (!this.fpp && document.pointerLockElement) document.exitPointerLock();
+    this.buildViewmodel();
+    this.ui.setViewMode(this.fpp);
+  }
+
+  toggleView() {
+    this.setSetting('view', this.fpp ? 'top' : 'fpp');
+  }
+
+  buildViewmodel() {
+    const cam = this.renderer.camera;
+    if (this.viewmodel) { cam.remove(this.viewmodel); this.viewmodel = null; }
+    if (!this.fpp) return;
+    const g = new THREE.Group();
+    const eq = this.ui.inv?.equip || {};
+    const add = (key, x, rot) => {
+      const m = key && cloneGear(key);
+      if (!m) return;
+      m.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
+      const holder = new THREE.Group();
+      holder.add(m);
+      holder.position.set(x, -0.34, -0.55);
+      holder.rotation.set(rot[0], rot[1], rot[2]);
+      holder.scale.setScalar(0.3);
+      g.add(holder);
+      return holder;
+    };
+    const w = eq.weapon && ITEMS[eq.weapon.id];
+    const s = eq.shield && ITEMS[eq.shield.id];
+    this.vmWeapon = add(w ? ITEM_GEAR[w.key] : null, 0.3, [0.35, -0.3, -0.25]);
+    this.vmShield = add(s ? ITEM_GEAR[s.key] : null, -0.32, [0.1, 0.4, 0.1]);
+    cam.add(g);
+    this.viewmodel = g;
+  }
+
+  updateViewmodel(dt, me) {
+    if (!this.viewmodel) return;
+    const t = performance.now() / 1000;
+    const walking = me && me.walking;
+    this.renderer.bob = walking ? Math.abs(Math.sin(t * 9)) * 0.035 : this.renderer.bob * 0.9;
+    this.viewmodel.position.set(walking ? Math.sin(t * 4.5) * 0.012 : 0, walking ? -Math.abs(Math.sin(t * 9)) * 0.015 : Math.sin(t * 1.5) * 0.004, 0);
+    if (this.vmWeapon) {
+      this.vmSwing = Math.max(0, this.vmSwing - dt * 3.5);
+      const k = Math.sin(this.vmSwing * Math.PI);
+      this.vmWeapon.rotation.x = 0.35 - k * 1.3;
+      this.vmWeapon.position.z = -0.55 - k * 0.12;
+    }
+  }
+
+  fppMoveDir() {
+    let f = 0, r = 0;
+    for (const k of this.keys) if (FPP_MOVE[k]) { f += FPP_MOVE[k][0]; r += FPP_MOVE[k][1]; }
+    if (!f && !r) return -1;
+    const fw = this.renderer.viewForward, rt = this.renderer.viewRight;
+    const vx = fw.x * f + rt.x * r, vy = fw.y * f + rt.y * r;
+    const a = Math.round(Math.atan2(vy, vx) / (Math.PI / 4)) * (Math.PI / 4);
+    return dirFromDelta(Math.round(Math.cos(a)), Math.round(Math.sin(a)));
+  }
+
+  syncFacing(now) {
+    if (!this.fpp || now - this.lastTurnSent < 300) return;
+    const me = this.views.get(this.selfId);
+    if (!me || me.walking) return;
+    const fw = this.renderer.viewForward;
+    const d = Math.abs(fw.x) > Math.abs(fw.y) ? (fw.x > 0 ? 1 : 3) : (fw.y > 0 ? 2 : 0);
+    if (d !== me.data.d) { this.lastTurnSent = now; this.send({ t: 'turn', d }); }
+  }
+
+  // screen point used for picking: the crosshair in first person
+  aim(e) {
+    if (this.fpp && document.pointerLockElement) return { x: innerWidth / 2, y: innerHeight / 2 };
+    return { x: e.clientX, y: e.clientY };
   }
 
   async boot() {
@@ -137,6 +228,7 @@ class Game {
     if (key === 'pixelScale') { this.renderer.setPixelScale(Number(value)); }
     if (key === 'retro') this.renderer.setRetro(value);
     if (['music', 'sfx', 'ambience'].includes(key)) this.audio.setVolume(key, Number(value));
+    if (key === 'view') this.setView(value === 'fpp');
   }
 
   onDisconnect() {
@@ -146,6 +238,7 @@ class Game {
 
   leaveGame() {
     this.inGame = false;
+    this.setView(false);
     for (const v of this.views.values()) v.dispose();
     this.views.clear();
     for (const k of [...this.groundVis.keys()]) this.clearTileVis(k);
@@ -170,7 +263,7 @@ class Game {
 
   on_welcome(m) {
     this.selfId = m.id;
-    this.renderer.distTarget = 17;
+    this.renderer.distTarget = 19;
     this.renderer.yawTarget = Math.round(this.renderer.yaw / (Math.PI / 2)) * (Math.PI / 2);
     this.inGame = true;
     this.timeSync = { start: m.time.start, len: m.time.len, offset: m.time.now - Date.now() };
@@ -180,7 +273,8 @@ class Game {
     try { if (this.pendingName) localStorage.setItem('fibula.lastName', this.pendingName); } catch { /* ignore */ }
     for (const v of this.views.values()) v.dispose();
     this.views.clear();
-    this.ui.addLine('server', 'event', `Witaj w świecie ${m.world}! Wpisz /pomoc, aby zobaczyć komendy.`);
+    this.ui.addLine('server', 'event', `Witaj w świecie ${m.world}! Wpisz /pomoc, aby zobaczyć komendy. Klawisz V przełącza widok pierwszej osoby.`);
+    setTimeout(() => this.setView(this.settings.view === 'fpp'), 0);
   }
 
   on_time(m) { this.timeSync = { start: m.start, len: m.len, offset: m.now - Date.now() }; }
@@ -192,7 +286,11 @@ class Game {
     if (prev && m.level > prev.level) this.audio.sfx('levelup');
   }
 
-  on_inv(m) { this.ui.updateInv(m); }
+  on_inv(m) {
+    const before = JSON.stringify([this.ui.inv?.equip?.weapon, this.ui.inv?.equip?.shield]);
+    this.ui.updateInv(m);
+    if (this.fpp && before !== JSON.stringify([m.equip.weapon, m.equip.shield])) this.buildViewmodel();
+  }
 
   on_cr_remove(m) {
     const v = this.views.get(m.id);
@@ -204,7 +302,7 @@ class Game {
     this.views.get(c.id)?.dispose();
     const v = new CreatureView(c, this.renderer.scene);
     this.views.set(c.id, v);
-    if (c.id === this.selfId) { this.z = c.z; this.world.setFloor(c.z); }
+    if (c.id === this.selfId) { this.z = c.z; this.world.setFloor(c.z); v.root.visible = !this.fpp; }
   }
 
   on_mv(m) {
@@ -254,6 +352,7 @@ class Game {
     if (!a) return;
     const kind = m.w === 'bow' ? 'bow' : m.w === 'wand' ? 'wand' : m.w === 'throw' ? 'throw' : m.w === 'spin' ? 'spin' : m.w === 'strike' ? undefined : undefined;
     a.attack(kind, t);
+    if (m.id === this.selfId && this.fpp) this.vmSwing = 1;
     this.audio.sfx(m.w === 'bow' ? 'crossbow' : m.w === 'wand' ? 'wand' : 'swing', { x: a.pos.x, y: a.pos.z }, { volume: 0.7 });
   }
 
@@ -402,10 +501,23 @@ class Game {
     addEventListener('keyup', (e) => this.keys.delete(e.code));
     addEventListener('blur', () => this.keys.clear());
     canvas.addEventListener('pointermove', (e) => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; this.mouse.over = true; });
+    addEventListener('mousemove', (e) => {
+      if (!this.fpp || document.pointerLockElement !== canvas) return;
+      const k = 0.0012 + Number(this.settings.sens) * 0.004;
+      this.renderer.look(e.movementX * k, e.movementY * k);
+    });
     canvas.addEventListener('pointerleave', () => { this.mouse.over = false; });
-    canvas.addEventListener('click', (e) => this.click(e));
-    canvas.addEventListener('contextmenu', (e) => { e.preventDefault(); this.contextMenu(e); });
-    canvas.addEventListener('wheel', (e) => { e.preventDefault(); this.renderer.zoom(Math.sign(e.deltaY) * 1.5); }, { passive: false });
+    canvas.addEventListener('click', (e) => {
+      if (this.fpp && document.pointerLockElement !== canvas) { canvas.requestPointerLock?.(); return; }
+      this.click(e);
+    });
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const p = this.aim(e);
+      if (document.pointerLockElement) document.exitPointerLock();
+      this.contextMenu({ ...e, clientX: p.x, clientY: p.y, shiftKey: e.shiftKey });
+    });
+    canvas.addEventListener('wheel', (e) => { e.preventDefault(); if (!this.fpp) this.renderer.zoom(Math.sign(e.deltaY) * 1.5); }, { passive: false });
   }
 
   keyDown(e) {
@@ -423,6 +535,19 @@ class Game {
     const input = document.getElementById('chat-input');
     const arrow = e.code.startsWith('Arrow');
     if (chat && !(arrow && !input.value)) return;
+    if (!chat && e.code === 'KeyV') { this.toggleView(); return; }
+    if (this.fpp) {
+      if (FPP_MOVE[e.code] || FPP_TURN[e.code]) {
+        e.preventDefault();
+        if (e.ctrlKey) return;
+        if (!this.keys.has(e.code)) {
+          this.keys.add(e.code);
+          const d = this.fppMoveDir();
+          if (FPP_MOVE[e.code] && d >= 0) this.stepNow(d);
+        }
+      }
+      return;
+    }
     if (!chat && (e.code === 'KeyQ' || e.code === 'KeyE')) { this.renderer.rotate(e.code === 'KeyQ' ? -1 : 1); return; }
     if (e.code in KEY_DIRS) {
       e.preventDefault();
@@ -442,8 +567,17 @@ class Game {
     this.lastStepSent = performance.now();
   }
 
-  processHeldKeys(now) {
+  processHeldKeys(now, dt = 0) {
     if (!this.inGame || this.ui.chatFocused && document.getElementById('chat-input').value) return;
+    if (this.fpp) {
+      let turn = 0;
+      for (const k of this.keys) if (FPP_TURN[k]) turn += FPP_TURN[k];
+      if (turn) this.renderer.turnView(turn * dt * 2.4);
+      const d = this.fppMoveDir();
+      if (d >= 0 && now - this.lastStepSent > 90 && now > (this.myMoveEnd || 0) - 140) this.stepNow(d);
+      this.syncFacing(now);
+      return;
+    }
     let held = null;
     for (const k of this.keys) if (k in KEY_DIRS) held = k;
     if (!held) return;
@@ -455,6 +589,7 @@ class Game {
     let best = null, bd = Infinity;
     for (const v of this.views.values()) {
       if (v.data.z !== undefined && v.data.z !== this.z) continue;
+      if (this.fpp && v.id === this.selfId) continue;
       const top = this.renderer.project(new THREE.Vector3(v.pos.x, v.headY, v.pos.z));
       const bot = this.renderer.project(new THREE.Vector3(v.pos.x, 0, v.pos.z));
       if (top.behind) continue;
@@ -474,8 +609,9 @@ class Game {
   click(e) {
     if (!this.inGame) return;
     this.ui.hideMenu();
-    const c = this.pickCreature(e.clientX, e.clientY);
-    const t = this.pickTile(e.clientX, e.clientY);
+    const p = this.aim(e);
+    const c = this.pickCreature(p.x, p.y);
+    const t = this.pickTile(p.x, p.y);
     if (e.shiftKey) {
       if (c) this.send({ t: 'look', id: c.id });
       else if (t) this.send({ t: 'look', x: t.x, y: t.y, z: this.z });
@@ -556,8 +692,10 @@ class Game {
     } else {
       const town = this.map.isPZ(Math.floor(x), Math.floor(y), 0) || region === 'Patella';
       music = night ? 'night' : town ? 'town' : region === 'Bagna Kulszowe' ? 'swamp' : 'wild';
-      amb = night ? { night: 1, wind: 0.3 } : { day: 1, wind: 0.4 };
-      if (region === 'Bagna Kulszowe') amb.swamp = 0.8;
+      if (night) amb = { night: 1, wind: 0.35 };
+      else if (town) amb = { day: 0.8, birds: 0.35 };
+      else amb = { birds: 0.9, wind: 0.5 };
+      if (region === 'Bagna Kulszowe') { amb.swamp = 1; amb.birds = 0.3; }
     }
     if (this.audio.manifest.music?.[music]) this.audio.playMusic(music);
     else if (this.audio.manifest.music?.wild) this.audio.playMusic(this.z < 0 ? 'cave' : 'wild');
@@ -570,7 +708,7 @@ class Game {
     requestAnimationFrame(() => this.frame());
     const dt = Math.min(0.1, this.clock.getDelta());
     const now = performance.now();
-    this.processHeldKeys(now);
+    this.processHeldKeys(now, dt);
     const me = this.views.get(this.selfId);
     let focus;
     if (this.inGame && me) focus = new THREE.Vector3(me.pos.x, 0, me.pos.z);
@@ -584,14 +722,16 @@ class Game {
     for (const v of this.views.values()) v.update(dt, now);
     for (const list of this.groundVis.values()) for (const o of list) if (o.update && o.mixer) o.update(dt, now);
     this.effects.update(dt);
-    this.world.update(dt, focus.x, focus.z, this.z);
+    this.world.update(dt, focus.x, focus.z, this.z, this.fpp);
+    if (this.fpp) this.updateViewmodel(dt, me);
     this.renderer.updateCamera(focus, dt);
     const phase = this.inGame ? this.dayPhase() : 0.31;
     const lights = this.world.floorLights(this.z);
     this.renderer.updateLighting(phase, this.z < 0, focus, lights, this.self?.light || 0, dt);
     // cursors
-    if (this.inGame && this.mouse.over) {
-      const t = this.pickTile(this.mouse.x, this.mouse.y);
+    if (this.inGame && (this.mouse.over || this.fpp)) {
+      const a = this.fpp ? { x: innerWidth / 2, y: innerHeight / 2 } : this.mouse;
+      const t = this.pickTile(a.x, a.y);
       this.cursor.visible = !!t;
       if (t) this.cursor.position.set(t.x + 0.5, 0.03, t.y + 0.5);
     } else this.cursor.visible = false;
@@ -600,7 +740,8 @@ class Game {
     if (tv) this.targetMark.position.set(tv.pos.x, 0.04, tv.pos.z);
     this.renderer.render();
     if (this.inGame) {
-      this.overlay.draw(this.renderer.camera, this.views.values(), { targetId: this.targetId, showLevels: this.settings.showLevels === '1' });
+      const shown = this.fpp ? [...this.views.values()].filter((v) => v.id !== this.selfId) : this.views.values();
+      this.overlay.draw(this.renderer.camera, shown, { targetId: this.targetId, showLevels: this.settings.showLevels === '1', crosshair: this.fpp });
       if (!this.lastMini || now - this.lastMini > 150) {
         this.lastMini = now;
         if (me) this.ui.drawMinimap(me.pos.x - 0.5, me.pos.z - 0.5, this.z, this.views.values(), this.selfId);

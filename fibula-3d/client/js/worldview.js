@@ -246,8 +246,10 @@ export class WorldView {
           geo.box(px, 0, pz, px + 0.1, 0.05, pz + 0.08, c);
         } else if (g === G.SAND && h > 0.8) {
           geo.quad([x0 + 0.1, 0.005, z0 + 0.4], [x0 + 0.1, 0.005, z0 + 0.46], [x1 - 0.1, 0.005, z0 + 0.46], [x1 - 0.1, 0.005, z0 + 0.4], lin(0xd8c084));
-        } else if (g === G.SWAMP && h > 0.75) {
-          geo.quad([x0 + 0.2, 0.005, z0 + 0.25], [x0 + 0.25, 0.005, z0 + 0.7], [x0 + 0.75, 0.005, z0 + 0.65], [x0 + 0.7, 0.005, z0 + 0.2], lin(0x3f5a3a));
+        } else if (g === G.SWAMP && h > 0.86) {
+          const pc = lin(0x56663a);
+          geo.quad([x0 + 0.2, 0.005, z0 + 0.35], [x0 + 0.35, 0.005, z0 + 0.72], [x0 + 0.62, 0.005, z0 + 0.66], [x0 + 0.5, 0.005, z0 + 0.3], pc);
+          geo.tri([x0 + 0.5, 0.005, z0 + 0.3], [x0 + 0.62, 0.005, z0 + 0.66], [x0 + 0.78, 0.005, z0 + 0.42], pc);
         }
       }
     }
@@ -758,12 +760,13 @@ export class WorldView {
 
   floorLights(z) { return this.floors.get(z)?.lights || []; }
 
-  update(dt, px, py, pz) {
+  update(dt, px, py, pz, fpp = false) {
     this.uniforms.uTime.value += dt;
     const f = this.floors.get(pz);
     if (f) {
       const r = this.map.roof(Math.floor(px), Math.floor(py), pz);
-      const inside = r && (this.map.flags(Math.floor(px), Math.floor(py), pz) & 2) ? r : 0;
+      // in first person the roof stays as a ceiling and walls keep full height
+      const inside = !fpp && r && (this.map.flags(Math.floor(px), Math.floor(py), pz) & 2) ? r : 0;
       if (inside !== this.hiddenRoof) {
         for (const [id, e] of f.roofs) {
           const hide = id === inside;

@@ -127,6 +127,13 @@ export class Overlay {
       lines.forEach((ln, k) => this.outlined(ln, a.x, y0 + k * 14 + 12, col));
       stacked.set(s.id, off + lines.length * 14 + 4);
     }
+    if (opts.crosshair) {
+      const cx = Math.round(this.w / 2), cy = Math.round(this.h / 2);
+      c.fillStyle = '#000';
+      c.fillRect(cx - 7, cy - 2, 14, 4); c.fillRect(cx - 2, cy - 7, 4, 14);
+      c.fillStyle = '#f0e6cc';
+      c.fillRect(cx - 6, cy - 1, 12, 2); c.fillRect(cx - 1, cy - 6, 2, 12);
+    }
     // floating numbers
     c.font = FONT_NUM;
     this.numbers = this.numbers.filter((n) => now - n.start < n.dur);

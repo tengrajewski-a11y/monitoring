@@ -127,7 +127,7 @@ input {
   display: flex; align-items: center; justify-content: center;
 }
 .slot:hover { background: #2a1f14; }
-.slot canvas { width: 36px; height: 36px; image-rendering: pixelated; pointer-events: none; }
+.slot canvas { width: 32px; height: 32px; image-rendering: pixelated; pointer-events: none; }
 .slot .n { position: absolute; right: 2px; bottom: 0; font-size: 12px; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000; pointer-events: none; }
 .slot .ph { color: #4a3a28; font-size: 10px; text-align: center; line-height: 1; pointer-events: none; }
 .slot.empty-cell { visibility: hidden; }
@@ -137,6 +137,8 @@ input {
 .cbtn { flex: 1; height: 30px; font-size: 17px; background: #2e2318; color: var(--text); border: 2px solid; border-color: #6e5a42 #0c0805 #0c0805 #6e5a42; cursor: pointer; }
 .cbtn.on { background: #6a4a18; color: #fff1c8; border-color: #0c0805 #b08a4e #b08a4e #0c0805; }
 .menu-btns { display: flex; gap: 3px; margin-top: 5px; }
+.cbtn.view-btn { font-size: 12px; flex: 1.3; }
+.fpp-hint { position: absolute; top: 8px; left: calc((100% - var(--sidebar-w)) / 2); transform: translateX(-50%); font-size: 13px; color: var(--text); background: rgba(20, 15, 10, 0.75); border: 1px solid #4a3a28; padding: 3px 10px; pointer-events: none; }
 .menu-btns .btn { flex: 1; padding: 4px 2px; }
 
 #bottom { position: absolute; left: 0; bottom: 0; right: var(--sidebar-w); display: flex; flex-direction: column; pointer-events: none; }
@@ -180,8 +182,8 @@ input {
 .trade-list { display: flex; flex-direction: column; gap: 2px; }
 .trade-row { display: flex; align-items: center; gap: 6px; padding: 2px; border: 1px solid transparent; font-size: 14px; }
 .trade-row:hover { border-color: #4a3a28; background: #1a130d; }
-.trade-row .slot { width: 34px; height: 34px; flex: none; }
-.trade-row .slot canvas { width: 30px; height: 30px; }
+.trade-row .slot { width: 38px; height: 38px; flex: none; }
+.trade-row .slot canvas { width: 32px; height: 32px; }
 .trade-row .nm { flex: 1; min-width: 0; }
 .trade-row .pr { color: var(--gold); white-space: nowrap; }
 .trade-row input { width: 46px; padding: 2px 4px; font-size: 14px; }

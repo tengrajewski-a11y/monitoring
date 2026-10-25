@@ -352,12 +352,13 @@ class Generator {
     this.rect(z, x0, y0, x1, y1, (x, y) => {
       if (m.ground(x, y, z) === G.WATER || m.ground(x, y, z) === G.DEEPWATER) return;
       const edge = x === x0 || x === x1 || y === y0 || y === y1;
-      this.set(x, y, z, this.chance(0.3) ? G.DIRT : G.GRASS, edge ? O.FENCE : O.NONE, this.r(0, 255));
+      this.set(x, y, z, this.noise3(x, y, 0.25, 2) > 0.68 ? G.DIRT : G.GRASS, edge ? O.FENCE : O.NONE, this.r(0, 255));
     });
     for (let x = 117; x <= 119; x++) this.set(x, y0, z, G.DIRT);
     for (let y = y0 + 3; y <= y1 - 7; y += 3) for (let x = x0 + 2; x <= x1 - 2; x += 3) {
       if (Math.abs(x - 118) <= 1) continue;
       m.setObj(x, y, z, O.TOMBSTONE, this.r(0, 255));
+      m.setGround(x, y + 1, z, G.DIRT);
     }
     for (const [x, y] of [[x0 + 2, y1 - 2], [x1 - 2, y1 - 3], [x0 + 3, y0 + 2], [x1 - 3, y0 + 2]]) m.setObj(x, y, z, O.DEAD_TREE, this.r(0, 255));
     // mausoleum with the crypt stairs

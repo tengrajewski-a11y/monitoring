@@ -51,7 +51,7 @@
       <div id="login-error" class="error"></div>
       <div id="server-status" class="status-line"></div>
     </div>
-    <div class="login-foot">Poruszanie: WASD / strzałki · Kamera: Q/E, kółko myszy · Czat: Enter</div>
+    <div class="login-foot">Poruszanie: WASD / strzałki · Kamera: Q/E, kółko myszy · V: widok pierwszej osoby · Czat: Enter</div>
   </div>
 
   <!-- In-game HUD -->
@@ -87,6 +87,7 @@
           <button class="cbtn" data-fight="3" title="Defensywa (lepsza obrona)">⛨</button>
           <button class="cbtn" id="chase-btn" title="Goń cel">➹</button>
           <button class="cbtn" id="stop-btn" title="Przestań atakować (Esc)">✕</button>
+          <button class="cbtn view-btn" id="view-btn" title="Przełącz widok (V)">3D</button>
         </div>
         <div class="menu-btns">
           <button class="btn small" id="btn-skills">Umiejętności</button>
@@ -110,6 +111,7 @@
 
     <button id="sidebar-toggle" class="btn small">☰</button>
     <div id="status-msg"></div>
+    <div id="fpp-hint" class="fpp-hint hidden">Kliknij w widok, by sterować myszą · Esc – uwolnij kursor · V – widok z góry</div>
     <div id="windows"></div>
     <div id="ctxmenu" class="ctxmenu hidden"></div>
     <div id="tooltip" class="tooltip hidden"></div>

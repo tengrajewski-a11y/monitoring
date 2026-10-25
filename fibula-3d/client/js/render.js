@@ -77,10 +77,18 @@ export class Renderer {
     this.scene.fog = new THREE.Fog(SKY.day.clone(), 26, 46);
     this.camera = new THREE.PerspectiveCamera(30, 1, 0.5, 90);
     this.camera.layers.set(0);
+    this.camera.rotation.order = 'YXZ';
+    this.scene.add(this.camera);
+    // first person view state
+    this.fpp = false;
+    this.lookYaw = 0;
+    this.lookPitch = -0.12;
+    this.bob = 0;
+    this.buildSky();
     // camera rig state
     this.yaw = 0; this.yawTarget = 0;
     this.pitch = 0.92;
-    this.dist = 17; this.distTarget = 17;
+    this.dist = 19; this.distTarget = 19;
     this.target = new THREE.Vector3(80, 0, 80);
     this.shake = 0;
     // lights
@@ -129,8 +137,58 @@ export class Renderer {
     this.resize();
   }
 
+  buildSky() {
+    const geo = new THREE.SphereGeometry(80, 24, 12);
+    this.skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide, depthWrite: false, fog: false,
+      uniforms: { uTop: { value: new THREE.Color(0x4a7ac8) }, uBottom: { value: new THREE.Color(0x8ccaf2) } },
+      vertexShader: 'varying float vH; void main() { vH = normalize(position).y; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform vec3 uTop; uniform vec3 uBottom; varying float vH; void main() { gl_FragColor = vec4(mix(uBottom, uTop, smoothstep(0.0, 0.6, vH)), 1.0); }',
+    });
+    this.sky = new THREE.Mesh(geo, this.skyMat);
+    this.sky.renderOrder = -10;
+    this.sky.frustumCulled = false;
+    this.sky.visible = false;
+    const pts = [];
+    for (let i = 0; i < 500; i++) {
+      const a = Math.random() * Math.PI * 2, h = 0.08 + Math.random() * 0.92;
+      const r = Math.sqrt(1 - h * h);
+      pts.push(Math.cos(a) * r * 75, h * 75, Math.sin(a) * r * 75);
+    }
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    this.stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, sizeAttenuation: false, transparent: true, opacity: 0, fog: false, depthWrite: false }));
+    this.stars.frustumCulled = false;
+    this.sky.add(this.stars);
+    this.scene.add(this.sky);
+  }
+
+  // Switches between the classic top-down camera and first person view.
+  setView(fpp) {
+    this.fpp = fpp;
+    const c = this.camera;
+    c.fov = fpp ? 72 : 30;
+    c.near = fpp ? 0.05 : 0.5;
+    c.far = 90;
+    c.updateProjectionMatrix();
+    this.post.uniforms.uNear.value = c.near;
+    this.post.uniforms.uOutline.value = fpp ? 0.3 : (this.retro === 'strong' ? 0.6 : this.retro === 'off' ? 0.25 : 0.45);
+    if (fpp) c.layers.enable(1); else c.layers.disable(1);
+  }
+
+  turnView(delta) { this.lookYaw += delta; }
+  look(dx, dy) {
+    this.lookYaw -= dx;
+    this.lookPitch = Math.max(-1.35, Math.min(0.7, this.lookPitch - dy));
+  }
+
+  // Unit vectors (map coordinates) for the current first-person heading.
+  get viewForward() { return { x: -Math.sin(this.lookYaw), y: -Math.cos(this.lookYaw) }; }
+  get viewRight() { return { x: Math.cos(this.lookYaw), y: -Math.sin(this.lookYaw) }; }
+
   setPixelScale(s) { this.pixelScale = s; this.resize(); }
   setRetro(level) {
+    this.retro = level;
     const u = this.post.uniforms;
     if (level === 'off') { u.uLevels.value = 256; u.uDither.value = 0; u.uOutline.value = 0.25; }
     else if (level === 'strong') { u.uLevels.value = 10; u.uDither.value = 1.0; u.uOutline.value = 0.6; }
@@ -156,6 +214,17 @@ export class Renderer {
   get quadrant() { return ((Math.round(this.yawTarget / (Math.PI / 2)) % 4) + 4) % 4; }
 
   updateCamera(focus, dt) {
+    if (this.fpp) {
+      const c = this.camera;
+      this.target.copy(focus);
+      c.position.set(focus.x, focus.y + 0.86 + this.bob, focus.z);
+      c.rotation.set(this.lookPitch, this.lookYaw, 0, 'YXZ');
+      if (this.shake > 0) { c.rotation.z = (Math.random() - 0.5) * this.shake * 0.05; this.shake = Math.max(0, this.shake - dt * 3); }
+      this.scene.fog.near = 9;
+      this.scene.fog.far = 30;
+      this.sky.position.copy(c.position);
+      return;
+    }
     this.target.lerp(focus, Math.min(1, dt * 10));
     this.yaw += (this.yawTarget - this.yaw) * Math.min(1, dt * 8);
     this.dist += (this.distTarget - this.dist) * Math.min(1, dt * 8);
@@ -181,6 +250,7 @@ export class Renderer {
     const night = underground ? 1 : 1 - day;
     this.nightFactor = night;
     const bg = this.scene.background, fog = this.scene.fog.color;
+    this.sky.visible = this.fpp && !underground;
     if (underground) {
       bg.copy(SKY.cave); fog.copy(SKY.cave);
       this.hemi.color.setHex(0x6a6a80); this.hemi.groundColor.setHex(0x2a2018); this.hemi.intensity = 0.55;
@@ -190,6 +260,9 @@ export class Renderer {
       mixColor(bg, SKY.night, SKY.day, day);
       bg.lerp(SKY.dawn, dusk * 0.55);
       fog.copy(bg);
+      this.skyMat.uniforms.uBottom.value.copy(bg);
+      this.skyMat.uniforms.uTop.value.copy(SKY.night).lerp(new THREE.Color(0x3f78d8), day).lerp(new THREE.Color(0x6a4a8a), dusk * 0.3);
+      this.stars.material.opacity = Math.max(0, night - 0.35) * 1.4;
       this.hemi.color.copy(SKY.night).lerp(new THREE.Color(0xd8ecff), day);
       this.hemi.groundColor.setHex(0x5a4a32).lerp(new THREE.Color(0x8a7a50), day);
       this.hemi.intensity = 0.55 + day * 0.85;

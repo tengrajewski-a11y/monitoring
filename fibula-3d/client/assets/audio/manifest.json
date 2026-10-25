@@ -1,0 +1,122 @@
+{
+  "music": {
+    "title": "music/title.ogg",
+    "town": "music/town.ogg",
+    "wild": "music/wild.ogg",
+    "night": "music/night.ogg",
+    "cave": "music/cave.ogg",
+    "crypt": "music/crypt.ogg",
+    "lair": "music/lair.ogg",
+    "levelup": "music/levelup.ogg",
+    "death": "music/death.ogg",
+    "swamp": "music/wild.ogg"
+  },
+  "ambience": {
+    "wind": "amb/wind.ogg",
+    "birds": "amb/birds.ogg",
+    "night": "amb/night.ogg",
+    "cave": "amb/cave.ogg",
+    "swamp": "amb/swamp.ogg",
+    "day": "amb/town.ogg"
+  },
+  "sfx": {
+    "swing": [
+      "sfx/swing.ogg"
+    ],
+    "hit": [
+      "sfx/hit.ogg",
+      "sfx/impact.ogg"
+    ],
+    "hit_bone": [
+      "sfx/hit_bone.ogg",
+      "sfx/break.ogg"
+    ],
+    "block": [
+      "sfx/block.ogg"
+    ],
+    "crossbow": [
+      "sfx/crossbow.ogg"
+    ],
+    "wand": [
+      "sfx/wand.ogg"
+    ],
+    "fire": [
+      "sfx/fire.ogg"
+    ],
+    "energy": [
+      "sfx/energy.ogg"
+    ],
+    "ice": [
+      "sfx/ice.ogg"
+    ],
+    "earth": [
+      "sfx/earth.ogg"
+    ],
+    "poison": [
+      "sfx/poison.ogg"
+    ],
+    "dark": [
+      "sfx/dark.ogg"
+    ],
+    "holy": [
+      "sfx/holy.ogg"
+    ],
+    "heal": [
+      "sfx/heal.ogg"
+    ],
+    "teleport": [
+      "sfx/teleport.ogg"
+    ],
+    "explosion": [
+      "sfx/explosion.ogg"
+    ],
+    "sparkle": [
+      "sfx/sparkle.ogg"
+    ],
+    "haste": [
+      "sfx/haste.ogg"
+    ],
+    "shield": [
+      "sfx/shield.ogg"
+    ],
+    "poff": [
+      "sfx/poff.ogg"
+    ],
+    "skillup": [
+      "sfx/skillup.ogg"
+    ],
+    "npc": [
+      "sfx/npc.ogg"
+    ],
+    "pm": [
+      "sfx/pm.ogg"
+    ],
+    "open": [
+      "sfx/open.ogg"
+    ],
+    "levelup": [
+      "music/levelup.ogg"
+    ],
+    "death_jingle": [
+      "music/death.ogg"
+    ],
+    "coin": [
+      "sfx/coin.ogg"
+    ],
+    "pickup": [
+      "sfx/pickup-a.ogg",
+      "sfx/pickup-b.ogg",
+      "sfx/pickup-c.ogg",
+      "sfx/pickup-d.ogg"
+    ],
+    "ui": [
+      "sfx/ui.ogg"
+    ],
+    "step": [
+      "sfx/step-1.ogg",
+      "sfx/step-2.ogg",
+      "sfx/step-3.ogg",
+      "sfx/step-4.ogg"
+    ]
+  }
+}

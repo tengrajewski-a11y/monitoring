@@ -165,6 +165,7 @@ export class UI {
     $('#btn-skills').addEventListener('click', () => this.toggleSkills());
     $('#btn-settings').addEventListener('click', () => this.toggleSettings());
     $('#btn-logout').addEventListener('click', () => this.game.send({ t: 'logout' }));
+    $('#view-btn').addEventListener('click', () => this.game.toggleView());
     $('#sidebar-toggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
     document.querySelectorAll('[data-zoom]').forEach((b) => b.addEventListener('click', () => { this.zoom = Math.max(1, Math.min(6, this.zoom + Number(b.dataset.zoom))); }));
     $('#minimap').addEventListener('click', (e) => this.minimapClick(e));
@@ -541,14 +542,16 @@ export class UI {
         l.append(r);
         wrap.append(l);
       };
+      sel('Widok', 'view', [['top', 'z góry (klasyczny)'], ['fpp', 'pierwsza osoba']]);
       sel('Pikseloza', 'pixelScale', [[1, 'brak'], [2, 'lekka (2×)'], [3, 'retro (3×)'], [4, 'mocna (4×)']]);
       sel('Paleta', 'retro', [['off', 'pełna'], ['normal', 'retro'], ['strong', 'mocne retro']]);
       sel('Poziomy nad graczami', 'showLevels', [['1', 'pokaż'], ['0', 'ukryj']]);
+      range('Czułość myszy (FPP)', 'sens');
       range('Muzyka', 'music');
       range('Efekty', 'sfx');
       range('Otoczenie', 'ambience');
       body.append(wrap);
-      body.append(el('div', 'muted', 'Sterowanie: WASD/strzałki – ruch, Q/E – obrót kamery, kółko – zoom, Ctrl+strzałka – obrót postaci, numeryczna 7/9/1/3 – ukosy, Enter – czat, Esc – anuluj, F1–F9 – zaklęcia, klik – idź/atakuj, PPM – menu.'));
+      body.append(el('div', 'muted', 'Sterowanie: WASD/strzałki – ruch, V – widok pierwszej osoby (mysz rozgląda się, klik – atak/użycie na celowniku), Q/E – obrót kamery, kółko – zoom, Ctrl+strzałka – obrót postaci, numeryczna 7/9/1/3 – ukosy, Enter – czat, Esc – anuluj, F1–F9 – zaklęcia, klik – idź/atakuj, PPM – menu.'));
     }, { x: innerWidth / 2 - 160, y: 120 });
   }
 
@@ -631,4 +634,12 @@ export class UI {
   }
 
   setClock(text) { $('#clock').textContent = text; }
+
+  setViewMode(fpp) {
+    const b = $('#view-btn');
+    b.classList.toggle('on', fpp);
+    b.textContent = fpp ? '1 os.' : '3D';
+    b.title = fpp ? 'Widok pierwszej osoby (V) – kliknij, by wrócić do widoku z góry' : 'Widok z góry (V) – kliknij, by grać z perspektywy pierwszej osoby';
+    $('#fpp-hint').classList.toggle('hidden', !fpp);
+  }
 }
