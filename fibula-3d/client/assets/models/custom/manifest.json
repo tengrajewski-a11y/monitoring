@@ -19,5 +19,12 @@
     "rotY": 0.0,
     "rotX": 0.0,
     "source": "triposr"
+  },
+  "poison_spider": {
+    "file": "poison_spider.glb",
+    "height": 0.4,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr"
   }
 }
