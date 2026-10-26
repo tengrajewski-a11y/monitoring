@@ -21,3 +21,15 @@ set with `/dev/custom.html?top` so that each creature looks the way it walks.
 
 The snake and the bat keep their procedural models: the generated snakes had legs or came out as
 a knot, and a static bat model would sit on the ground instead of flying.
+
+## World objects
+
+Made the same way with `--style prop` (concept) and `--prop` (model); the game uses them in place
+of the built-in statue and fountain (`prop: true` in the manifest, `maxWidth` limits the footprint
+in tiles). Wells, altars and anvils were tried too, but the built-in ones looked better (lumpy
+meshes, an anvil LCM could not draw), so they stay built in.
+
+| Object | Description | Seed | Height | Faces | rotY |
+| --- | --- | --- | --- | --- | --- |
+| statue | a grey stone statue of a knight holding a sword, standing on a square stone pedestal | 7731 | 1.9 | 9000 | 38 |
+| fountain | a round grey stone town fountain with a basin of blue water and a small column in the middle | 7732 | 1.1 | 8000 | 0 |

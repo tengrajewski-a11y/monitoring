@@ -497,9 +497,10 @@ export class WorldView {
         if (!P('chest_gold', 0.44, null, 0, 0)) geo.box(cx - 0.3, 0, cz - 0.22, cx + 0.3, 0.45, cz + 0.22, lin(0xc89a30));
         glow.box(cx - 0.02, 0.62, cz - 0.02, cx + 0.02, 0.66, cz + 0.02, lin(0xfff0a0));
         return;
-      case O.FOUNTAIN: this.fountain(geo, glow, cx, cz); return;
-      case O.ALTAR: this.altar(geo, floor, glow, cx, cz); return;
-      case O.STATUE: this.statue(geo, cx, cz); return;
+      // TripoSR models from models/custom when present (manifest "prop"), else built here
+      case O.FOUNTAIN: if (!P('prop:fountain', 1, null, 0, 0)) this.fountain(geo, glow, cx, cz); return;
+      case O.ALTAR: if (!P('prop:altar', 1, null, 0, 0)) this.altar(geo, floor, glow, cx, cz); return;
+      case O.STATUE: if (!P('prop:statue', 1, null, 0, 0)) this.statue(geo, cx, cz); return;
       case O.TENT: if (!P('tent', 2.0, null, 0, (v & 3) * Math.PI / 2)) geo.prism(cx, 0, cz, 0.6, 1.1, 4, lin(0xc9b48a), { r1: 0, rot: Math.PI / 4 }); return;
       case O.BED: if (!P('bed_single', 0.42, null, 0, Math.PI)) geo.box(cx - 0.35, 0, cz - 0.45, cx + 0.35, 0.4, cz + 0.45, lin(0xe0e0e8)); return;
       case O.CRYSTAL: {
@@ -537,7 +538,7 @@ export class WorldView {
         for (let i = 0; i < 3; i++) geo.box(cx - 0.22, 0.58 + i * 0.07, cz + 0.05, cx + 0.12 + i * 0.03, 0.6 + i * 0.07, cz + 0.06, lin(0x5a3a1a));
         return;
       }
-      case O.WELL: this.well(geo, floor, cx, cz); return;
+      case O.WELL: if (!P('prop:well', 1, null, 0, 0)) this.well(geo, floor, cx, cz); return;
       case O.ANVIL:
         geo.box(cx - 0.12, 0, cz - 0.1, cx + 0.12, 0.35, cz + 0.1, lin(0x3a3a40));
         geo.box(cx - 0.3, 0.35, cz - 0.13, cx + 0.25, 0.48, cz + 0.13, lin(0x4a4a52), { top: lin(0x707078) });

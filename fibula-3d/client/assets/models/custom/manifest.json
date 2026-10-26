@@ -157,6 +157,15 @@
     "source": "triposr",
     "gait": "dragon"
   },
+  "fountain": {
+    "file": "fountain.glb",
+    "height": 1.1,
+    "rotY": 0.0,
+    "rotX": 0.0,
+    "source": "triposr",
+    "prop": true,
+    "maxWidth": 1.05
+  },
   "ghoul": {
     "file": "ghoul.glb",
     "height": 0.95,
@@ -406,6 +415,14 @@
     "rotX": 0.0,
     "source": "triposr",
     "gait": "blob"
+  },
+  "statue": {
+    "file": "statue.glb",
+    "height": 1.9,
+    "rotY": 38.0,
+    "rotX": 0.0,
+    "source": "triposr",
+    "prop": true
   },
   "swamp_troll": {
     "file": "swamp_troll.glb",

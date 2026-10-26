@@ -211,6 +211,7 @@ def main():
     ap.add_argument("--faces", type=int, default=8000, help="target face count (low poly suits the retro look)")
     ap.add_argument("--resolution", type=int, default=192, help="TripoSR marching cubes resolution")
     ap.add_argument("--flat", action="store_true", help="faceted look: no vertex normals, every face shaded flat")
+    ap.add_argument("--prop", action="store_true", help="a world object (statue, fountain, well, altar) instead of a creature")
     ap.add_argument("--texture", type=int, default=512, help="TRELLIS.2 texture size")
     args = ap.parse_args()
 
@@ -231,6 +232,8 @@ def main():
     # keep hand-tuned fields of an existing entry (gait, hands...)
     manifest[args.key] = {**manifest.get(args.key, {}), "file": out.name, "height": args.height, "rotY": args.rot,
                           "rotX": args.rot_x, "source": args.backend}
+    if args.prop:
+        manifest[args.key]["prop"] = True
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     print(f"Saved {out.relative_to(ROOT)}. Reload the game to see the new '{args.key}'.")
 

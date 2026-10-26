@@ -144,7 +144,8 @@ function propParts(scene, cfg) {
   wrap.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(mid);
   const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
-  const s = (cfg.height || 1) / Math.max(0.001, size.y);
+  // height in tiles, but no wider than maxWidth tiles (if given)
+  const s = Math.min((cfg.height || 1) / Math.max(0.001, size.y), cfg.maxWidth ? cfg.maxWidth / Math.max(0.001, size.x, size.z) : Infinity);
   mid.scale.setScalar(s);
   mid.position.set(-center.x * s, -box.min.y * s, -center.z * s);
   return extractParts(wrap);
