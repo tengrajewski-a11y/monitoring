@@ -434,6 +434,8 @@
   .qa-cat-count{flex-shrink:0;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--surface-soft);border-radius:999px;padding:5px 11px;white-space:nowrap;}
   .qa-cat-chev{flex-shrink:0;width:30px;height:30px;border-radius:9px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;color:var(--accent);transition:transform .2s,background .2s;}
   .qa-cat-chev svg{width:15px;height:15px;}
+  .qa-new{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:#c62828;border-radius:999px;padding:5px 10px;white-space:nowrap;}
+  .qa-new::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff;}
   .qa-cat[open] .qa-cat-chev{transform:rotate(180deg);background:var(--accent-soft);}
   .qa-cat-head:hover .qa-cat-title{color:var(--navy);}
   .qa-cat-body{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:16px;}
@@ -536,6 +538,7 @@
     .qa-cat-head{padding:16px 16px;gap:10px;flex-wrap:wrap;}
     .qa-cat-title{flex:1 1 calc(100% - 48px);font-size:16px;}
     .qa-cat-count{order:3;}
+    .qa-new{order:3;}
     .qa-cat-body{padding:12px 10px 10px;}
     .qa-cat-body .faq-q{padding:14px 14px;gap:10px;}
     .qa-cat-body .faq-a{padding:0 14px 16px;}
@@ -1184,6 +1187,7 @@
         <details class="qa-cat">
           <summary class="qa-cat-head">
             <span class="qa-cat-title">Hałas i praca obiektu w porze nocnej</span>
+            <span class="qa-new">Nowe</span>
             <span class="qa-cat-count">9 pytań</span>
             <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
           </summary>
@@ -1319,6 +1323,7 @@
         <details class="qa-cat">
           <summary class="qa-cat-head">
             <span class="qa-cat-title">Zużycie wody i infrastruktura wodno-kanalizacyjna</span>
+            <span class="qa-new">Nowe</span>
             <span class="qa-cat-count">15 pytań</span>
             <span class="qa-cat-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span>
           </summary>
